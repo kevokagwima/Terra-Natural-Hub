@@ -86,7 +86,6 @@ Patient Appointment
       </div>
     </div>
     {% endif %}
-    {% if lab_analysis and lab_analysis.is_approved is false %}
     <form class="lab-form" action="{{ url_for('admin.add_lab_analysis', appointment_id=appointment.unique_id) }}"
       method="post">
       {{ lab_analysis_form.csrf_token }}
@@ -103,7 +102,6 @@ Patient Appointment
         Submit Lab Analysis
       </button>
     </form>
-    {% endif %}
   </div>
 
   <div class="form-section">

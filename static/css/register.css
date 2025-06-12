@@ -31,8 +31,10 @@ label {
   color: var(--black);
 }
 
-input {
+input,
+select {
   background-color: var(--light-grey);
+  width: 100%;
 }
 
 input::placeholder {

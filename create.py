@@ -45,6 +45,12 @@ def add_roles():
   db.session.add(new_role)
   db.session.commit()
   print("Accountant role added")
+  new_role = Role(
+    name = "Lab Tech"
+  )
+  db.session.add(new_role)
+  db.session.commit()
+  print("Accountant role added")
 
 def test_user():
   new_user = Patients(
