@@ -1,0 +1,26 @@
+Functionalities:
+
+authentication: (DONE)
+  ✅- signup/signin/logout
+  ✅- max (2 users)
+
+Add/Edit/Remove/retrieve records:
+  ✅✅✅✅- Clients/diseases/medicine
+
+Processess:
+  ✅Diagnose a client with a disease
+  ✅prescribe medication to the client
+  ✅update medicine database
+  ✅Calculate total cost for the client
+  ✅Stock management 
+  ✅Confirm payment and Sales
+  ✅Roles and restrictions
+  - Feedback 
+
+
+Prerequisites:
+  ✅Generate reports and 
+  ✅charts
+  ✅Interactive and simple GUI
+
+100% COMPLETE

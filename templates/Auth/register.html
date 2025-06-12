@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/register.css')}}">
+{% endblock %}
+
+{% block title %}
+Signup
+{% endblock %}
+
+{% block body %}
+<div class="auth-container">
+  <h1>Create your account</h1>
+  <form method="post">
+    {{ form.csrf_token }}
+    <div class="input">
+      {{ form.first_name.label }}
+      {{ form.first_name(placeholder="Enter First Name", class="name") }}
+    </div>
+    <div class="input">
+      {{ form.last_name.label }}
+      {{ form.last_name(placeholder="Enter Last Name", class="name") }}
+    </div>
+    <div class="input">
+      {{ form.email_address.label }}
+      {{ form.email_address(placeholder="Enter Email Address", class="name") }}
+    </div>
+    <div class="input">
+      {{ form.phone_number.label }}
+      {{ form.phone_number(placeholder="Enter Phone Number", class="name") }}
+    </div>
+    <div class="input extend">
+      {{ form.role.label }}
+      {{ form.role(placeholder="Enter Phone Number", class="name") }}
+    </div>
+    <div class="input">
+      {{ form.password.label }}
+      <div id="input">
+        {{ form.password(placeholder="Enter Password", class="name password") }}
+        <i class="fa fa-eye password-toggle"></i>
+      </div>
+    </div>
+    <div class="input">
+      {{ form.confirm_password.label }}
+      <div id="input">
+        {{ form.confirm_password(placeholder="Confirm Password", class="name password") }}
+        <i class="fa fa-eye password-toggle"></i>
+      </div>
+    </div>
+    <button class="btn" type="submit">
+      <span class="button--text">Sign Up</span>
+    </button>
+  </form>
+
+  <div class="auth-footer">
+    Already have an account? <a href="{{ url_for('auth.signin') }}">Sign in</a>
+  </div>
+</div>
+{% endblock %}

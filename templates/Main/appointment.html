@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{url_for('static',filename='css/appointment.css')}}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block title %}
+Patient Appointment
+{% endblock %}
+
+{% block nav %}
+<a href="{{ url_for('admin.home') }}" class="nav-item active">
+  <i class="fas fa-home"></i>
+  Dashboard
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="header">
+  <button class="mobile-menu-btn" id="mobileMenuBtn">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="page-title">
+    <h1>Patient Appointment</h1>
+  </div>
+</div>
+
+<div class="diagnosis-container">
+  <div class="patient-summary">
+    <div class="patient-info-sm">
+      <h4>{{ patient.first_name }} {{ patient.last_name }}</h4>
+      <p>{{ patient.age }} years old, <span style="text-transform: capitalize;">{{ patient.gender }}</span> • ID: PT -
+        {{
+        patient.unique_id }}</p>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="section-title">Lab Analysis</div>
+    {% if lab_analysis %}
+    <div class="form-section lab-info">
+      <div class="section-title">Test Uploaded</div>
+      <div class="lab-analysis">
+        <div class="accordion">
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <div class="action-header-box">
+                <h2 id="accordion-header">Lab Test #{{ lab_analysis.unique_id }}</h2>
+                <!-- {% if lab_analysis.is_active %} -->
+                <a id="approvebtn"
+                  href="{{ url_for('admin.approve_lab_analysis', lab_analysis_id=lab_analysis.unique_id) }}">Approve</a>
+                <!-- {% endif %} -->
+              </div>
+              {% if lab_analysis.is_approved %}
+              <p class="status approved">Approved</p>
+              {% else %}
+              <p class="status pending">Pending</p>
+              {% endif %}
+            </div>
+            <div class="accordion-content">
+              <div class="lab-analysis-box">
+                {% for lab_analysis_detail in lab_analysis_details %}
+                <div class="medication-item">
+                  <div class="medication-details">
+                    <div class="medication-name">
+                      <h4>{{ lab_analysis_detail.test }}</h4>
+                      <p>{{ lab_analysis_detail.result }}</p>
+                    </div>
+                  </div>
+                  <div class="medication-actions">
+                    <button class="btn-icon">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-icon danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% if lab_analysis and lab_analysis.is_approved is false %}
+    <form class="lab-form" action="{{ url_for('admin.add_lab_analysis', appointment_id=appointment.unique_id) }}"
+      method="post">
+      {{ lab_analysis_form.csrf_token }}
+      <div class="form-group">
+        {{ lab_analysis_form.test.label }}
+        {{ lab_analysis_form.test(class="form-control", placeholder="Add details about the test conducted") }}
+      </div>
+      <div class="form-group">
+        {{ lab_analysis_form.result.label }}
+        {{ lab_analysis_form.result(class="form-control", placeholder="Add details about the results of the test") }}
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i>
+        Submit Lab Analysis
+      </button>
+    </form>
+    {% endif %}
+  </div>
+
+  <div class="form-section">
+    <div class="section-title">Diagnosis</div>
+    {% if lab_analysis and lab_analysis.is_approved %}
+    <form action="{{ url_for('admin.add_diagnosis', appointment_id=appointment.unique_id) }}" method="post">
+      {{ diagnosis_form.csrf_token }}
+      <div class="form-group">
+        {{ diagnosis_form.diagnosis.label }}
+        <select required id="disease-select" name="diseases" class="form-control select2" multiple="multiple">
+          {% set diagnosed_disease_ids = [] %}
+          {% for diagnosis_disease in diagnosis_details %}
+          {{ diagnosed_disease_ids.append(diagnosis_disease.disease_id) or "" }}
+          {% endfor %}
+          {% for disease in diseases %}
+          <option value="{{ disease.unique_id }}" {% if disease.id in diagnosed_disease_ids %}selected{% endif %}>
+            {{ disease.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        {{ diagnosis_form.note.label }}
+        {{ diagnosis_form.note(class="form-control", placeholder="Add details about the diagnosis") }}
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i>
+        Submit Diagnosis
+      </button>
+    </form>
+    {% else %}
+    <p class="else">Awaiting approval of lab analysis</p>
+    {% endif %}
+  </div>
+
+  <div class="form-section">
+    <div class="section-title">Treatment Plan</div>
+    {% if diagnosis %}
+    <form action="{{ url_for('admin.add_prescription', appointment_id=appointment.unique_id) }}" method="post">
+      {{ prescription_form.csrf_token }}
+      <div class="form-group">
+        {{ prescription_form.prescription.label }}
+        <select required id="medicine-select" name="medicines" class="form-control select2" multiple="multiple">
+          {% set prescribed_medicine_ids = [] %}
+          {% for prescribed_medicine in prescription_details %}
+          {{ prescribed_medicine_ids.append(prescribed_medicine.medicine_id) or "" }}
+          {% endfor %}
+          {% for medicine in medicines %}
+          <option value="{{ medicine.unique_id }}" {% if medicine.id in prescribed_medicine_ids %}selected{% endif %}>
+            {{ medicine.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        {{ prescription_form.note.label }}
+        {{ prescription_form.note(class="form-control", placeholder="Add details about the prescription") }}
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i>
+        Submit Prescription
+      </button>
+    </form>
+    {% else %}
+    <p class="else">Create a diagnosis to select a treatment plan</p>
+    {% endif %}
+  </div>
+
+  <div class="form-actions">
+    <a href="{{ url_for('admin.complete_appointment', appointment_id=appointment.unique_id) }}">
+      <button class="btn btn-primary">
+        Complete & Sign
+      </button>
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script src="{{ url_for('static', filename='js/appointment.js') }}"></script>
+{% endblock %}

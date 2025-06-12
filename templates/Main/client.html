@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/client.css')}}">
+{% endblock %}
+
+{% block title %} 
+client page 
+{% endblock %}
+
+{% block body %}
+<!-- 
+  display the list of clients below
+ -->
+<div class="header">
+  <a href="{{url_for('New_patient')}}">
+    <button>Add Patient</button>
+  </a>
+  <input id="record_search" placeholder="Search for a client" />
+</div>
+
+ <table class="table">
+  <tr>
+    <th>Id</th>
+    <th>Full Name</th>
+    <th>Action</th>
+  </tr>   
+   {% for client in clients %}
+   <tr class="record">
+    <td>{{client.id}}</td>
+    <td><a href="{{url_for('clients_detail',clients_id=client.id)}}">{{client.full_name}}</a></td>
+    <td id="action">
+      <a href="{{url_for('clients_delete',clients_id=client.id)}}">remove</a>
+      <a href="{{ url_for('edit_client',client_id=client.id) }}">Edit</a>
+    </td>
+   </tr>
+    {%endfor%}
+   
+</table>
+
+<script src="{{ url_for('static', filename='js/client.js') }}"></script>
+{% endblock %}

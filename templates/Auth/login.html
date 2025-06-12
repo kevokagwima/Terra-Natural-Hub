@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static', filename='css/register.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/login.css')}}">
+{% endblock %}
+
+{% block title %}
+Signin
+{% endblock %}
+
+{% block body %}
+<div class="auth-container">
+  <h1>Login to your account</h1>
+  <form method="post">
+    {{ form.csrf_token }}
+    <div class="input">
+      {{ form.email_address.label }}
+      {{ form.email_address(placeholder="Enter Email Address", class="name") }}
+    </div>
+    <div class="input">
+      {{ form.password.label }}
+      {{ form.password(placeholder="Enter Password", class="name") }}
+    </div>
+    <button class="btn" type="submit">
+      <span class="button--text">Sign In</span>
+    </button>
+  </form>
+
+  <div class="auth-footer">
+    Don't have an account? <a href="{{ url_for('auth.signup') }}">Sign up</a>
+  </div>
+</div>
+{% endblock %}

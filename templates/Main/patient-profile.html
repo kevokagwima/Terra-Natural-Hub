@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/clients_details.css')}}">
+{% endblock %}
+
+{% block title %}
+Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
+{% endblock %}
+
+{% block nav %}
+<a href="{{ url_for('admin.home') }}" class="nav-item active">
+  <i class="fas fa-home"></i>
+  Dashboard
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="header">
+  <button class="mobile-menu-btn" id="mobileMenuBtn">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="page-title">
+    <h1>Patient Profile</h1>
+  </div>
+</div>
+
+<div class="patient-header">
+  <div class="patient-info">
+    <h2>{{ patient.first_name }} {{ patient.last_name }}</h2>
+    <p>{{ patient.age }} years old, <span style="text-transform: capitalize;">
+        {{ patient.gender }}</span></p>
+    <div class="patient-meta">
+      <div class="meta-item">
+        <i class="fas fa-id-card"></i>
+        ID: PT - {{ patient.unique_id }}
+      </div>
+      <div class="meta-item">
+        <i class="fas fa-phone"></i>
+        {{ patient.phone_number_1 }}/{{ patient.phone_number_1 }}
+      </div>
+      <div class="meta-item">
+        <i class="fas fa-envelope"></i>
+        sarah.miller@example.com
+      </div>
+      <div class="meta-item">
+        <i class="fas fa-heartbeat"></i>
+        Blood Type: A+
+      </div>
+    </div>
+  </div>
+  <div class="patient-actions">
+    <a href="{{ url_for('admin.edit_patient', patient_id=patient.unique_id) }}">
+      <button class="btn btn-outline">
+        <i class="fas fa-edit"></i> Edit
+      </button>
+    </a>
+    <a href="{{ url_for('admin.create_appointment', patient_id=patient.unique_id) }}">
+      <button class="btn btn-primary">
+        <i class="fas fa-calendar-plus"></i> New Appointment
+      </button>
+    </a>
+  </div>
+</div>
+
+<div class="patient-content">
+  <div class="patient-sidebar">
+    <div class="sidebar-section">
+      <h3>Personal Information</h3>
+      <div class="info-item">
+        <label>Address</label>
+        {% if patient_address %}
+        <p>{{ patient_address.region }}, {{ patient_address.district }}</p>
+        {% else %}
+        <p>---</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="patient-main">
+    <div class="tabs">
+      <div class="tab active" data-tab="medical">Medical History</div>
+      <div class="tab" data-tab="prescriptions">Prescriptions</div>
+      <div class="tab" data-tab="appointments">Appointments</div>
+      <div class="tab" data-tab="lab">Lab Results</div>
+    </div>
+
+    <div class="tab-content active" id="medical">
+      <div class="section-title">Recent Medical History</div>
+
+      <div class="medical-history-item">
+        <div class="history-header">
+          <div class="history-title">Annual Physical Examination</div>
+          <div class="history-date">March 12, 2023</div>
+        </div>
+        <div class="history-details">
+          Patient presented for routine annual physical. Blood pressure slightly elevated at 130/85.
+          Recommended lifestyle modifications including reduced sodium intake and increased physical
+          activity.
+          Asthma well-controlled with current medication regimen.
+        </div>
+      </div>
+
+      <div class="medical-history-item">
+        <div class="history-header">
+          <div class="history-title">Follow-up for Hypertension</div>
+          <div class="history-date">January 5, 2023</div>
+        </div>
+        <div class="history-details">
+          Patient reports compliance with prescribed lisinopril. Blood pressure improved to 120/78.
+          No adverse effects reported. Continue current dosage and follow up in 3 months.
+        </div>
+      </div>
+
+      <div class="medical-history-item">
+        <div class="history-header">
+          <div class="history-title">Asthma Exacerbation</div>
+          <div class="history-date">November 15, 2022</div>
+        </div>
+        <div class="history-details">
+          Patient presented with increased wheezing and shortness of breath. Symptoms began after exposure
+          to pet dander at friend's house. Prescribed short course of prednisone and increased frequency
+          of rescue inhaler use. Symptoms improved within 48 hours.
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="prescriptions">
+      <div class="section-title">Active Prescriptions</div>
+
+      <div class="prescription-item">
+        <div class="prescription-details">
+          <div class="prescription-name">Lisinopril</div>
+          <div class="prescription-dosage">10mg tablet, Once daily</div>
+          <div class="prescription-instructions">Take in the morning with or without food. Monitor for
+            dizziness.</div>
+        </div>
+        <div class="prescription-status status-active">Active</div>
+      </div>
+
+      <div class="prescription-item">
+        <div class="prescription-details">
+          <div class="prescription-name">Fluticasone/Salmeterol</div>
+          <div class="prescription-dosage">250/50 mcg inhaler, Twice daily</div>
+          <div class="prescription-instructions">Use 1 puff in morning and evening. Rinse mouth after use.
+          </div>
+        </div>
+        <div class="prescription-status status-active">Active</div>
+      </div>
+
+      <div class="prescription-item">
+        <div class="prescription-details">
+          <div class="prescription-name">Albuterol</div>
+          <div class="prescription-dosage">90 mcg inhaler, As needed</div>
+          <div class="prescription-instructions">Use 1-2 puffs every 4-6 hours for wheezing or shortness
+            of breath.</div>
+        </div>
+        <div class="prescription-status status-active">Active</div>
+      </div>
+
+      <div class="section-title" style="margin-top: 2rem;">Past Prescriptions</div>
+
+      <div class="prescription-item">
+        <div class="prescription-details">
+          <div class="prescription-name">Prednisone</div>
+          <div class="prescription-dosage">20mg tablet, Once daily</div>
+          <div class="prescription-instructions">Take for 5 days as directed for asthma exacerbation.
+          </div>
+        </div>
+        <div class="prescription-status status-completed">Completed</div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="appointments">
+      <!-- Appointments content -->
+    </div>
+
+    <div class="tab-content" id="lab">
+      <!-- Lab results content -->
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}

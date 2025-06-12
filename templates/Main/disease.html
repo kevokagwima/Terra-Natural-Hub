@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/disease.css')}}">
+{% endblock %}
+
+{% block title %} 
+disease page 
+{% endblock %}
+
+{% block body %}
+<div class="header">
+<a href ="{{url_for('New_disease')}}">
+    <button>Add Disease</button>
+</a>
+<input id="record_search" placeholder="Search for Disease" />
+</div>
+
+<table class="table">
+    <tr>
+        <th>id</th>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    {% for disease in diseases %}
+        <tr class="record">
+            <td>{{disease.id}}</td>
+            <td>{{disease.name}}</td>
+            <td id="action">
+                <a href="{{ url_for('remove_disease', disease_id=disease.id) }}">Remove</a>
+                <a href="{{ url_for('edit_disease',disease_id=disease.id) }}">Edit</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+<script src="{{ url_for('static', filename='js/client.js') }}"></script>
+{% endblock %}

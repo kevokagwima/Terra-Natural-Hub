@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/stock.css')}}">
+{% endblock %}
+
+{% block title %} 
+Stock page 
+{% endblock %}
+
+{% block body %}
+
+<div class="medicine_stock">
+    <h1 class="medicine_stock_header">Medicine stock</h1>
+    <form action="{{url_for('medicine_stock',medicine_id=medicine.id)}}" method="POST">
+        <label for="restock1">Quantity</label>
+        <input type="number" name="stock" placeholder="Add Stock" required id="restock1">
+        <button type="submit">Restock</button>
+    </form>
+</div>
+
+{% endblock %}

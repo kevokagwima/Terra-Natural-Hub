@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/patient.css')}}">
+{% endblock %}
+
+{% block title %} 
+Patient page 
+{% endblock %}
+
+{% block body %}
+
+<h1> Disease</h1>
+{% if not disease %}
+<div class="new_disease">
+    <form action="{{url_for('New_disease')}}"method="POST"> 
+        <label for="dname">Disease name</label>
+        <input type="text" name="dname" placeholder="Enter Disease name" required id="dname">
+    <button>Submit</button>
+    </form>
+</div>
+{% else %}
+<div class="edit_disease">
+  <h1>Edit Disease</h1>
+  <form action="#"method="POST">
+    <label for="dname">Disease name</label>
+    <input type="text" name="dname" placeholder="Enter Disease name" required id="dname" value="{{ disease.name }}">
+    <button> Submit</button>  
+   </form>  
+</div>
+
+{% endif %}
+{% endblock %}

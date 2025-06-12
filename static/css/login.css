@@ -1,0 +1,7 @@
+form {
+  grid-template-columns: 1fr;
+}
+
+.btn {
+  grid-column: 1/1;
+}

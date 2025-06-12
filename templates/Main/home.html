@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="{{url_for('static',filename='css/home.css')}}">
+{% endblock %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block nav %}
+<a data-tab="dashboard" class="nav-item active">
+  <i class="fas fa-home"></i>
+  Dashboard
+</a>
+<a data-tab="patients" class="nav-item">
+  <i class="fas fa-user-injured"></i>
+  Patients
+</a>
+<a data-tab="diagnosis" class="nav-item">
+  <i class="fas fa-prescription-bottle"></i>
+  Diagnosis
+</a>
+<a data-tab="prescription" class="nav-item">
+  <i class="fas fa-prescription-bottle-alt"></i>
+  Prescriptions
+</a>
+<a data-tab="transaction" class="nav-item">
+  <i class="fas fa-file-medical"></i>
+  Transactions
+</a>
+<a data-tab="analytics" class="nav-item">
+  <i class="fas fa-chart-line"></i>
+  Analytics
+</a>
+{% endblock %}
+
+{% block body %}
+<div id="dashboard" class="tabContent active">
+  <div class="header">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <h1>Dashboard</h1>
+    </div>
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search patients, appointments...">
+    </div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Total Diagnosis</h3>
+      <div class="value">{{ diagnosis|count }}</div>
+      <div class="trend up">
+        <i class="fas fa-arrow-up"></i>
+        2 from yesterday
+      </div>
+    </div>
+    <div class="stat-card">
+      <h3>Total Patients</h3>
+      <div class="value">{{ patients|count }}</div>
+      <div class="trend up">
+        <i class="fas fa-arrow-up"></i>
+        5 this week
+      </div>
+    </div>
+    <div class="stat-card">
+      <h3>Prescriptions</h3>
+      <div class="value">{{ prescriptions|count }}</div>
+      <div class="trend down">
+        <i class="fas fa-arrow-down"></i>
+        3 from yesterday
+      </div>
+    </div>
+    <div class="stat-card">
+      <h3>Transactions</h3>
+      <div class="value">{{ payments|count }}</div>
+      <div class="trend down">
+        <i class="fas fa-arrow-down"></i>
+        2 occupied today
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" data-tab="today">Today's Schedule</div>
+    <div class="tab" data-tab="upcoming">Upcoming</div>
+    <div class="tab" data-tab="completed">Completed</div>
+  </div>
+  <div class="tab-content active" id="today">
+    <div class="appointments-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Time</th>
+            <th>Purpose</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div class="user-avatar" style="margin-right: 0.75rem;">SM</div>
+                Sarah Miller
+              </div>
+            </td>
+            <td>09:30 AM</td>
+            <td>Follow-up</td>
+            <td><span class="status-badge pending">Pending</span></td>
+            <td>
+              <button class="btn btn-primary btn-sm">Start</button>
+              <button class="btn btn-outline btn-sm">Reschedule</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div class="user-avatar" style="margin-right: 0.75rem;">RJ</div>
+                Robert Johnson
+              </div>
+            </td>
+            <td>10:15 AM</td>
+            <td>Cardiac Checkup</td>
+            <td><span class="status-badge pending">Pending</span></td>
+            <td>
+              <button class="btn btn-primary btn-sm">Start</button>
+              <button class="btn btn-outline btn-sm">Reschedule</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div class="user-avatar" style="margin-right: 0.75rem;">EW</div>
+                Emily Wilson
+              </div>
+            </td>
+            <td>11:00 AM</td>
+            <td>Annual Physical</td>
+            <td><span class="status-badge completed">Completed</span></td>
+            <td>
+              <button class="btn btn-outline btn-sm">View</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="tab-content" id="upcoming">
+  </div>
+  <div class="tab-content" id="completed">
+  </div>
+</div>
+<div id="patients" class="tabContent">
+  <div class="header">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <h1>Patients</h1>
+      <p>{{ patients|count }} total patients</p>
+    </div>
+    <a href="{{ url_for('admin.add_patient') }}">
+      <button class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Patient
+      </button>
+    </a>
+  </div>
+  <div class="patients-table-container">
+    <!-- <div class="table-header">
+      <div class="table-title">All Patients ({{ patients|count }})</div>
+      <div class="table-actions">
+        <div class="table-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Filter patients...">
+        </div>
+        <a href="{{ url_for('admin.add_patient') }}">
+          <button class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Patient
+          </button>
+        </a>
+      </div>
+    </div> -->
+
+    <table>
+      <thead>
+        <tr>
+          <th>Patient ID</th>
+          <th>Patient Full Name</th>
+          <th>Phone</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for patient in patients|sort(attribute="id", reverse=true) %}
+        <tr>
+          <td>PT - {{ patient.unique_id }}</td>
+          <td>
+            <div class="patient-cell">
+              <div class="patient-info">
+                <div class="patient-name">
+                  <a href="{{ url_for('admin.patient_profile', patient_id=patient.unique_id) }}">
+                    {{ patient.first_name }} {{ patient.last_name }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            {% if patient.phone_number_1 %}
+            {{ patient.phone_number_1 }}
+            {% elif patient.phone_number_2 %}
+            /{{ patient.phone_number_2 }}
+            {% else %}
+            ---
+            {% endif %}
+          </td>
+          <td>{{ patient.age }}</td>
+          <td>
+            <span class="gender-badge gender-{{ patient.gender }}">
+              <i class="fas fa-venus"></i> {{ patient.gender }}
+            </span>
+          </td>
+          <td>
+            <div class="table-actions-cell">
+              <a href="{{ url_for('admin.edit_patient', patient_id=patient.unique_id) }}">
+                <button class="btn-icon edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </a>
+              <a href="{{ url_for('admin.remove_patient', patient_id=patient.unique_id) }}">
+                <button class="btn-icon delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Mobile view cards (hidden on desktop) -->
+    {% for patient in patients|sort(attribute=id, reverse=true) %}
+    <div class="mobile-patient-card">
+      <div class="mobile-card-header">
+        <div style="flex: 1;">
+          <div style="font-weight: 500;">{{ patient.name }}</div>
+          <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ patient.unique_id }}</div>
+        </div>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-card-field">
+          <label>Phone</label>
+          <div>
+            {{ patient.phone_number_1 }}
+            {% if patient.phone_number_2 %}
+            /{{ patient.phone_number_2 }}
+            {% endif %}
+          </div>
+        </div>
+        <div class="mobile-card-field">
+          <label>Age</label>
+          <div>{{ patient.age }}</div>
+        </div>
+        <div class="mobile-card-field">
+          <label>Gender</label>
+          <div>
+            <span class="gender-badge gender-{{ patient.gender }}">
+              <i class="fas fa-venus"></i>
+              {{ patient.gender }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-icon edit">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<div id="diagnosis" class="tabContent">
+  <div class="header">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <h1>Diagnosis</h1>
+    </div>
+  </div>
+</div>
+<div id="prescription" class="tabContent">
+  <div class="header">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <h1>Prescriptions</h1>
+    </div>
+  </div>
+</div>
+<div id="transaction" class="tabContent">
+  <div class="header">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <h1>Transactions</h1>
+    </div>
+  </div>
+</div>
+<div id="analytics" class="tabContent">
+  <div class="header">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <h1>Analytics</h1>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}
