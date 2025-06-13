@@ -550,7 +550,6 @@ Home
     {% endfor %}
   </div>
 </div>
-</div>
 <div id="prescription" class="tabContent">
   <div class="header">
     <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -559,6 +558,81 @@ Home
     <div class="page-title">
       <h1>Prescriptions</h1>
     </div>
+  </div>
+  <div class="diagnosis-box">
+    {% for prescription in prescriptions|sort(attribute="date_created", reverse=True) %}
+    <div class="diagnosis-container">
+      <div class="diagnosis-header">
+        <div class="patient-info">
+          <div class="patient-details">
+            <h3>{{ prescription.patient_prescription.first_name }} {{ prescription.patient_prescription.last_name }}
+            </h3>
+            <div class="patient-meta">
+              <span>{{ prescription.patient_prescription.age }} years old</span>
+              <span style="text-transform: capitalize;">{{ prescription.patient_prescription.gender }}</span>
+              <span>ID: PT - {{ prescription.patient_prescription.unique_id }}</span>
+              <span>Date Created: {{ prescription.date_created.strftime("%B %d, %Y") }}</span>
+            </div>
+          </div>
+          <div class="prescription-total">{{ "Tsh {:,}".format(prescription.total) }}</div>
+        </div>
+        <div class="diagnosis-meta">
+          <div class="diagnosis-id">Prescription ID: PS-{{ prescription.unique_id }}</div>
+        </div>
+      </div>
+
+      <div class="diseases-list">
+        <h2 class="section-title">Prescribed Medication</h2>
+
+        {% if prescription.prescription_details %}
+        <div class="diagnosis-list-box">
+          {% for prescription_detail in prescription.prescription_details %}
+          <div class="disease-item">
+            <div class="disease-icon">
+              <i class="fas fa-disease"></i>
+            </div>
+            <div class="disease-details">
+              <div class="disease-name">
+                {{ prescription_detail.prescribed_medicine.name }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-clipboard-list"></i>
+          <p>No medicine prescribed for this patient</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="notes-section">
+        <h2 class="section-title">Doctor's Notes</h2>
+        {% if prescription.note %}
+        <div class="notes-content">
+          {{ prescription.note }}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-comment-medical"></i>
+          <p>No additional notes provided</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="actions-section">
+        <a href="{{ url_for('admin.appointment', appointment_id=prescription.appointment_prescription.unique_id) }}">
+          <button class="btn btn-outline">
+            <i class="fas fa-arrow-right"></i> View in appointment
+          </button>
+        </a>
+        <button class="btn btn-primary">
+          <i class="fas fa-file-pdf"></i> Export as PDF
+        </button>
+      </div>
+    </div>
+    {% endfor %}
   </div>
 </div>
 <div id="transaction" class="tabContent">

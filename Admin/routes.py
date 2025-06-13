@@ -199,7 +199,8 @@ def edit_medicine(medicine_id):
       return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
 
   context = {
-    "form": form
+    "form": form,
+    "title_message": "Edit"
   }
 
   return render_template("Main/add-medicine.html", **context)
@@ -267,7 +268,8 @@ def edit_disease(disease_id):
       return redirect(url_for("admin.edit_disease", disease_id=disease.unique_id))
 
   context = {
-    "form": form
+    "form": form,
+    "title_message": "Edit"
   }
 
   return render_template("Main/add-disease.html", **context)

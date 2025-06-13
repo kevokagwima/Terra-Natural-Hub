@@ -142,7 +142,16 @@ td {
 }
 
 .patient-info {
+  display: grid;
+  grid-template-columns: 1fr;
   line-height: 1.4;
+}
+
+.prescription-total {
+  margin-top: 0.6rem;
+  color: var(--light-green);
+  font-weight: 700;
+  font-size: 1.3rem;
 }
 
 .patient-name {
@@ -299,11 +308,6 @@ td {
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #f1f5f9;
-}
-
-.patient-info {
-  display: flex;
-  align-items: center;
 }
 
 .patient-details h3 {
