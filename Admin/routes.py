@@ -9,7 +9,7 @@ from Models.lab_analysis import LabAnalysis, LabAnalysisDetails
 from Models.appointment import Appointment
 from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
-from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm
+from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm
 from collections import Counter
 import folium
 import pandas as pd
@@ -24,6 +24,7 @@ admin = Blueprint("admin", __name__)
 def home():
   patients = Patients.query.all()
   medicines = Medicine.query.all()
+  appointments = Appointment.query.all()
   client_medicines = Prescription.query.all()
   payments = Payment.query.all()
   diseases = Disease.query.all()
@@ -134,8 +135,11 @@ def home():
     "patients": patients,
     "client_medicines" : client_medicines, 
     "payments" : payments,
-    "diagnosis" : diagnosis,
+    "medicines" : medicines,
+    "diseases" : diseases,
+    "all_diagnosis" : diagnosis,
     "prescriptions" : prescriptions,
+    "appointments" : appointments,
   }
   
   return render_template("Main/home.html", **context)
@@ -147,55 +151,145 @@ def render_map():
   except:
     return "No data to display on the map"
 
-@admin.route("/edit-disease/<int:disease_id>", methods=["POST", "GET"])
-def edit_disease(disease_id):
-  disease = Disease.query.get(disease_id)
-  if not disease:
-    flash("disease not found", "danger")
+@admin.route("/add/medicine", methods=["POST", "GET"])
+@login_required
+def add_medicine():
+  form = AddMedicineForm()
+  if form.validate_on_submit():
+    try:
+      new_medicine = Medicine(
+        name = form.name.data,
+        price = form.price.data,
+        quantity = form.quantity.data,
+      )
+      db.session.add(new_medicine)
+      db.session.commit()
+      flash('Medicine added successfully!', 'success')
+      return redirect(url_for('admin.home'))
+        
+    except Exception as e:
+      db.session.rollback()
+      flash('Error adding medicine: ' + str(e), 'danger')
+      return redirect(url_for('admin.add_medicine'))
+  
+  context = {
+    "form": form
+  }
+
+  return render_template("Main/add-medicine.html", **context)
+
+@admin.route("/edit/medicine/<int:medicine_id>", methods=["POST", "GET"])
+@login_required
+def edit_medicine(medicine_id):
+  medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
+  if not medicine:
+    flash("Medicine not found", category="danger")
     return redirect(url_for("admin.home"))
   
-  if request.method == "POST":
-    disease.name = request.form.get("dname")
+  form = AddMedicineForm(obj=medicine)
+
+  if form.validate_on_submit():
+    try:
+      form.populate_obj(medicine)
+      db.session.commit()
+      flash("Medicine updated successfully", "success")
+      return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
+    except Exception as e:
+      flash(f"Error: {str(e)}", "danger")
+      return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
+
+  context = {
+    "form": form
+  }
+
+  return render_template("Main/add-medicine.html", **context)
+
+@admin.route("/remove/medicine/<int:medicine_id>")
+@login_required
+def remove_medicine(medicine_id):
+  medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
+  if not medicine:
+    flash("Medicine not found", category="danger")
+    return redirect(url_for("admin.home"))
+  
+  try:
+    db.session.delete(medicine)
     db.session.commit()
-    flash("Disease record updated successfully", "success")
-    return redirect(url_for('admin.home'))
-  else:
-    context = {
-      "disease": disease
-    }
+    flash("Medicine removed successfully", "success")
+  except Exception as e:
+    flash(f"Error: {str(e)}", "danger")
 
-    return render_template("new_disease.html", **context)
+  return redirect(url_for('admin.home'))
 
-@admin.route("/remove-disease/<int:disease_id>")
-def remove_disease(disease_id):
-  disease = Disease.query.get(disease_id)
+@admin.route("/add/disease", methods=["POST", "GET"])
+@login_required
+def add_disease():
+  form = AddDiseaseForm()
+  if form.validate_on_submit():
+    try:
+      new_disease = Disease(
+        name = form.name.data,
+      )
+      db.session.add(new_disease)
+      db.session.commit()
+      flash('Disease added successfully!', 'success')
+      return redirect(url_for('admin.home'))
+        
+    except Exception as e:
+      db.session.rollback()
+      flash('Error adding medicine: ' + str(e), 'danger')
+      return redirect(url_for('admin.add_disease'))
+  
+  context = {
+    "form": form
+  }
+
+  return render_template("Main/add-disease.html", **context)
+
+@admin.route("/edit/disease/<int:disease_id>", methods=["POST", "GET"])
+@login_required
+def edit_disease(disease_id):
+  disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
-    flash("Disease not found", "danger")
-  else:
+    flash("Disease not found", category="danger")
+    return redirect(url_for("admin.home"))
+  
+  form = AddMedicineForm(obj=disease)
+
+  if form.validate_on_submit():
+    try:
+      form.populate_obj(disease)
+      db.session.commit()
+      flash("Disease updated successfully", "success")
+      return redirect(url_for("admin.edit_disease", disease_id=disease.unique_id))
+    except Exception as e:
+      flash(f"Error: {str(e)}", "danger")
+      return redirect(url_for("admin.edit_disease", disease_id=disease.unique_id))
+
+  context = {
+    "form": form
+  }
+
+  return render_template("Main/add-disease.html", **context)
+
+@admin.route("/remove/disease/<int:disease_id>")
+@login_required
+def remove_disease(disease_id):
+  disease = Disease.query.filter_by(unique_id=disease_id).first()
+  if not disease:
+    flash("Disease not found", category="danger")
+    return redirect(url_for("admin.home"))
+  
+  try:
     db.session.delete(disease)
     db.session.commit()
     flash("Disease removed successfully", "success")
+  except Exception as e:
+    flash(f"Error: {str(e)}", "danger")
 
-  return redirect(url_for("admin.home"))
+  return redirect(url_for('admin.home'))
 
-@admin.route("/edit-medicine/<int:medicine_id>", methods=["POST", "GET"])
-@login_required
-def edit_medicine(medicine_id):
-  medicine = Medicine.query.get(medicine_id)
-  if not medicine:
-    flash("medicine not found", category="danger")
-    return redirect(url_for("Medicine"))
-
-  if request.method == "POST":
-    medicine.name = request.form.get("Mname")
-    medicine.price = request.form.get("Mprice")
-    db.session.commit()
-    flash("Medicine record updated successfully", category="success")
-    return redirect(url_for('home'))
-  else:
-    return render_template("new_medicine.html", medicine=medicine)
-
-@admin.route("/add-patient", methods=["POST", "GET"])
+@admin.route("/add/patient", methods=["POST", "GET"])
 @login_required
 def add_patient():
   form = AddPatientForm()
@@ -297,17 +391,20 @@ def patient_profile(patient_id):
   if not patient:
     flash("Patient not found", "danger")
     return redirect(url_for("admin.home"))
+
   patient_address = PatientAddress.query.filter_by(patient_id=patient.id).first()
-  patient_diagnosis = Diagnosis.query.filter_by(patient_id=patient.id).all()
-  prescriptions = Prescription.query.filter_by(patient_id=patient.id).all()
+  patient_lab_analysis = LabAnalysis.query.filter_by(patient_id=patient.id).all()
+  patient_prescriptions = Prescription.query.filter_by(patient_id=patient.id).all()
   patient_payments = Payment.query.filter_by(patient_id=patient.id).all()
+  patient_apointments = Appointment.query.filter_by(patient_id=patient.id).all()
 
   context = {
     "patient": patient,
     "patient_address": patient_address,
-    "patient_diagnosis": patient_diagnosis,
-    "prescriptions": prescriptions,
-    "patient_payments": patient_payments
+    "patient_lab_analysis": patient_lab_analysis,
+    "patient_prescriptions": patient_prescriptions,
+    "patient_payments": patient_payments,
+    "patient_appointments": patient_apointments,
   }
 
   return render_template('Main/patient-profile.html', **context)
@@ -335,7 +432,7 @@ def create_appointment(patient_id):
 @admin.route("/appointment/<int:appointment_id>")
 @login_required
 def appointment(appointment_id):
-  appointment = Appointment.query.filter_by(unique_id=appointment_id, is_active=True).first()
+  appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
     return redirect(url_for("admin.home"))
@@ -348,7 +445,7 @@ def appointment(appointment_id):
   else:
     lab_analysis_details = []
 
-  diagnosis = Diagnosis.query.filter_by(appointment_id=appointment.id, is_active=True).first()
+  diagnosis = Diagnosis.query.filter_by(appointment_id=appointment.id).first()
   if diagnosis:
     diagnosis_form = DiagnosisForm(obj=diagnosis)
     diagnosis_details = DiagnosisDetails.query.filter_by(diagnosis_id=diagnosis.id).all()
@@ -356,7 +453,7 @@ def appointment(appointment_id):
     diagnosis_form = DiagnosisForm()
     diagnosis_details = []
 
-  prescription = Prescription.query.filter_by(appointment_id=appointment.id, is_active=True).first()
+  prescription = Prescription.query.filter_by(appointment_id=appointment.id).first()
   if prescription:
     prescription_form = PrescriptionForm(obj=prescription)
     prescription_details = PrescriptionDetails.query.filter_by(prescription_id=prescription.id).all()
@@ -388,6 +485,10 @@ def add_lab_analysis(appointment_id):
   if not appointment:
     flash("Appointment not found", "danger")
     return redirect(url_for("admin.home"))
+
+  if appointment.is_active == False:
+    flash("Appointment is not active", "warning")
+    return redirect(url_for("admin.appointment", appointment_id=appointment.unique_id))
 
   form = LabAnalysisForm()
 
@@ -446,6 +547,10 @@ def add_diagnosis(appointment_id):
   if not appointment:
     flash("Appointment not found", "danger")
     return redirect(url_for("admin.home"))
+  
+  if appointment.is_active == False:
+    flash("Appointment is not active", "warning")
+    return redirect(url_for("admin.appointment", appointment_id=appointment.unique_id))
 
   form = DiagnosisForm()
 
@@ -499,6 +604,10 @@ def add_prescription(appointment_id):
   if not appointment:
     flash("Appointment not found", "danger")
     return redirect(url_for("admin.home"))
+
+  if appointment.is_active == False:
+    flash("Appointment is not active", "warning")
+    return redirect(url_for("admin.appointment", appointment_id=appointment.unique_id))
 
   form = PrescriptionForm()
 
@@ -562,13 +671,18 @@ def complete_appointment(appointment_id):
     return redirect(url_for("admin.home"))
 
   try:
-    appointment.is_active = False
+    appointment_lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id, is_active=True).first()
+    if appointment_lab_analysis:
+      approve_lab_analysis.is_active = False
     appointment_diagnosis = Diagnosis.query.filter_by(appointment_id=appointment.id, is_active=True).first()
-    appointment_diagnosis.is_active = False
+    if appointment_diagnosis:
+      appointment_diagnosis.is_active = False
+      appointment_diagnosis.date_closed = get_local_time()
     appointment_prescription = Prescription.query.filter_by(appointment_id=appointment.id, is_active=True).first()
-    appointment_prescription.is_active = False
-    appointment_diagnosis.date_closed = get_local_time()
-    appointment_prescription.date_closed = get_local_time()
+    if appointment_prescription:
+      appointment_prescription.is_active = False
+      appointment_prescription.date_closed = get_local_time()
+    appointment.is_active = False
     appointment.date_closed = get_local_time()
     db.session.commit()
     flash("Appointment completed successfully", "success")

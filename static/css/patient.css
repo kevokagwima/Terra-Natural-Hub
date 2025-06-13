@@ -21,6 +21,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
+.patient-form-container form {
+  display: grid;
+  gap: 0;
+}
+
 .form-section {
   margin-bottom: 2.5rem;
 }
@@ -38,10 +43,6 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
 }
 
 .form-group label {
@@ -75,10 +76,7 @@ select.form-control {
 }
 
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
+  display: grid;
 }
 
 .error-message {

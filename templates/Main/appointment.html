@@ -11,9 +11,12 @@ Patient Appointment
 {% endblock %}
 
 {% block nav %}
-<a href="{{ url_for('admin.home') }}" class="nav-item active">
+<a href="{{ url_for('admin.home') }}" class="nav-item">
   <i class="fas fa-home"></i>
   Dashboard
+</a>
+<a href="{{ url_for('admin.patient_profile', patient_id=appointment.patient_appointment.unique_id) }}" class="nav-item">
+  <i class="fas fa-user-injured"></i> Client Profile
 </a>
 {% endblock %}
 
@@ -24,6 +27,9 @@ Patient Appointment
   </button>
   <div class="page-title">
     <h1>Patient Appointment</h1>
+    {% if appointment.is_active == False and appointment.date_closed %}
+    <p>{{ appointment.date_closed.strftime("Closed on %d/%m/%Y at %I:%M %p") }}</p>
+    {% endif %}
   </div>
 </div>
 
@@ -85,7 +91,10 @@ Patient Appointment
         </div>
       </div>
     </div>
+    {% else %}
+    <p class="else">No lab test conducted</p>
     {% endif %}
+    {% if appointment.is_active %}
     <form class="lab-form" action="{{ url_for('admin.add_lab_analysis', appointment_id=appointment.unique_id) }}"
       method="post">
       {{ lab_analysis_form.csrf_token }}
@@ -102,6 +111,7 @@ Patient Appointment
         Submit Lab Analysis
       </button>
     </form>
+    {% endif %}
   </div>
 
   <div class="form-section">
@@ -127,13 +137,15 @@ Patient Appointment
         {{ diagnosis_form.note.label }}
         {{ diagnosis_form.note(class="form-control", placeholder="Add details about the diagnosis") }}
       </div>
+      {% if appointment.is_active %}
       <button type="submit" class="btn btn-primary">
         <i class="fas fa-plus-circle"></i>
         Submit Diagnosis
       </button>
+      {% endif %}
     </form>
     {% else %}
-    <p class="else">Awaiting approval of lab analysis</p>
+    <p class="else">Awaiting approval of lab tests</p>
     {% endif %}
   </div>
 
@@ -160,16 +172,19 @@ Patient Appointment
         {{ prescription_form.note.label }}
         {{ prescription_form.note(class="form-control", placeholder="Add details about the prescription") }}
       </div>
+      {% if appointment.is_active %}
       <button type="submit" class="btn btn-primary">
         <i class="fas fa-plus-circle"></i>
         Submit Prescription
       </button>
+      {% endif %}
     </form>
     {% else %}
-    <p class="else">Create a diagnosis to select a treatment plan</p>
+    <p class="else">No diagnosis available</p>
     {% endif %}
   </div>
 
+  {% if appointment.is_active %}
   <div class="form-actions">
     <a href="{{ url_for('admin.complete_appointment', appointment_id=appointment.unique_id) }}">
       <button class="btn btn-primary">
@@ -177,6 +192,7 @@ Patient Appointment
       </button>
     </a>
   </div>
+  {% endif %}
 </div>
 {% endblock %}
 

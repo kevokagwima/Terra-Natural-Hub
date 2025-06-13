@@ -34,3 +34,19 @@ tabs.forEach((tab) => {
     document.getElementById(tabId).classList.add("active");
   });
 });
+
+const medicaltabs = document.querySelectorAll(".med-tab");
+const medical_table = document.querySelectorAll(".medical-data-table");
+
+medicaltabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    // Remove active class from all tabs and contents
+    medicaltabs.forEach((t) => t.classList.remove("active"));
+    medical_table.forEach((c) => c.classList.remove("active"));
+
+    // Add active class to clicked tab and corresponding content
+    tab.classList.add("active");
+    const tabId = tab.getAttribute("data-tab");
+    document.getElementById(tabId).classList.add("active");
+  });
+});

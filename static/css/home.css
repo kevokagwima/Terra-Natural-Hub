@@ -46,10 +46,20 @@
 
 .appointments-table {
   width: 100%;
-  background: white;
+  background: var(--white);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.table-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.medical-data-table {
+  margin-top: 1rem;
 }
 
 table {
@@ -66,8 +76,8 @@ td {
 
 th {
   font-weight: 600;
-  color: #64748b;
-  font-size: 0.875rem;
+  color: var(--black);
+  font-size: 0.9rem;
   text-transform: uppercase;
 }
 
@@ -76,31 +86,9 @@ td {
   font-size: 0.9375rem;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.status-badge.pending {
-  background-color: #fff4e5;
-  color: #ff942e;
-}
-
-.status-badge.completed {
-  background-color: #e6f7ee;
-  color: #10b981;
-}
-
-.status-badge.cancelled {
-  background-color: #feecec;
-  color: #ef4444;
-}
-
-.patients-table-container {
-  background: white;
+.patients-table-container,
+.medical-data-table {
+  background: var(--white);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
@@ -146,32 +134,6 @@ td {
   transform: translateY(-50%);
   color: #94a3b8;
   font-size: 0.875rem;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-th {
-  font-weight: 600;
-  color: #64748b;
-  font-size: 0.8125rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-td {
-  color: var(--black);
-  font-size: 0.9375rem;
-  vertical-align: middle;
 }
 
 .patient-cell {
@@ -313,9 +275,160 @@ td {
 }
 
 .btn-pagination.active {
-  background-color: var(--primary);
+  background-color: var(--light-green);
   color: white;
-  border-color: var(--primary);
+  border-color: var(--black-grey);
+}
+
+.diagnosis-box {
+  display: grid;
+  gap: 1rem;
+}
+
+.diagnosis-container {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.diagnosis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.patient-info {
+  display: flex;
+  align-items: center;
+}
+
+.patient-details h3 {
+  font-size: 1.3rem;
+  color: var(--black);
+  margin-bottom: 0.25rem;
+}
+
+.patient-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--black);
+}
+
+.diagnosis-meta {
+  text-align: right;
+}
+
+.diagnosis-id {
+  font-size: 0.875rem;
+  color: var(--light-green);
+  margin-bottom: 0.5rem;
+}
+
+.diagnosis-date {
+  font-size: 0.9375rem;
+  color: var(--black);
+  font-weight: 500;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  color: var(--black);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.diagnosis-list-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.disease-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  background-color: var(--light-green);
+  margin-bottom: 1rem;
+}
+
+.disease-icon {
+  color: var(--white);
+  font-size: 1.25rem;
+}
+
+.disease-details {
+  flex: 1;
+}
+
+.disease-name {
+  font-weight: 600;
+  color: var(--white);
+  font-size: 0.9rem;
+}
+
+.notes-content {
+  background-color: var(--light-grey);
+  border-radius: 8px;
+  padding: 0.8rem;
+  color: var(--black);
+  line-height: 1.4;
+  font-size: 1rem;
+}
+
+.actions-section {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.empty-state i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--dark-grey);
+}
+
+.fa-arrow-right {
+  rotate: -40deg;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+
+  .diagnosis-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .diagnosis-meta {
+    text-align: left;
+    width: 100%;
+  }
+
+  .patient-info {
+    width: 100%;
+  }
+
+  .patient-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
 }
 
 @media (max-width: 768px) {

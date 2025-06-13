@@ -8,6 +8,7 @@ class LabAnalysis(BaseModel, db.Model):
   is_approved = db.Column(db.Boolean(), default=False)
   date_created = db.Column(db.DateTime(), default=get_local_time())
   date_approved = db.Column(db.DateTime())
+  lab_analysis_details = db.relationship("LabAnalysisDetails", backref="lab_analysis", lazy=True)
 
   def __repr__(self):
     return f"{self.patient_id}"

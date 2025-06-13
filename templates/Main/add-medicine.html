@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('static',filename='css/patient.css')}}">
+{% endblock %}
+
+{% block title %}
+{% if not title_message %}
+Add Medicine
+{% else %}
+Edit Medicine
+{% endif %}
+{% endblock %}
+
+{% block nav %}
+<a href="{{ url_for('admin.home') }}" class="nav-item">
+  <i class="fas fa-home"></i>
+  Dashboard
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="header">
+    <div class="page-title">
+      {% if not title_message %}
+      <h1>New Medicine</h1>
+      {% else %}
+      <h1>Edit Medicine Details</h1>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="patient-form-container">
+    <form method="POST">
+      {{ form.csrf_token() }}
+
+      <div class="form-section">
+        <h2 class="section-title">Personal Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            {{ form.name.label }}
+            {{ form.name(class="form-control") }}
+            {% if form.name.errors %}
+            <div class="error-message">{{ form.name.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form.price.label }}
+            {{ form.price(class="form-control") }}
+            {% if form.price.errors %}
+            <div class="error-message">{{ form.price.errors[0] }}</div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form.quantity.label }}
+            {{ form.quantity(class="form-control") }}
+            {% if form.quantity.errors %}
+            <div class="error-message">{{ form.quantity.errors[0] }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

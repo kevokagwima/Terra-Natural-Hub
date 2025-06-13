@@ -20,6 +20,12 @@
   --radius-l: 10rem;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 body {
   background-color: var(--light-grey);
 }
@@ -95,11 +101,12 @@ button:hover {
 
 input,
 select {
-  background-color: var(--dark-grey);
+  background-color: var(--light-grey);
   border: none;
   color: var(--black);
   padding: 1em;
   border-radius: var(--radius-s);
+  width: 100%;
 }
 
 .container {
@@ -132,7 +139,7 @@ header {
 
 /* Logo styles */
 .header-logo {
-  max-height: 4rem;
+  max-height: 6rem;
 }
 
 .content-box {
@@ -153,12 +160,12 @@ header {
 }
 
 .sidebar-header {
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 1.5rem;
   border-bottom: 1px solid #f1f5f9;
 }
 
 .sidebar-header img {
-  height: 40px;
+  height: 4rem;
 }
 
 .nav {
@@ -263,8 +270,12 @@ header {
   border: none;
   border-radius: 8px;
   font-size: 0.9375rem;
-  background-color: var(--dark-green);
+  background-color: var(--light-green);
   color: var(--white);
+}
+
+.search-bar input::placeholder {
+  color: var(--light-grey);
 }
 
 .search-bar i {
@@ -272,7 +283,30 @@ header {
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--light-green);
+  color: var(--light-grey);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-badge.pending {
+  background-color: #e5f3ff;
+  color: #2e9dff;
+}
+
+.status-badge.completed {
+  background-color: #e6f7ee;
+  color: #10b981;
+}
+
+.status-badge.cancelled {
+  background-color: #feecec;
+  color: #ef4444;
 }
 
 .btn {
@@ -305,7 +339,8 @@ header {
   margin-bottom: 1.5rem;
 }
 
-.tab {
+.tab,
+.med-tab {
   padding: 0.75rem 1rem;
   font-weight: 500;
   color: var(--black);
@@ -314,17 +349,20 @@ header {
   transition: all 0.2s;
 }
 
-.tab.active {
+.tab.active,
+.med-tab.active {
   color: var(--light-green);
   border-bottom-color: var(--yellow);
 }
 
 .tab-content,
-.tabContent {
+.tabContent,
+.medical-data-table {
   display: none;
 }
 
-.tab-content.active {
+.tab-content.active,
+.medical-data-table.active {
   display: block;
 }
 

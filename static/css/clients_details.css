@@ -24,7 +24,7 @@
 .meta-item {
   display: flex;
   align-items: center;
-  color: var(--dark-green);
+  color: var(--black-green);
   font-size: 0.875rem;
 }
 
@@ -50,23 +50,15 @@
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  height: max-content;
-}
-
-.sidebar-section {
-  margin-bottom: 1.5rem;
+  height: fit-content;
 }
 
 .sidebar-section h3 {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--white);
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #f1f5f9;
-}
-
-.info-item {
-  margin-bottom: 1rem;
 }
 
 .info-item label {
@@ -75,7 +67,7 @@
   color: var(--white);
   margin-bottom: 0.25rem;
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .info-item p {
@@ -93,13 +85,13 @@
 .section-title {
   font-size: 1.25rem;
   color: var(--black);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   font-weight: 600;
 }
 
 .medical-history-item {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid #f1f5f9;
 }
 
@@ -121,8 +113,15 @@
 }
 
 .history-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.history-title h4 {
   font-weight: 600;
-  color: var(--dark);
+  color: var(--black);
 }
 
 .history-details {
@@ -134,8 +133,14 @@
 .prescription-item {
   display: flex;
   margin-bottom: 1rem;
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid #f1f5f9;
+}
+
+.prescription-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .prescription-details {
@@ -144,17 +149,61 @@
 
 .prescription-name {
   font-weight: 600;
-  color: var(--dark);
-  margin-bottom: 0.25rem;
+  color: var(--black);
+}
+
+.lab-test-box {
+  background-color: var(--dark-grey);
+  padding: 1rem;
+  border-radius: 10px;
 }
 
 .prescription-dosage {
-  font-size: 0.875rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.lab-analysis {
+  flex-direction: column;
+}
+
+.lab-name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.prescription-dosage h4 {
+  font-size: 0.8rem;
+  color: var(--white);
+  padding: 0.2rem 0.5rem;
+  background-color: var(--light-green);
+  border-radius: 10px;
+}
+
+.lab-analysis-box {
+  background-color: var(--light-grey);
+  padding: 0.6rem;
+  border-radius: 10px;
+}
+
+.lab-analysis h4 {
+  font-size: 1.15rem;
+  padding: 0;
+  background-color: transparent;
   color: var(--black);
-  margin-bottom: 0.25rem;
+}
+
+.prescription-price {
+  margin-top: 0.5rem;
 }
 
 .prescription-instructions {
+  margin-top: 0.5rem;
   font-size: 0.875rem;
   color: var(--light-green);
 }

@@ -19,16 +19,20 @@ Home
   <i class="fas fa-user-injured"></i>
   Patients
 </a>
+<a data-tab="medical-data" class="nav-item">
+  <i class="fas fa-hospital"></i>
+  Medical Data
+</a>
 <a data-tab="diagnosis" class="nav-item">
-  <i class="fas fa-prescription-bottle"></i>
+  <i class="fas fa-stethoscope"></i>
   Diagnosis
 </a>
 <a data-tab="prescription" class="nav-item">
-  <i class="fas fa-prescription-bottle-alt"></i>
+  <i class="fas fa-prescription-bottle"></i>
   Prescriptions
 </a>
 <a data-tab="transaction" class="nav-item">
-  <i class="fas fa-file-medical"></i>
+  <i class="fas fa-wallet"></i>
   Transactions
 </a>
 <a data-tab="analytics" class="nav-item">
@@ -53,19 +57,19 @@ Home
   </div>
   <div class="stats-grid">
     <div class="stat-card">
-      <h3>Total Diagnosis</h3>
-      <div class="value">{{ diagnosis|count }}</div>
-      <div class="trend up">
-        <i class="fas fa-arrow-up"></i>
-        2 from yesterday
-      </div>
-    </div>
-    <div class="stat-card">
       <h3>Total Patients</h3>
       <div class="value">{{ patients|count }}</div>
       <div class="trend up">
         <i class="fas fa-arrow-up"></i>
         5 this week
+      </div>
+    </div>
+    <div class="stat-card">
+      <h3>Total Diagnosis</h3>
+      <div class="value">{{ all_diagnosis|count }}</div>
+      <div class="trend up">
+        <i class="fas fa-arrow-up"></i>
+        2 from yesterday
       </div>
     </div>
     <div class="stat-card">
@@ -86,7 +90,7 @@ Home
     </div>
   </div>
   <div class="tabs">
-    <div class="tab active" data-tab="today">Today's Schedule</div>
+    <div class="tab active" data-tab="today">Recent Appointments</div>
     <div class="tab" data-tab="upcoming">Upcoming</div>
     <div class="tab" data-tab="completed">Completed</div>
   </div>
@@ -103,50 +107,37 @@ Home
           </tr>
         </thead>
         <tbody>
+          {% for appointment in appointments|sort(attribute="date_created", reverse=true) %}
           <tr>
             <td>
-              <div style="display: flex; align-items: center;">
-                <div class="user-avatar" style="margin-right: 0.75rem;">SM</div>
-                Sarah Miller
-              </div>
+              <a href="{{ url_for('admin.patient_profile', patient_id=appointment.patient_appointment.unique_id) }}">
+                <div style="display: flex; align-items: center;">
+                  {{ appointment.patient_appointment.first_name }} {{ appointment.patient_appointment.last_name }}
+                </div>
+              </a>
             </td>
-            <td>09:30 AM</td>
-            <td>Follow-up</td>
-            <td><span class="status-badge pending">Pending</span></td>
+            <td>{{ appointment.date_created.strftime("%d/%m/%Y at %I:%M %p") }}</td>
+            <td>General Care</td>
             <td>
-              <button class="btn btn-primary btn-sm">Start</button>
-              <button class="btn btn-outline btn-sm">Reschedule</button>
+              {% if appointment.is_active %}
+              <span class="status-badge pending">Ongoing</span>
+              {% else %}
+              <span class="status-badge completed">Completed</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if appointment.is_active %}
+              <a href="{{ url_for('admin.appointment', appointment_id=appointment.unique_id) }}">
+                <button class="btn btn-primary btn-sm">Resume</button>
+              </a>
+              {% else %}
+              <a href="{{ url_for('admin.appointment', appointment_id=appointment.unique_id) }}">
+                <button class="btn btn-outline btn-sm">Summary</button>
+                {% endif %}
+              </a>
             </td>
           </tr>
-          <tr>
-            <td>
-              <div style="display: flex; align-items: center;">
-                <div class="user-avatar" style="margin-right: 0.75rem;">RJ</div>
-                Robert Johnson
-              </div>
-            </td>
-            <td>10:15 AM</td>
-            <td>Cardiac Checkup</td>
-            <td><span class="status-badge pending">Pending</span></td>
-            <td>
-              <button class="btn btn-primary btn-sm">Start</button>
-              <button class="btn btn-outline btn-sm">Reschedule</button>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <div style="display: flex; align-items: center;">
-                <div class="user-avatar" style="margin-right: 0.75rem;">EW</div>
-                Emily Wilson
-              </div>
-            </td>
-            <td>11:00 AM</td>
-            <td>Annual Physical</td>
-            <td><span class="status-badge completed">Completed</span></td>
-            <td>
-              <button class="btn btn-outline btn-sm">View</button>
-            </td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -292,6 +283,190 @@ Home
     {% endfor %}
   </div>
 </div>
+<div id="medical-data" class="tabContent">
+  <div class="header">
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <h1>Medical Data</h1>
+    </div>
+    <div class="page-actions">
+      <a href="{{ url_for('admin.add_medicine') }}">
+        <button class="btn btn-primary">
+          <i class="fas fa-plus"></i> New Medicine
+        </button>
+      </a>
+      <a href="{{ url_for('admin.add_disease') }}">
+        <button class="btn btn-primary">
+          <i class="fas fa-plus"></i> New Disease
+        </button>
+      </a>
+    </div>
+  </div>
+  <div class="table-menu">
+    <div class="med-tab active" data-tab="medicine">Medicines ({{ medicines|count }})</div>
+    <div class="med-tab" data-tab="disease">Diseases ({{ diseases|count }})</div>
+  </div>
+  <div id="medicine" class="medical-data-table active">
+    <table>
+      <thead>
+        <tr>
+          <th>Medicine ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for medicine in medicines|sort(attribute="id", reverse=true) %}
+        <tr>
+          <th>MD - {{ medicine.unique_id }}</th>
+          <td>{{ medicine.name|truncate(60) }}</td>
+          <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
+          <td>{{ medicine.quantity }}</td>
+          <td>
+            <div class="table-actions-cell">
+              <a href="{{ url_for('admin.edit_medicine', medicine_id=medicine.unique_id) }}">
+                <button class="btn-icon edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </a>
+              <a href="{{ url_for('admin.remove_medicine', medicine_id=medicine.unique_id) }}">
+                <button class="btn-icon delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Mobile view cards (hidden on desktop) -->
+    {% for patient in patients|sort(attribute=id, reverse=true) %}
+    <div class="mobile-patient-card">
+      <div class="mobile-card-header">
+        <div style="flex: 1;">
+          <div style="font-weight: 500;">{{ patient.name }}</div>
+          <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ patient.unique_id }}</div>
+        </div>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-card-field">
+          <label>Phone</label>
+          <div>
+            {{ patient.phone_number_1 }}
+            {% if patient.phone_number_2 %}
+            /{{ patient.phone_number_2 }}
+            {% endif %}
+          </div>
+        </div>
+        <div class="mobile-card-field">
+          <label>Age</label>
+          <div>{{ patient.age }}</div>
+        </div>
+        <div class="mobile-card-field">
+          <label>Gender</label>
+          <div>
+            <span class="gender-badge gender-{{ patient.gender }}">
+              <i class="fas fa-venus"></i>
+              {{ patient.gender }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-icon edit">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div id="disease" class="medical-data-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Disease ID</th>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for disease in diseases|sort(attribute="id", reverse=true) %}
+        <tr>
+          <th>DS - {{ disease.unique_id }}</th>
+          <td>{{ disease.name|truncate(60) }}</td>
+          <td>
+            <div class="table-actions-cell">
+              <a href="{{ url_for('admin.edit_disease', disease_id=disease.unique_id) }}">
+                <button class="btn-icon edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </a>
+              <a href="{{ url_for('admin.remove_disease', disease_id=disease.unique_id) }}">
+                <button class="btn-icon delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Mobile view cards (hidden on desktop) -->
+    {% for patient in patients|sort(attribute=id, reverse=true) %}
+    <div class="mobile-patient-card">
+      <div class="mobile-card-header">
+        <div style="flex: 1;">
+          <div style="font-weight: 500;">{{ patient.name }}</div>
+          <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ patient.unique_id }}</div>
+        </div>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-card-field">
+          <label>Phone</label>
+          <div>
+            {{ patient.phone_number_1 }}
+            {% if patient.phone_number_2 %}
+            /{{ patient.phone_number_2 }}
+            {% endif %}
+          </div>
+        </div>
+        <div class="mobile-card-field">
+          <label>Age</label>
+          <div>{{ patient.age }}</div>
+        </div>
+        <div class="mobile-card-field">
+          <label>Gender</label>
+          <div>
+            <span class="gender-badge gender-{{ patient.gender }}">
+              <i class="fas fa-venus"></i>
+              {{ patient.gender }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <button class="btn-icon edit">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-icon delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 <div id="diagnosis" class="tabContent">
   <div class="header">
     <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -301,6 +476,80 @@ Home
       <h1>Diagnosis</h1>
     </div>
   </div>
+  <div class="diagnosis-box">
+    {% for diagnosis in all_diagnosis|sort(attribute="date_created", reverse=True) %}
+    <div class="diagnosis-container">
+      <div class="diagnosis-header">
+        <div class="patient-info">
+          <div class="patient-details">
+            <h3>{{ diagnosis.patient_diagnosis.first_name }} {{ diagnosis.patient_diagnosis.last_name }}</h3>
+            <div class="patient-meta">
+              <span>{{ diagnosis.patient_diagnosis.age }} years old</span>
+              <span style="text-transform: capitalize;">{{ diagnosis.patient_diagnosis.gender }}</span>
+              <span>ID: PT - {{ diagnosis.patient_diagnosis.unique_id }}</span>
+              <span>Date Created: {{ diagnosis.date_created.strftime("%B %d, %Y") }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="diagnosis-meta">
+          <div class="diagnosis-id">Diagnosis ID: DX-{{ diagnosis.unique_id }}</div>
+        </div>
+      </div>
+
+      <div class="diseases-list">
+        <h2 class="section-title">Diagnosed Conditions</h2>
+
+        {% if diagnosis.diagnosis_details %}
+        <div class="diagnosis-list-box">
+          {% for disease_detail in diagnosis.diagnosis_details %}
+          <div class="disease-item">
+            <div class="disease-icon">
+              <i class="fas fa-disease"></i>
+            </div>
+            <div class="disease-details">
+              <div class="disease-name">
+                {{ disease_detail.diagnosed_disease.name }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-clipboard-list"></i>
+          <p>No diseases diagnosed for this patient</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="notes-section">
+        <h2 class="section-title">Doctor's Notes</h2>
+        {% if diagnosis.note %}
+        <div class="notes-content">
+          {{ diagnosis.note }}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-comment-medical"></i>
+          <p>No additional notes provided</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="actions-section">
+        <a href="{{ url_for('admin.appointment', appointment_id=diagnosis.appointment_diagnosis.unique_id) }}">
+          <button class="btn btn-outline">
+            <i class="fas fa-arrow-right"></i> View in appointment
+          </button>
+        </a>
+        <button class="btn btn-primary">
+          <i class="fas fa-file-pdf"></i> Export as PDF
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 </div>
 <div id="prescription" class="tabContent">
   <div class="header">

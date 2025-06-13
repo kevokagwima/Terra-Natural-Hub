@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SelectField, TextAreaField
-from wtforms.validators import Length, DataRequired, Optional
+from wtforms.validators import Length, DataRequired, Optional, NumberRange
 
 class AddPatientForm(FlaskForm):
   first_name = StringField('First Name', validators=[DataRequired(message="First Name required"), Length(max=50)])
@@ -12,6 +12,14 @@ class AddPatientForm(FlaskForm):
   phone_number_2 = StringField('Secondary Phone', validators=[Optional(), Length(max=20)])
   region = StringField('Region', validators=[Optional(), Length(max=20)])
   district = StringField('District', validators=[Optional(), Length(max=30)])
+
+class AddMedicineForm(FlaskForm):
+  name = StringField('Medicine Name', validators=[DataRequired(message="Medicine name field required"), Length(max=200)])
+  price = IntegerField('Medicine Price', validators=[DataRequired(message="Medicine price field required"), NumberRange(min=1, message="Minimum price is Tsh 1")])
+  quantity = IntegerField('Medicine Quantity', validators=[DataRequired(message="Medicine quantity field required"), NumberRange(min=1, message="Minimum amount is 1")])
+
+class AddDiseaseForm(FlaskForm):
+  name = StringField('Disease Name', validators=[DataRequired(message="Disease name field required"), Length(max=200)])
 
 class LabAnalysisForm(FlaskForm):
   test = TextAreaField('Test Conducted', validators=[DataRequired(message="Test field required")])
