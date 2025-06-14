@@ -655,7 +655,9 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
 
 def calculate_prescription_total(prescription_id):
   prescription = Prescription.query.get(prescription_id)
+  prescription_appointment = Appointment.query.get(prescription.appointment_id)
   prescription.total = sum([prescription_detail.amount for prescription_detail in prescription.prescription_details])
+  prescription_appointment.total = sum([prescription_detail.amount for prescription_detail in prescription.prescription_details])
   db.session.commit()
 
 def remove_prescribed_medicine(prescription_id):
@@ -692,4 +694,26 @@ def complete_appointment(appointment_id):
     db.session.rollback()
     flash(f"Error: {str(e)}", "danger")
 
+  return redirect(url_for("admin.home"))
+
+@admin.route("/pay/prescription/<int:prescription_id>")
+def prescription_payment(prescription_id):
+  prescription = Prescription.query.filter_by(unique_id=prescription_id).first()
+  if not prescription:
+    flash("Prescription not found", "danger")
+    return redirect(url_for("admin.home"))
+  
+  try:
+    prescription_appointment = Appointment.query.get(prescription.appointment_id)
+    if prescription_appointment:
+      prescription_appointment.is_paid = True
+      prescription_appointment.date_paid = get_local_time()
+    prescription.is_paid = True
+    prescription.date_paid = get_local_time()
+    db.session.commit()
+    flash("Prescription paid successfully", "success")
+
+  except Exception as e:
+    flash(f"Error: {str(e)}", "danger")
+  
   return redirect(url_for("admin.home"))

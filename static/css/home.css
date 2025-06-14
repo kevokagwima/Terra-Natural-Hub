@@ -390,9 +390,14 @@ td {
 
 .actions-section {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
+}
+
+.left-btns a button {
+  background-color: green;
 }
 
 .empty-state {

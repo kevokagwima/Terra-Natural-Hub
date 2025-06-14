@@ -622,14 +622,28 @@ Home
       </div>
 
       <div class="actions-section">
-        <a href="{{ url_for('admin.appointment', appointment_id=prescription.appointment_prescription.unique_id) }}">
-          <button class="btn btn-outline">
-            <i class="fas fa-arrow-right"></i> View in appointment
+        <div class="left-btns">
+          {% if prescription.is_paid %}
+          <span class="status-badge completed">Paid</span>
+          {% else %}
+          <a href="{{ url_for('admin.prescription_payment', prescription_id=prescription.unique_id) }}">
+            <button class="btn btn-outline">
+              <i class="fas fa-wallet"></i>
+              Pay
+            </button>
+          </a>
+          {% endif %}
+        </div>
+        <div class="right-btns">
+          <a href="{{ url_for('admin.appointment', appointment_id=prescription.appointment_prescription.unique_id) }}">
+            <button class="btn btn-outline">
+              <i class="fas fa-arrow-right"></i> View in appointment
+            </button>
+          </a>
+          <button class="btn btn-primary">
+            <i class="fas fa-file-pdf"></i> Export as PDF
           </button>
-        </a>
-        <button class="btn btn-primary">
-          <i class="fas fa-file-pdf"></i> Export as PDF
-        </button>
+        </div>
       </div>
     </div>
     {% endfor %}
