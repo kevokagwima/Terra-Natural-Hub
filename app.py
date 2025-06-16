@@ -39,7 +39,7 @@ bcrypt = Bcrypt()
 @login_manager.user_loader
 def load_user(user_id):
   try:
-    return Staff.query.filter_by(unique_id = user_id).first()
+    return Staff.query.filter_by(unique_id=user_id).first()
   except:
     flash("Failed to login the user", "danger")
 

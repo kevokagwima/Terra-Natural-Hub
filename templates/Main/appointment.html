@@ -26,13 +26,19 @@ Patient Appointment
     <i class="fas fa-bars"></i>
   </button>
   <div class="page-title">
-    <h1>Patient Appointment</h1>
+    <div class="page-title-box">
+      <h1>Patient Appointment</h1>
+      {% if appointment.is_active %}
+      <span class="status-badge pending">Ongoing</span>
+      {% else %}
+      <span class="status-badge completed">Completed</span>
+      {% endif %}
+    </div>
     {% if appointment.is_active == False and appointment.date_closed %}
     <p>{{ appointment.date_closed.strftime("Closed on %d/%m/%Y at %I:%M %p") }}</p>
     {% endif %}
   </div>
 </div>
-
 <div class="diagnosis-container">
   <div class="patient-summary">
     <div class="patient-info-sm">
@@ -54,10 +60,11 @@ Patient Appointment
             <div class="accordion-header">
               <div class="action-header-box">
                 <h2 id="accordion-header">Lab Test #{{ lab_analysis.unique_id }}</h2>
-                <!-- {% if lab_analysis.is_active %} -->
+                {% if (current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Lab Tech") and
+                lab_analysis.is_active %}
                 <a id="approvebtn"
                   href="{{ url_for('admin.approve_lab_analysis', lab_analysis_id=lab_analysis.unique_id) }}">Approve</a>
-                <!-- {% endif %} -->
+                {% endif %}
               </div>
               {% if lab_analysis.is_approved %}
               <p class="status approved">Approved</p>
@@ -114,6 +121,7 @@ Patient Appointment
     {% endif %}
   </div>
 
+  {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Lab Tech" %}
   <div class="form-section">
     <div class="section-title">Diagnosis</div>
     {% if lab_analysis and lab_analysis.is_approved %}
@@ -148,7 +156,9 @@ Patient Appointment
     <p class="else">Awaiting approval of lab tests</p>
     {% endif %}
   </div>
+  {% endif %}
 
+  {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Lab Tech" %}
   <div class="form-section">
     <div class="section-title">Treatment Plan</div>
     {% if diagnosis %}
@@ -183,7 +193,9 @@ Patient Appointment
     <p class="else">No diagnosis available</p>
     {% endif %}
   </div>
+  {% endif %}
 
+  {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Lab Tech" %}
   {% if appointment.is_active %}
   <div class="form-actions">
     <a href="{{ url_for('admin.complete_appointment', appointment_id=appointment.unique_id) }}">
@@ -192,6 +204,7 @@ Patient Appointment
       </button>
     </a>
   </div>
+  {% endif %}
   {% endif %}
 </div>
 {% endblock %}

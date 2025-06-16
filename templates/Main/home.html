@@ -492,7 +492,7 @@ Home
           </div>
         </div>
         <div class="diagnosis-meta">
-          <div class="diagnosis-id">Diagnosis ID: DX-{{ diagnosis.unique_id }}</div>
+          <div class="diagnosis-id">Diagnosis ID: DS-{{ diagnosis.unique_id }}</div>
         </div>
       </div>
 
@@ -625,13 +625,18 @@ Home
         <div class="left-btns">
           {% if prescription.is_paid %}
           <span class="status-badge completed">Paid</span>
-          {% else %}
+          {% elif prescription.appointment_prescription.is_active %}
+          <span class="status-badge pending">Appointment Ongoing</span>
+          {% elif (current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant") and
+          prescription.is_paid == False %}
           <a href="{{ url_for('admin.prescription_payment', prescription_id=prescription.unique_id) }}">
             <button class="btn btn-outline">
               <i class="fas fa-wallet"></i>
               Pay
             </button>
           </a>
+          {% else %}
+          <span class="status-badge cancelled">Not Paid</span>
           {% endif %}
         </div>
         <div class="right-btns">
@@ -640,9 +645,11 @@ Home
               <i class="fas fa-arrow-right"></i> View in appointment
             </button>
           </a>
+          {% if prescription.appointment_prescription.is_active == False %}
           <button class="btn btn-primary">
             <i class="fas fa-file-pdf"></i> Export as PDF
           </button>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -657,6 +664,45 @@ Home
     <div class="page-title">
       <h1>Transactions</h1>
     </div>
+  </div>
+  <div class="diagnosis-box">
+    {% for payment in payments|sort(attribute="date_paid", reverse=True) %}
+    <div class="diagnosis-container">
+      <div class="diagnosis-header">
+        <div class="patient-info">
+          <div class="patient-details">
+            <h3>{{ payment.patient_payment.first_name }} {{ payment.patient_payment.last_name }}
+            </h3>
+            <div class="patient-meta">
+              <span>{{ payment.patient_payment.age }} years old</span>
+              <span style="text-transform: capitalize;">{{ payment.patient_payment.gender }}</span>
+              <span>ID: PT - {{ payment.patient_payment.unique_id }}</span>
+              {% if payment.date_paid %}
+              <span>Date Paid: {{ payment.date_paid.strftime("%B %d, %Y") }}</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="prescription-total">{{ "Tsh {:,}".format(payment.prescription_payment.total) }}</div>
+        </div>
+        <div class="diagnosis-meta">
+          <div class="diagnosis-id">Payment ID: PY-{{ payment.unique_id }}</div>
+        </div>
+      </div>
+
+      <div class="actions-section">
+        <div class="left-btns">
+          {% if payment.is_completed %}
+          <span class="status-badge completed">Completed</span>
+          {% endif %}
+        </div>
+        <div class="right-btns">
+          <button class="btn btn-primary">
+            <i class="fas fa-file-pdf"></i> Export as PDF
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
   </div>
 </div>
 <div id="analytics" class="tabContent">

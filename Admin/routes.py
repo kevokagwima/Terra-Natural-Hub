@@ -10,6 +10,7 @@ from Models.appointment import Appointment
 from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
 from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm
+from decorator import role_required
 from collections import Counter
 import folium
 import pandas as pd
@@ -413,6 +414,7 @@ def patient_profile(patient_id):
 
 @admin.route("/create-appointment/<int:patient_id>")
 @login_required
+@role_required(["Admin", "Lab Tech", "Clerk"])
 def create_appointment(patient_id):
   patient = Patients.query.filter_by(unique_id=patient_id).first()
   if not patient:
@@ -433,6 +435,7 @@ def create_appointment(patient_id):
 
 @admin.route("/appointment/<int:appointment_id>")
 @login_required
+@role_required(["Admin", "Lab Tech", "Clerk"])
 def appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
@@ -482,6 +485,7 @@ def appointment(appointment_id):
 
 @admin.route("/lab-analysis/<int:appointment_id>", methods=["POST"])
 @login_required
+@role_required(["Admin", "Clerk"])
 def add_lab_analysis(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
@@ -524,11 +528,15 @@ def create_lab_analysis_details(lab_analysis_id, form):
 
 @admin.route("/approve/lab-analysis/<int:lab_analysis_id>")
 @login_required
+@role_required(["Admin", "Lab Tech"])
 def approve_lab_analysis(lab_analysis_id):
   lab_analysis = LabAnalysis.query.filter_by(unique_id=lab_analysis_id).first()
   if not lab_analysis:
     flash("Lab analysis not found", "danger")
     return redirect(url_for("admin.home"))
+  if lab_analysis.is_approved:
+    flash("Lab analysis already approved", "info")
+    return redirect(url_for("admin.appointment", appointment_id=lab_analysis.appointment_lab_analysis.unique_id))
   try:
     appointment = Appointment.query.filter_by(id=lab_analysis.appointment_id).first()
     lab_analysis.is_active = False
@@ -544,6 +552,7 @@ def approve_lab_analysis(lab_analysis_id):
 
 @admin.route("/diagnose/patient/<int:appointment_id>", methods=["POST"])
 @login_required
+@role_required(["Admin", "Lab Tech"])
 def add_diagnosis(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
@@ -601,6 +610,7 @@ def remove_diagnosis_disease(diagnosis_id):
 
 @admin.route("/prescribe/patient/<int:appointment_id>", methods=["POST"])
 @login_required
+@role_required(["Admin", "Lab Tech"])
 def add_prescription(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
@@ -668,6 +678,7 @@ def remove_prescribed_medicine(prescription_id):
 
 @admin.route("/complete/appointment/<int:appointment_id>")
 @login_required
+@role_required(["Admin", "Lab Tech"])
 def complete_appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
@@ -697,6 +708,8 @@ def complete_appointment(appointment_id):
   return redirect(url_for("admin.home"))
 
 @admin.route("/pay/prescription/<int:prescription_id>")
+@login_required
+@role_required(["Admin", "Accountant"])
 def prescription_payment(prescription_id):
   prescription = Prescription.query.filter_by(unique_id=prescription_id).first()
   if not prescription:
@@ -710,6 +723,7 @@ def prescription_payment(prescription_id):
       prescription_appointment.date_paid = get_local_time()
     prescription.is_paid = True
     prescription.date_paid = get_local_time()
+    record_transaction(prescription.id)
     db.session.commit()
     flash("Prescription paid successfully", "success")
 
@@ -717,3 +731,15 @@ def prescription_payment(prescription_id):
     flash(f"Error: {str(e)}", "danger")
   
   return redirect(url_for("admin.home"))
+
+def record_transaction(prescription_id):
+  prescription = Prescription.query.get(prescription_id)
+  new_payment = Payment(
+    amount = prescription.total,
+    is_completed = True,
+    date_paid = get_local_time(),
+    prescription_id = prescription.id,
+    patient_id = prescription.patient_id
+  )
+  db.session.add(new_payment)
+  db.session.commit()

@@ -21,36 +21,14 @@ def drop_tables():
   print("Tables dropped successully")
 
 def add_roles():
-  new_role = Role(
-    name = "Admin"
-  )
-  db.session.add(new_role)
-  db.session.commit()
-  print("Admin role added")
-  new_role = Role(
-    name = "Clerk"
-  )
-  db.session.add(new_role)
-  db.session.commit()
-  print("clerk role added")
-  new_role = Role(
-    name = "Stock Controller"
-  )
-  db.session.add(new_role)
-  db.session.commit()
-  print("Stock Controller role added")
-  new_role = Role(
-    name = "Accountant"
-  )
-  db.session.add(new_role)
-  db.session.commit()
-  print("Accountant role added")
-  new_role = Role(
-    name = "Lab Tech"
-  )
-  db.session.add(new_role)
-  db.session.commit()
-  print("Lab Tech role added")
+  roles = ["Admin", "Clerk", "Stock Controller", "Accountant", "Lab Tech"]
+  for role in roles:
+    new_role = Role(
+      name = role
+    )
+    db.session.add(new_role)
+    db.session.commit()
+    print(f"{role} role added")
 
 def test_user():
   new_user = Patients(

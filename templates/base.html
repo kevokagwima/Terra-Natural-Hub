@@ -53,8 +53,13 @@
         <div class="user-profile">
           {% if current_user.is_authenticated %}
           <div class="user-info">
-            <h4>{{ current_user.first_name }} {{ current_user.last_name }}</h4>
-            <p>{{ current_user.staff_role.name }}</p>
+            <div class="user-info-box">
+              <h4>{{ current_user.first_name }} {{ current_user.last_name }}</h4>
+              <p>{{ current_user.staff_role.name }}</p>
+            </div>
+            <a href="{{ url_for('auth.logout') }}">
+              <i class="fas fa-right-from-bracket"></i>
+            </a>
           </div>
           {% else %}
           <a href="{{ url_for('auth.signin') }}">Sign In</a>

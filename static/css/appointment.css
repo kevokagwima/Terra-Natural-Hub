@@ -1,3 +1,16 @@
+.page-title {
+  display: grid;
+  width: 100%;
+}
+
+.page-title-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
 .diagnosis-container {
   background: var(--white);
   border-radius: 12px;
