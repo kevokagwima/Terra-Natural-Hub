@@ -6,24 +6,16 @@ from flask_migrate import Migrate
 from config import Config
 from flask_bcrypt import Bcrypt
 from Errors.handlers import errors
-from Accountant.routes import accountant
 from Admin.routes import admin
 from Auth.routes import auth
-from Clerk.routes import clerk
-from LabTech.routes import lab_tech
-from StockController.routes import stock_controller
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
-app.register_blueprint(accountant)
 app.register_blueprint(errors)
 app.register_blueprint(admin)
 app.register_blueprint(auth)
-app.register_blueprint(clerk)
-app.register_blueprint(lab_tech)
-app.register_blueprint(stock_controller)
 login_manager = LoginManager()
 login_manager.blueprint_login_views = {
   'admin': '/auth/signin',

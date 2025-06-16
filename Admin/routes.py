@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, json
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
 from Models.users import Patients, PatientAddress
@@ -760,3 +760,45 @@ def export_transaction(payment_id):
     flash(f"{str(e)}", "danger")
 
   return redirect(url_for("admin.home"))
+
+@admin.route('/api/analytics')
+def get_analytics():
+  month = request.args.get('month', 'all')
+  year = request.args.get('year', get_local_time.year)
+  
+  try:
+    # Get most diagnosed diseases
+    diseases_query = db.session.query(
+      Diagnosis.diagnosed_disease.name,
+      db.func.count(Diagnosis.id).label('count')
+    )
+    
+    if month != 'all':
+      diseases_query = diseases_query.filter(
+        db.extract('month', Diagnosis.created_at) == month,
+        db.extract('year', Diagnosis.created_at) == year
+      )
+    
+    top_diseases = diseases_query.group_by(Diagnosis.diagnosed_disease.name).order_by(db.desc('count')).limit(5).all()
+    
+    # Get most prescribed medications
+    meds_query = db.session.query(
+      Prescription.prescribed_medicine.name,
+      db.func.count(Prescription.id).label('count')
+    )
+    
+    if month != 'all':
+      meds_query = meds_query.filter(
+        db.extract('month', Prescription.created_at) == month,
+        db.extract('year', Prescription.created_at) == year
+      )
+    
+    top_medications = meds_query.group_by(Prescription.prescribed_medicine.name).order_by(db.desc('count')).limit(5).all()
+    
+    return jsonify({
+      'diseases': [{'name': d[0], 'count': d[1]} for d in top_diseases],
+      'medications': [{'name': m[0], 'count': m[1]} for m in top_medications]
+    })
+      
+  except Exception as e:
+    return jsonify({'error': str(e)}), 500

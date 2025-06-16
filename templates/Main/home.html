@@ -4,6 +4,8 @@
 {{ super() }}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="{{url_for('static',filename='css/home.css')}}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block title %}
@@ -52,7 +54,7 @@ Home
     </div>
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input type="text" placeholder="Search patients, appointments...">
+      <input type="text" placeholder="Search patients">
     </div>
   </div>
   <div class="stats-grid">
@@ -91,8 +93,6 @@ Home
   </div>
   <div class="tabs">
     <div class="tab active" data-tab="today">Recent Appointments</div>
-    <div class="tab" data-tab="upcoming">Upcoming</div>
-    <div class="tab" data-tab="completed">Completed</div>
   </div>
   <div class="tab-content active" id="today">
     <div class="appointments-table">
@@ -141,10 +141,6 @@ Home
         </tbody>
       </table>
     </div>
-  </div>
-  <div class="tab-content" id="upcoming">
-  </div>
-  <div class="tab-content" id="completed">
   </div>
 </div>
 <div id="patients" class="tabContent">
@@ -715,10 +711,117 @@ Home
     <div class="page-title">
       <h1>Analytics</h1>
     </div>
+    <div class="filter-controls">
+      <div class="filter-group">
+        <label for="month">Month:</label>
+        <select id="month">
+          <option value="all">All Time</option>
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="year">Year:</label>
+        <input type="number" id="year" min="2020" max="2030" value="{{ current_year }}">
+      </div>
+      <button class="btn btn-primary" id="apply-filter">
+        Apply Filter
+      </button>
+    </div>
+  </div>
+  <div class="analytics-grid">
+    <!-- Most Diagnosed Diseases -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h2 class="card-title">Most Diagnosed Diseases</h2>
+        <div class="card-icon disease-icon">
+          <i class="fas fa-disease"></i>
+        </div>
+      </div>
+
+      <div class="stats-container" id="diseases-container">
+        <!-- Example data - will be populated by JavaScript -->
+        <div class="stat-item">
+          <div class="stat-info">
+            <span>1</span>
+            <span>Hypertension</span>
+          </div>
+          <span class="stat-count">42 cases</span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <span>2</span>
+            <span>Diabetes Mellitus</span>
+          </div>
+          <span class="stat-count">28 cases</span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <span>3</span>
+            <span>Asthma</span>
+          </div>
+          <span class="stat-count">19 cases</span>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="diseasesChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Most Prescribed Medications -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h2 class="card-title">Most Prescribed Medications</h2>
+        <div class="card-icon medication-icon">
+          <i class="fas fa-pills"></i>
+        </div>
+      </div>
+
+      <div class="stats-container" id="medications-container">
+        <!-- Example data - will be populated by JavaScript -->
+        <div class="stat-item">
+          <div class="stat-info">
+            <span>1</span>
+            <span>Lisinopril</span>
+          </div>
+          <span class="stat-count">58 prescriptions</span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <span>2</span>
+            <span>Metformin</span>
+          </div>
+          <span class="stat-count">42 prescriptions</span>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <span>3</span>
+            <span>Amoxicillin</span>
+          </div>
+          <span class="stat-count">37 prescriptions</span>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="medicationsChart"></canvas>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block script %}
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
 {% endblock %}
