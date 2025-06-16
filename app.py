@@ -16,7 +16,7 @@ from StockController.routes import stock_controller
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
-migrate = Migrate(app,db)
+migrate = Migrate(app, db)
 app.register_blueprint(accountant)
 app.register_blueprint(errors)
 app.register_blueprint(admin)

@@ -11,4 +11,12 @@ class Payment(BaseModel, db.Model):
   patient_id = db.Column(db.Integer(), db.ForeignKey("patient.id"))
 
   def __repr__(self):
-      return f"{self.amount} - {self.prescription_id}"
+    return f"{self.amount} - {self.prescription_id}"
+  
+  def to_dict(self):
+    return {
+      'payment_id': self.unique_id,
+      'amount': self.amount,
+      'date_paid': self.date_paid,
+      'is_completed': self.is_completed,
+    }

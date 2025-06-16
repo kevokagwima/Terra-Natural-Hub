@@ -53,6 +53,7 @@ class Patients(BaseModel, db.Model):
   
   def to_dict(self):
     return {
+      'patient_id': self.unique_id,
       'first_name': self.first_name,
       'last_name': self.last_name,
       'age': self.age,

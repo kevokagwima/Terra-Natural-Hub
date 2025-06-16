@@ -10,6 +10,7 @@ from Models.appointment import Appointment
 from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
 from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm
+from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
 from collections import Counter
 import folium
@@ -743,3 +744,19 @@ def record_transaction(prescription_id):
   )
   db.session.add(new_payment)
   db.session.commit()
+
+@admin.route("/export/transaction/<int:payment_id>")
+def export_transaction(payment_id):
+  payment = Payment.query.filter_by(unique_id=payment_id).first()
+  if not payment:
+    flash("Payment not found", "danger")
+    return redirect(url_for("admin.home"))
+
+  try:
+    patient = Patients.query.get(payment.patient_id)
+    generate_payment_pdf(patient.to_dict(), payment.to_dict())
+    flash("Payment exported successfully", "success")
+  except Exception as e:
+    flash(f"{str(e)}", "danger")
+
+  return redirect(url_for("admin.home"))
