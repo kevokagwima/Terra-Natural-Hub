@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+
+{% endblock %}
+
+{% block title %}
+Analytics
+{% endblock %}
+
+{% block nav %}
+<a href="{{ url_for('admin.home') }}" class="nav-item">
+  <i class="fas fa-home"></i>
+  Dashboard
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="header">
+  <button class="mobile-menu-btn" id="mobileMenuBtn">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="page-title">
+    <div class="page-title-box">
+      <h1>Analytics</h1>
+    </div>
+  </div>
+</div>
+<div class="container">
+  {% for diagnosis_disease_id in diagnosis_disease_ids %}
+  {% for disease in diseases if disease.id == diagnosis_disease_id %}
+  {{ disease.name }}
+  {% endfor %}
+  {% endfor %}
+  <br><br>
+  {% for x,y in diagnosis_disease_ids_count %}
+  {{ x }}, {{ y }}
+  {% endfor %}
+  <br><br>
+  {% for prescription_medicine_id in prescription_medicine_ids %}
+  {% for medicine in medicines if medicine.id == prescription_medicine_id %}
+  {{ medicine.name }}
+  {% endfor %}
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

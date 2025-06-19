@@ -37,10 +37,10 @@ Home
   <i class="fas fa-wallet"></i>
   Transactions
 </a>
-<a data-tab="analytics" class="nav-item">
+<!-- <a href="#" class="nav-item">
   <i class="fas fa-chart-line"></i>
   Analytics
-</a>
+</a> -->
 {% endblock %}
 
 {% block body %}
@@ -100,7 +100,7 @@ Home
         <thead>
           <tr>
             <th>Patient</th>
-            <th>Time</th>
+            <th>Date</th>
             <th>Purpose</th>
             <th>Status</th>
             <th>Actions</th>
@@ -140,6 +140,54 @@ Home
           {% endfor %}
         </tbody>
       </table>
+    </div>
+  </div>
+  <div class="analytics-grid">
+    <!-- Most Diagnosed Diseases -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h2 class="card-title">Most Diagnosed Diseases</h2>
+        <div class="card-icon disease-icon">
+          <i class="fas fa-disease"></i>
+        </div>
+      </div>
+      <div class="stats-container" id="diseases-container">
+        <!-- Example data - will be populated by JavaScript -->
+        {% for diagnosis_disease_id, diagnosis_count in diagnosis_disease_ids %}
+        {% for disease in diseases if disease.id == diagnosis_disease_id %}
+        <div class="stat-item">
+          <div class="stat-info">
+            <span>{{ disease.name }}</span>
+          </div>
+          <span class="stat-count">{{ diagnosis_count }} cases</span>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Most Prescribed Medications -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h2 class="card-title">Most Prescribed Medications</h2>
+        <div class="card-icon medication-icon">
+          <i class="fas fa-pills"></i>
+        </div>
+      </div>
+
+      <div class="stats-container" id="medications-container">
+        <!-- Example data - will be populated by JavaScript -->
+        {% for prescription_medicine_id, prescription_count in prescription_medicine_ids %}
+        {% for medicine in medicines if medicine.id == prescription_medicine_id %}
+        <div class="stat-item">
+          <div class="stat-info">
+            <span>{{ medicine.name }}</span>
+          </div>
+          <span class="stat-count">{{ prescription_count }} prescriptions</span>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
@@ -681,7 +729,7 @@ Home
           <div class="prescription-total">{{ "Tsh {:,}".format(payment.prescription_payment.total) }}</div>
         </div>
         <div class="diagnosis-meta">
-          <div class="diagnosis-id">Payment ID: PY-{{ payment.unique_id }}</div>
+          <div class="diagnosis-id">Payment ID: PS-{{ payment.unique_id }}</div>
         </div>
       </div>
 
