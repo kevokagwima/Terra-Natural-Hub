@@ -30,21 +30,8 @@ def add_roles():
     db.session.commit()
     print(f"{role} role added")
 
-def test_user():
-  new_user = Patients(
-    first_name = "Test",
-    last_name = "Test",
-    age = 20,
-    phone_number_1 = "0786543245",
-    phone_number_2 = "0786543241",
-  )
-  db.session.add(new_user)
-  db.session.commit()
-  print("Test user added")
-
 if __name__ == "__main__":
   with app.app_context():
     drop_tables()
     create_tables()
     add_roles()
-    # test_user()

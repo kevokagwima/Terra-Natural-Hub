@@ -151,19 +151,22 @@ Home
           <i class="fas fa-disease"></i>
         </div>
       </div>
+      {% if diagnosis_disease_ids %}
       <div class="stats-container" id="diseases-container">
-        <!-- Example data - will be populated by JavaScript -->
         {% for diagnosis_disease_id, diagnosis_count in diagnosis_disease_ids %}
         {% for disease in diseases if disease.id == diagnosis_disease_id %}
         <div class="stat-item">
           <div class="stat-info">
             <span>{{ disease.name }}</span>
           </div>
-          <span class="stat-count">{{ diagnosis_count }} cases</span>
+          <span class="stat-count">{{ diagnosis_count }} case(s)</span>
         </div>
         {% endfor %}
         {% endfor %}
       </div>
+      {% else %}
+      <p class="else">No data to show</p>
+      {% endif %}
     </div>
 
     <!-- Most Prescribed Medications -->
@@ -174,20 +177,22 @@ Home
           <i class="fas fa-pills"></i>
         </div>
       </div>
-
+      {% if prescription_medicine_ids %}
       <div class="stats-container" id="medications-container">
-        <!-- Example data - will be populated by JavaScript -->
         {% for prescription_medicine_id, prescription_count in prescription_medicine_ids %}
         {% for medicine in medicines if medicine.id == prescription_medicine_id %}
         <div class="stat-item">
           <div class="stat-info">
             <span>{{ medicine.name }}</span>
           </div>
-          <span class="stat-count">{{ prescription_count }} prescriptions</span>
+          <span class="stat-count">{{ prescription_count }} prescription(s)</span>
         </div>
         {% endfor %}
         {% endfor %}
       </div>
+      {% else %}
+      <p class="else">No data to show</p>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -520,6 +525,7 @@ Home
       <h1>Diagnosis</h1>
     </div>
   </div>
+  {% if all_diagnosis %}
   <div class="diagnosis-box">
     {% for diagnosis in all_diagnosis|sort(attribute="date_created", reverse=True) %}
     <div class="diagnosis-container">
@@ -593,6 +599,9 @@ Home
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <p class="else">No data to show</p>
+  {% endif %}
 </div>
 <div id="prescription" class="tabContent">
   <div class="header">
@@ -603,6 +612,7 @@ Home
       <h1>Prescriptions</h1>
     </div>
   </div>
+  {% if prescriptions %}
   <div class="diagnosis-box">
     {% for prescription in prescriptions|sort(attribute="date_created", reverse=True) %}
     <div class="diagnosis-container">
@@ -699,6 +709,9 @@ Home
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <p class="else">No data to show</p>
+  {% endif %}
 </div>
 <div id="transaction" class="tabContent">
   <div class="header">
@@ -709,6 +722,7 @@ Home
       <h1>Transactions</h1>
     </div>
   </div>
+  {% if payments %}
   <div class="diagnosis-box">
     {% for payment in payments|sort(attribute="date_paid", reverse=True) %}
     <div class="diagnosis-container">
@@ -750,6 +764,9 @@ Home
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <p class="else">No data to show</p>
+  {% endif %}
 </div>
 <div id="analytics" class="tabContent">
   <div class="header">

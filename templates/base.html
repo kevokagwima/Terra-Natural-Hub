@@ -44,7 +44,9 @@
   <div class="content-box">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <img src="{{ url_for('static', filename='image/logo.webp') }}" alt="Clinic Logo">
+        <a href="{{ url_for('admin.home') }}">
+          <img src="{{ url_for('static', filename='image/logo.webp') }}" alt="Clinic Logo">
+        </a>
       </div>
       <nav class="nav">
         {% block nav %} {% endblock %}
