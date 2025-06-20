@@ -33,9 +33,9 @@ def home():
   diagnosis = Diagnosis.query.all()
   prescriptions = Prescription.query.all()
 
-  diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).all()]
+  diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).limit(limit=5).all()]
 
-  prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).all()]
+  prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).limit(limit=5).all()]
 
   context = {
     "patients": patients,
@@ -46,6 +46,7 @@ def home():
     "all_diagnosis" : diagnosis,
     "prescriptions" : prescriptions,
     "appointments" : appointments,
+    "lab_tests" : LabAnalysis.query.all(),
     "diagnosis_disease_ids": diagnosis_disease_ids,
     "prescription_medicine_ids": prescription_medicine_ids,
   }
@@ -351,11 +352,7 @@ def appointment(appointment_id):
   
   patient = Patients.query.filter_by(id=appointment.patient_id).first()
 
-  lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id).first()
-  if lab_analysis:
-    lab_analysis_details = LabAnalysisDetails.query.filter_by(lab_analysis_id=lab_analysis.id).all()
-  else:
-    lab_analysis_details = []
+  lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id).all()
 
   diagnosis = Diagnosis.query.filter_by(appointment_id=appointment.id).first()
   if diagnosis:
@@ -376,7 +373,6 @@ def appointment(appointment_id):
   context = {
     "appointment": appointment,
     "lab_analysis": lab_analysis,
-    "lab_analysis_details": lab_analysis_details,
     "patient": patient,
     "diagnosis": diagnosis,
     "diagnosis_details": diagnosis_details,
@@ -406,7 +402,7 @@ def add_lab_analysis(appointment_id):
   form = LabAnalysisForm()
 
   try:
-    existing_lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id).first()
+    existing_lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id, is_active=True).first()
     if not existing_lab_analysis:
       new_lab_analysis = LabAnalysis(
         patient_id = appointment.patient_id,
@@ -432,6 +428,23 @@ def create_lab_analysis_details(lab_analysis_id, form):
     result = form.result.data,       
   )
   db.session.add(new_lab_detail)
+
+@admin.route("/remove-lab-test/<int:lab_analysis_id>")
+@login_required
+@role_required(["Admin", "Lab Tech"])
+def remove_lab_analysis(lab_analysis_id):
+  lab_analysis = LabAnalysisDetails.query.filter_by(unique_id=lab_analysis_id).first()
+  if not lab_analysis:
+    flash("Lab test not found", "danger")
+    return redirect(request.referrer)
+  try:
+    db.session.delete(lab_analysis)
+    db.session.commit()
+    flash("Lab test removed successfully", "success")
+    return redirect(request.referrer)
+  except Exception as e:
+    flash(f"{repr(e)}", "danger")
+    return redirect(request.referrer)
 
 @admin.route("/approve/lab-analysis/<int:lab_analysis_id>")
 @login_required

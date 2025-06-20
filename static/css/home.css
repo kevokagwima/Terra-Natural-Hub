@@ -14,16 +14,14 @@
 
 .stat-card h3 {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--light-green);
   font-weight: 500;
-  margin-bottom: 0.5rem;
 }
 
 .stat-card .value {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--black);
-  margin-bottom: 0.5rem;
 }
 
 .stat-card .trend {
@@ -32,15 +30,19 @@
   font-size: 0.875rem;
 }
 
-.trend.up {
-  color: var(--success);
-}
-
-.trend.down {
-  color: var(--danger);
+.trend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  color: var(--black);
+  opacity: 0.8;
 }
 
 .trend i {
+  color: var(--light-green);
   margin-right: 0.25rem;
 }
 
@@ -111,29 +113,6 @@ td {
 .table-actions {
   display: flex;
   gap: 0.75rem;
-}
-
-.table-search {
-  position: relative;
-  width: 240px;
-}
-
-.table-search input {
-  width: 100%;
-  padding: 0.5rem 1rem 0.5rem 2rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  background-color: #f8fafc;
-}
-
-.table-search i {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
-  font-size: 0.875rem;
 }
 
 .patient-cell {
@@ -350,18 +329,18 @@ td {
 .diagnosis-list-box {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.6rem;
   align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .disease-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.8rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 8px;
   background-color: var(--light-green);
-  margin-bottom: 1rem;
 }
 
 .disease-icon {
@@ -376,7 +355,7 @@ td {
 .disease-name {
   font-weight: 600;
   color: var(--white);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .notes-content {

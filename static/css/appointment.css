@@ -158,6 +158,11 @@ textarea.form-control {
   gap: 1rem;
 }
 
+.lab-analysis {
+  display: grid;
+  gap: 0.5rem;
+}
+
 .medication-item {
   display: flex;
   margin-bottom: 1rem;

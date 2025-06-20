@@ -270,6 +270,10 @@ header {
   color: var(--white);
 }
 
+.search-bar input:focus {
+  outline: none;
+}
+
 .search-bar input::placeholder {
   color: var(--light-grey);
 }
