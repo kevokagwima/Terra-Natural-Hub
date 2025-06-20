@@ -258,16 +258,17 @@ header {
 .search-bar {
   position: relative;
   width: 300px;
+  background-color: var(--light-green);
+  border-radius: 8px;
 }
 
 .search-bar input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
   border: none;
-  border-radius: 8px;
   font-size: 0.9375rem;
-  background-color: var(--light-green);
   color: var(--white);
+  background-color: var(--light-green);
 }
 
 .search-bar input:focus {
@@ -284,6 +285,25 @@ header {
   top: 50%;
   transform: translateY(-50%);
   color: var(--light-grey);
+}
+
+.search-box {
+  position: absolute;
+  width: 100%;
+  top: 3rem;
+  border-radius: 8px;
+  display: none;
+  gap: 1rem;
+  background-color: var(--white);
+  padding: 0.5rem;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.search-result {
+  background-color: var(--light-grey);
+  padding: 0.5rem;
+  border-radius: 8px;
 }
 
 .status-badge {

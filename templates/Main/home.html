@@ -54,7 +54,8 @@ Home
     </div>
     <div class="search-bar">
       <i class="fas fa-search"></i>
-      <input type="text" placeholder="Search patients">
+      <input id="patient-search" type="text" placeholder="Search patients">
+      <div class="search-box"></div>
     </div>
   </div>
   <div class="stats-grid">
@@ -932,6 +933,7 @@ Home
 {% endblock %}
 
 {% block script %}
+<script src="{{ url_for('static', filename='js/patient-search.js') }}"></script>
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
 {% endblock %}

@@ -53,6 +53,24 @@ def home():
   
   return render_template("Main/home.html", **context)
 
+@admin.route("/find-patient/<string:search_text>")
+def patient_search(search_text):
+  patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%")).all()
+  
+  patients_count = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%")).count()
+
+  patients_list = [
+    {
+      "unique_id": patient.unique_id,
+      "name": f"{patient.first_name} {patient.last_name}",
+      "gender": patient.gender.capitalize(),
+      "count": patients_count,
+    } 
+    for patient in patients
+  ]
+
+  return jsonify(patients_list)
+
 @admin.route("/map")
 def render_map():
   try:
