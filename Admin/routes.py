@@ -117,7 +117,10 @@ def edit_medicine(medicine_id):
 
   if form.validate_on_submit():
     try:
-      form.populate_obj(medicine)
+      medicine.name = form.name.data
+      medicine.price = form.price.data
+      if form.quantity.data:
+        medicine.quantity = medicine.quantity + form.quantity.data
       db.session.commit()
       flash("Medicine updated successfully", "success")
       return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
@@ -582,7 +585,6 @@ def add_prescription(appointment_id):
       form.populate_obj(existing_prescription)
 
     db.session.commit()
-    flash("Prescription saved successfully", "success")
   except Exception as e:
     db.session.rollback()
     flash(f"Error: {str(e)}", "danger")
@@ -593,13 +595,17 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
   prescription = Prescription.query.get(prescription_id)
   for medicine_id in prescribed_medicine_ids:
     medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
-    new_prescription_detail = PrescriptionDetails(
-      prescription_id = prescription.id,
-      medicine_id = medicine.id,
-      amount = medicine.price
-    )
-    db.session.add(new_prescription_detail)
-    db.session.commit()
+    if medicine.quantity < 1:
+      flash(f"Medicine {medicine.name} is out of stock", "info")
+    else:
+      new_prescription_detail = PrescriptionDetails(
+        prescription_id = prescription.id,
+        medicine_id = medicine.id,
+        amount = medicine.price
+      )
+      db.session.add(new_prescription_detail)
+      flash("Prescription saved successfully", "success")
+      db.session.commit()
 
 def calculate_prescription_total(prescription_id):
   prescription = Prescription.query.get(prescription_id)
@@ -672,6 +678,11 @@ def prescription_payment(prescription_id):
 
 def record_transaction(prescription_id):
   prescription = Prescription.query.get(prescription_id)
+  prescription_details = PrescriptionDetails.query.filter_by(prescription_id=prescription.id).all()
+  for prescription_detail in prescription_details:
+    medicine = Medicine.query.filter_by(id=prescription_detail.medicine_id).first()
+    if medicine:
+      medicine.quantity = medicine.quantity - 1
   new_payment = Payment(
     amount = prescription.total,
     is_completed = True,

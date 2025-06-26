@@ -46,9 +46,6 @@ Home
 {% block body %}
 <div id="dashboard" class="tabContent active">
   <div class="header">
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-      <i class="fas fa-bars"></i>
-    </button>
     <div class="page-title">
       <h1>Dashboard</h1>
     </div>
@@ -412,6 +409,9 @@ Home
     <div class="med-tab" data-tab="disease">Diseases ({{ diseases|count }})</div>
   </div>
   <div id="medicine" class="medical-data-table active">
+    <div class="search-medical-data">
+      <input type="text" name="search-medicine" id="medicine-search" placeholder="Search for medicine">
+    </div>
     <table>
       <thead>
         <tr>
@@ -493,6 +493,9 @@ Home
     {% endfor %}
   </div>
   <div id="disease" class="medical-data-table">
+    <div class="search-medical-data">
+      <input type="text" name="search-disease" id="disease-search" placeholder="Search for disease">
+    </div>
     <table>
       <thead>
         <tr>

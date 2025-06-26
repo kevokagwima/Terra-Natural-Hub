@@ -52,6 +52,9 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  max-height: 22.3rem;
+  overflow-y: scroll;
+  padding-right: 0.4rem;
 }
 
 .table-menu {
@@ -64,9 +67,15 @@
   margin-top: 1rem;
 }
 
+.medical-data-table input {
+  margin-bottom: 1rem;
+  background-color: var(--white);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
+  background-color: var(--white);
 }
 
 th,
@@ -88,8 +97,7 @@ td {
   font-size: 0.9375rem;
 }
 
-.patients-table-container,
-.medical-data-table {
+.patients-table-container {
   background: var(--white);
   border-radius: 12px;
   overflow: hidden;

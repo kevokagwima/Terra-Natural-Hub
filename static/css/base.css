@@ -393,6 +393,7 @@ header {
   font-size: 1.5rem;
   color: var(--dark);
   cursor: pointer;
+  padding: 0;
 }
 
 .tab-content,

@@ -74,7 +74,6 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
       </div>
     </div>
   </div>
-
   <div class="patient-main">
     <div class="tabs">
       <div class="tab active" data-tab="medical">Medical History</div>
@@ -100,12 +99,11 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
           <div class="history-date">{{ appointment.date_created.strftime("%B %d, %Y") }}</div>
         </div>
         <div class="history-details">
-          <p>General Care</p>
-          <a href="{{ url_for('admin.appointment', appointment_id=appointment.unique_id) }}">
+          <a id="summary" href="{{ url_for('admin.appointment', appointment_id=appointment.unique_id) }}">
             {% if appointment.is_active %}
             Resume
             {% else %}
-            View Full Summary
+            View Summary
             {% endif %}
           </a>
         </div>
@@ -175,7 +173,22 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
     <div class="tab-content" id="payments">
       <div class="section-title">Payments</div>
       {% if patient_payments %}
-
+      {% for payment in patient_payments|sort(attribute="date_paid", reverse=True) %}
+      <div class="prescription-item payment-item">
+        <div class="prescription-details">
+          <div class="prescription-name lab-name">
+            <h4>Transaction ID: #{{ payment.unique_id }}</h4>
+            <p class="history-date">{{ payment.date_paid.strftime("%B %d, %Y") }}</p>
+          </div>
+          <div class="prescription-name">
+            {% if payment.is_completed %}
+            <span class="status-badge completed">Completed</span>
+            {% endif %}
+            <p>{{ "Tsh {:,}".format(payment.amount) }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
       {% else %}
       <p class="else">No Payment records</p>
       {% endif %}

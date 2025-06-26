@@ -16,7 +16,7 @@ class AddPatientForm(FlaskForm):
 class AddMedicineForm(FlaskForm):
   name = StringField('Medicine Name', validators=[DataRequired(message="Medicine name field required"), Length(max=200)])
   price = IntegerField('Medicine Price', validators=[DataRequired(message="Medicine price field required"), NumberRange(min=1, message="Minimum price is Tsh 1")])
-  quantity = IntegerField('Medicine Quantity', validators=[DataRequired(message="Medicine quantity field required"), NumberRange(min=1, message="Minimum amount is 1")])
+  quantity = IntegerField('Medicine Quantity', validators=[Optional(), NumberRange(min=1, message="Minimum amount is 1")])
 
 class AddDiseaseForm(FlaskForm):
   name = StringField('Disease Name', validators=[DataRequired(message="Disease name field required"), Length(max=200)])
@@ -27,8 +27,8 @@ class LabAnalysisForm(FlaskForm):
 
 class DiagnosisForm(FlaskForm):
   diagnosis = SelectField('Diagnose Disease', choices=[], validators=[DataRequired(message="Diagnosis field required")])
-  note = TextAreaField('Note', validators=[Optional()])
+  note = TextAreaField('Note (Optional)', validators=[Optional()])
 
 class PrescriptionForm(FlaskForm):
   prescription = SelectField('Prescribe Medication', choices=[], validators=[DataRequired(message="Prescription field required")])
-  note = TextAreaField('Note', validators=[Optional()])
+  note = TextAreaField('Note (Optional)', validators=[Optional()])

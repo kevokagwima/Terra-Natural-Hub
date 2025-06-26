@@ -40,7 +40,7 @@ Edit Medicine
         <div class="form-grid">
           <div class="form-group">
             {{ form.name.label }}
-            {{ form.name(class="form-control") }}
+            {{ form.name(class="form-control", placeholder="Enter name of medicine") }}
             {% if form.name.errors %}
             <div class="error-message">{{ form.name.errors[0] }}</div>
             {% endif %}
@@ -48,7 +48,7 @@ Edit Medicine
 
           <div class="form-group">
             {{ form.price.label }}
-            {{ form.price(class="form-control") }}
+            {{ form.price(class="form-control", placeholder="Enter price of medicine in (Tsh)") }}
             {% if form.price.errors %}
             <div class="error-message">{{ form.price.errors[0] }}</div>
             {% endif %}
@@ -56,7 +56,7 @@ Edit Medicine
 
           <div class="form-group">
             {{ form.quantity.label }}
-            {{ form.quantity(class="form-control") }}
+            {{ form.quantity(class="form-control", value="", placeholder="Add quantity") }}
             {% if form.quantity.errors %}
             <div class="error-message">{{ form.quantity.errors[0] }}</div>
             {% endif %}
