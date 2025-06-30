@@ -264,12 +264,8 @@ Home
 </div>
 <div id="patients" class="tabContent">
   <div class="header">
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-      <i class="fas fa-bars"></i>
-    </button>
     <div class="page-title">
       <h1>Patients</h1>
-      <p>{{ patients|count }} total patients</p>
     </div>
     <a href="{{ url_for('admin.add_patient') }}">
       <button class="btn btn-primary">
@@ -278,7 +274,7 @@ Home
     </a>
   </div>
   <div class="patients-table-container">
-    <table>
+    <table id="patients-table">
       <thead>
         <tr>
           <th>Patient ID</th>
@@ -291,7 +287,7 @@ Home
       </thead>
       <tbody>
         {% for patient in patients|sort(attribute="id", reverse=true) %}
-        <tr>
+        <tr id="patient-list">
           <td>PT - {{ patient.unique_id }}</td>
           <td>
             <div class="patient-cell">
@@ -385,9 +381,6 @@ Home
 </div>
 <div id="medical-data" class="tabContent">
   <div class="header">
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-      <i class="fas fa-bars"></i>
-    </button>
     <div class="page-title">
       <h1>Medical Data</h1>
     </div>
@@ -410,9 +403,10 @@ Home
   </div>
   <div id="medicine" class="medical-data-table active">
     <div class="search-medical-data">
-      <input type="text" name="search-medicine" id="medicine-search" placeholder="Search for medicine">
+      <input class="search-inputs" type="text" name="search-medicine" id="medicine-search"
+        placeholder="Search for medicine">
     </div>
-    <table>
+    <table id="medicine-table">
       <thead>
         <tr>
           <th>Medicine ID</th>
@@ -424,7 +418,7 @@ Home
       </thead>
       <tbody>
         {% for medicine in medicines|sort(attribute="id", reverse=true) %}
-        <tr>
+        <tr id="medicine-name">
           <th>MD - {{ medicine.unique_id }}</th>
           <td>{{ medicine.name|truncate(60) }}</td>
           <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
@@ -494,9 +488,10 @@ Home
   </div>
   <div id="disease" class="medical-data-table">
     <div class="search-medical-data">
-      <input type="text" name="search-disease" id="disease-search" placeholder="Search for disease">
+      <input class="search-inputs" type="text" name="search-disease" id="disease-search"
+        placeholder="Search for disease">
     </div>
-    <table>
+    <table id="disease-table">
       <thead>
         <tr>
           <th>Disease ID</th>
@@ -506,7 +501,7 @@ Home
       </thead>
       <tbody>
         {% for disease in diseases|sort(attribute="id", reverse=true) %}
-        <tr>
+        <tr id="disease-name">
           <th>DS - {{ disease.unique_id }}</th>
           <td>{{ disease.name|truncate(60) }}</td>
           <td>
@@ -575,12 +570,13 @@ Home
 </div>
 <div id="diagnosis" class="tabContent">
   <div class="header">
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-      <i class="fas fa-bars"></i>
-    </button>
     <div class="page-title">
       <h1>Diagnosis</h1>
     </div>
+  </div>
+  <div class="search-medical-data">
+    <input class="search-inputs" type="text" name="search-transaction" id="diagnosis-search"
+      placeholder="Search for diagnosis">
   </div>
   {% if all_diagnosis %}
   <div class="diagnosis-box">
@@ -659,17 +655,18 @@ Home
 </div>
 <div id="prescription" class="tabContent">
   <div class="header">
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-      <i class="fas fa-bars"></i>
-    </button>
     <div class="page-title">
       <h1>Prescriptions</h1>
     </div>
   </div>
+  <div class="search-medical-data">
+    <input class="search-inputs" type="text" name="search-prescription" id="prescription-search"
+      placeholder="Search for prescriptions">
+  </div>
   {% if prescriptions %}
-  <div class="diagnosis-box">
+  <div class="prescription-box">
     {% for prescription in prescriptions|sort(attribute="date_created", reverse=True) %}
-    <div class="diagnosis-container">
+    <div class="prescription-container">
       <div class="diagnosis-header">
         <div class="patient-info">
           <div class="patient-details">
@@ -764,17 +761,18 @@ Home
 </div>
 <div id="transaction" class="tabContent">
   <div class="header">
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-      <i class="fas fa-bars"></i>
-    </button>
     <div class="page-title">
       <h1>Transactions</h1>
     </div>
   </div>
+  <div class="search-medical-data">
+    <input class="search-inputs" type="text" name="search-transaction" id="transaction-search"
+      placeholder="Search for transacions">
+  </div>
   {% if payments %}
-  <div class="diagnosis-box">
+  <div class="transaction-box">
     {% for payment in payments|sort(attribute="date_paid", reverse=True) %}
-    <div class="diagnosis-container">
+    <div class="transaction-container">
       <div class="diagnosis-header">
         <div class="patient-info">
           <div class="patient-details">
@@ -819,9 +817,6 @@ Home
 </div>
 <div id="analytics" class="tabContent">
   <div class="header">
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-      <i class="fas fa-bars"></i>
-    </button>
     <div class="page-title">
       <h1>Analytics</h1>
     </div>
@@ -937,6 +932,7 @@ Home
 
 {% block script %}
 <script src="{{ url_for('static', filename='js/patient-search.js') }}"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
 <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
 {% endblock %}

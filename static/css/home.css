@@ -67,9 +67,13 @@
   margin-top: 1rem;
 }
 
-.medical-data-table input {
+.search-inputs {
   margin-bottom: 1rem;
   background-color: var(--white);
+}
+
+.search-inputs:focus {
+  outline: 1px solid var(--light-green);
 }
 
 table {
@@ -272,16 +276,20 @@ td {
 
 .btn-pagination.active {
   background-color: var(--light-green);
-  color: white;
+  color: var(--white);
   border-color: var(--black-grey);
 }
 
-.diagnosis-box {
+.diagnosis-box,
+.prescription-box,
+.transaction-box {
   display: grid;
   gap: 1rem;
 }
 
-.diagnosis-container {
+.diagnosis-container,
+.transaction-container,
+.prescription-container {
   background: var(--white);
   border-radius: 12px;
   padding: 2rem;

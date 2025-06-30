@@ -1,34 +1,43 @@
 $(document).ready(function () {
-  $("#Csearch").on("keyup", function () {
+  $("#medicine-search").on("keyup", function () {
     var value = $(this).val().toLowerCase();
-    $("#client_table #client_name").filter(function () {
+    $("#medicine-table #medicine-name").filter(function () {
       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
     });
   });
 });
 
 $(document).ready(function () {
-  $("#Msearch").on("keyup", function () {
+  $("#disease-search").on("keyup", function () {
     var value = $(this).val().toLowerCase();
-    $("#medicine_table #medicine_name").filter(function () {
+    $("#disease-table #disease-name").filter(function () {
       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
     });
   });
 });
 
 $(document).ready(function () {
-  $("#Psearch").on("keyup", function () {
+  $("#transaction-search").on("keyup", function () {
     var value = $(this).val().toLowerCase();
-    $(".payment-box #payment_info").filter(function () {
+    $(".transaction-box .transaction-container").filter(function () {
       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
     });
   });
 });
 
 $(document).ready(function () {
-  $("#Prescription_search").on("keyup", function () {
+  $("#prescription-search").on("keyup", function () {
     var value = $(this).val().toLowerCase();
-    $(".prescription-box .prescription-details").filter(function () {
+    $(".prescription-box .prescription-container").filter(function () {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
+  });
+});
+
+$(document).ready(function () {
+  $("#diagnosis-search").on("keyup", function () {
+    var value = $(this).val().toLowerCase();
+    $(".diagnosis-box .diagnosis-container").filter(function () {
       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
     });
   });
