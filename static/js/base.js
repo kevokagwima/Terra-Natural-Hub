@@ -16,9 +16,14 @@ function openTab(event, tabName) {
   event.currentTarget.classList.add("active");
 }
 
-function toggleMenu() {
-  const menu = document.getElementById("mobile-menu");
-  menu.classList.toggle("show");
+function openSideBar() {
+  const sidebar = document.querySelector(".sidebar");
+  sidebar.classList.add("open");
+}
+
+function closeSideBar() {
+  const sidebar = document.querySelector(".sidebar");
+  sidebar.classList.remove("open");
 }
 
 document.addEventListener("DOMContentLoaded", function () {

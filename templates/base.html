@@ -31,9 +31,6 @@
     </div>
     {% else %}
     <div class="hamburger-container">
-      <div class="hamburger" onclick="toggleMenu()">
-        <p>&#9776;</p>
-      </div>
       <div class="link1" id="mobile-menu">
         <a href="{{url_for('auth.signup')}}">Sign up</a>
         <a href="{{url_for('auth.signin')}}">Sign in</a>
@@ -47,6 +44,7 @@
         <a href="{{ url_for('admin.home') }}">
           <img src="{{ url_for('static', filename='image/logo.webp') }}" alt="Clinic Logo">
         </a>
+        <span onclick="closeSideBar()" id="close-sidebar">&Cross;</span>
       </div>
       <nav class="nav">
         {% block nav %} {% endblock %}
@@ -70,9 +68,6 @@
       </div>
     </aside>
     <main class="main-content">
-      <button class="mobile-menu-btn" id="mobileMenuBtn">
-        <i class="fas fa-bars"></i>
-      </button>
       {% with messages = get_flashed_messages(with_categories=True) %}
       {% if messages %}
       <div class="flash-messages">
@@ -92,6 +87,9 @@
       </div>
       {% endif %}
       {% endwith %}
+      <div class="hamburger" onclick="openSideBar()">
+        <p>&#9776;</p>
+      </div>
       {% block body %}{% endblock %}
     </main>
   </div>

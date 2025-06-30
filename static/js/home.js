@@ -1,8 +1,3 @@
-document.getElementById("mobileMenuBtn").addEventListener("click", function () {
-  document.querySelector(".sidebar").classList.toggle("open");
-});
-
-// Tab functionality
 const maintabs = document.querySelectorAll(".nav-item");
 const maintabContents = document.querySelectorAll(".tabContent");
 
