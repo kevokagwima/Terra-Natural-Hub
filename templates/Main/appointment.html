@@ -22,9 +22,6 @@ Patient Appointment
 
 {% block body %}
 <div class="header">
-  <button class="mobile-menu-btn" id="mobileMenuBtn">
-    <i class="fas fa-bars"></i>
-  </button>
   <div class="page-title">
     <div class="page-title-box">
       <h1>Patient Appointment</h1>
@@ -36,6 +33,26 @@ Patient Appointment
     </div>
     {% if appointment.is_active == False and appointment.date_closed %}
     <p>{{ appointment.date_closed.strftime("Closed on %d/%m/%Y at %I:%M %p") }}</p>
+    <div class="appointment-feedback">
+      <h4>Patient Feedback</h4>
+      {% if feedback %}
+      <div class="patient-feedback">
+        {% if feedback.status == "Recovered" %}
+        <p class="status-badge completed">{{ feedback.status }}</p>
+        {% elif feedback.status == "Not Recovered" %}
+        <p class="status-badge cancelled">{{ feedback.status }}</p>
+        {% endif %}
+      </div>
+      {% else %}
+      <form action="{{ url_for('admin.patient_feedback', appointment_id=appointment.unique_id) }}" method="post">
+        {{ form.csrf_token }}
+        <div class="input">
+          {{ form.feedback }}
+        </div>
+        <button type="submit">Update</button>
+      </form>
+      {% endif %}
+    </div>
     {% endif %}
   </div>
 </div>

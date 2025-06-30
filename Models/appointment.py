@@ -15,6 +15,12 @@ class Appointment(BaseModel, db.Model):
   diagnosis = db.relationship("Diagnosis", backref="appointment_diagnosis", lazy=True)
   prescription = db.relationship("Prescription", backref="appointment_prescription", lazy=True)
   lab_analysis = db.relationship("LabAnalysis", backref="appointment_lab_analysis", lazy=True)
+  feedback = db.relationship("Feedback", backref="appointment_feedback", lazy=True)
 
   def __repr__(self):
     return f"{self.patient_id}"
+
+class Feedback(BaseModel, db.Model):
+  __tablename__ = "feedback"
+  appointment_id = db.Column(db.Integer(), db.ForeignKey("appointment.id"))
+  status = db.Column(db.String(20), nullable=False)

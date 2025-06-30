@@ -91,20 +91,18 @@ Edit Patient
 
       <div class="form-section">
         <h2 class="section-title">Address Information</h2>
+        {% if patient.address_id %}
+        <div class="patient-address-box">
+          <h4>Saved Address</h4>
+          {{ patient.patient_address.region }}, {{ patient.patient_address.district }}
+        </div>
+        {% endif %}
         <div class="form-grid">
           <div class="form-group">
-            {{ form.region.label }}
-            {{ form.region(class="form-control") }}
-            {% if form.region.errors %}
-            <div class="error-message">{{ form.region.errors[0] }}</div>
-            {% endif %}
-          </div>
-
-          <div class="form-group">
-            {{ form.district.label }}
-            {{ form.district(class="form-control") }}
-            {% if form.district.errors %}
-            <div class="error-message">{{ form.district.errors[0] }}</div>
+            {{ form.address.label }}
+            {{ form.address(class="form-control") }}
+            {% if form.address.errors %}
+            <div class="error-message">{{ form.address.errors[0] }}</div>
             {% endif %}
           </div>
         </div>

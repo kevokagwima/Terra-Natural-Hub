@@ -42,9 +42,9 @@ class Patients(BaseModel, db.Model):
   gender = db.Column(db.String(6))
   phone_number_1 = db.Column(db.String(20))
   phone_number_2 = db.Column(db.String(20))
+  address_id = db.Column(db.Integer(), db.ForeignKey("patient_address.id"))
   diagnosis = db.relationship("Diagnosis", backref="patient_diagnosis", lazy=True)
   prescription = db.relationship("Prescription", backref="patient_prescription", lazy=True)
-  patient_address = db.relationship("PatientAddress", backref="patient_address", lazy=True)
   payment = db.relationship("Payment", backref="patient_payment", lazy=True)
   appointment = db.relationship("Appointment", backref="patient_appointment", lazy=True)
 
@@ -66,7 +66,7 @@ class PatientAddress(BaseModel, db.Model):
   __tablename__ = "patient_address"
   region = db.Column(db.String(20))
   district = db.Column(db.String(30))
-  patient_id = db.Column(db.Integer(), db.ForeignKey("patient.id"))
+  patient = db.relationship("Patients", backref="patient_address", lazy=True)
 
   def __repr__(self):
     return f"{self.region} - {self.district}"

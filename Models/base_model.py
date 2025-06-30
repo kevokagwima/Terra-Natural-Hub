@@ -16,7 +16,7 @@ class BaseModel(db.Model):
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
-    self.unique_id = random.randint(100000, 999999)
+    self.unique_id = random.randint(10000000, 99999999)
 
   def __repr__(self):
     return f"{self.id} - {self.unique_id}"

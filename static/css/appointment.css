@@ -11,6 +11,29 @@
   flex-wrap: wrap;
 }
 
+.appointment-feedback {
+  background-color: var(--white);
+  padding: 0.8rem 1rem;
+  margin-block: 1rem 0.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.appointment-feedback form,
+.appointment-feedback {
+  display: grid;
+  gap: 1rem;
+}
+
+.appointment-feedback {
+  gap: 0.4rem;
+}
+
+.appointment-feedback form .input {
+  display: grid;
+  gap: 0.6rem;
+}
+
 .diagnosis-container {
   background: var(--white);
   border-radius: 12px;

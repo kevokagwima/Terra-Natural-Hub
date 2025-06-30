@@ -110,6 +110,12 @@ select {
   width: 100%;
 }
 
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 1px solid var(--light-green);
+}
+
 .container {
   height: 100vh;
 }

@@ -1,15 +1,15 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
-from flask_login import login_required, fresh_login_required
+from flask_login import login_required
 from Models.base_model import db, get_local_time
 from Models.users import Patients, PatientAddress
 from Models.medicine import Medicine
 from Models.diseases import Disease
 from Models.payment import Payment
 from Models.lab_analysis import LabAnalysis, LabAnalysisDetails
-from Models.appointment import Appointment
+from Models.appointment import Appointment, Feedback
 from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
-from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm
+from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
 from collections import Counter
@@ -225,6 +225,7 @@ def remove_disease(disease_id):
 @login_required
 def add_patient():
   form = AddPatientForm()
+  form.address.choices = [(address.id, f"{address.region}, {address.district}") for address in PatientAddress.query.all()]
   if form.validate_on_submit():
     try:
       patient = Patients(
@@ -233,18 +234,10 @@ def add_patient():
         age = form.age.data,
         gender = form.gender.data,
         phone_number_1 = form.phone_number_1.data,
-        phone_number_2 = form.phone_number_2.data
+        phone_number_2 = form.phone_number_2.data,
+        address = form.address.data
       )
       db.session.add(patient)
-      db.session.flush()
-      if form.region.data or form.district.data:
-        address = PatientAddress(
-          region = form.region.data,
-          district = form.district.data,
-          patient_id = patient.id
-        )
-        db.session.add(address)
-      
       db.session.commit()
       flash('Patient created successfully!', 'success')
       return redirect(url_for('admin.home'))
@@ -267,28 +260,13 @@ def edit_patient(patient_id):
   if not patient:
     flash("Patient not found", "danger")
     return redirect(url_for("admin.home"))
-  
-  patient_address = PatientAddress.query.filter_by(patient_id=patient.id).first()
-
-  form_data = {}
-  form_data.update(patient.to_dict())
-  if patient_address:
-    form_data.update(patient_address.to_dict())
-    
-  form = AddPatientForm(data=form_data)
-
+      
+  form = AddPatientForm(obj=patient)
+  form.address.choices = [(address.id, f"{address.region}, {address.district}") for address in PatientAddress.query.all()]
   if form.validate_on_submit():
     try:
       form.populate_obj(patient)
-      if patient_address:
-        form.populate_obj(patient_address)
-      else:
-        address = PatientAddress(
-          region = form.region.data,
-          district = form.district.data,
-          patient_id = patient.id
-        )
-        db.session.add(address)
+      patient.address_id = form.address.data
       db.session.commit()
       flash("Patient details updated successfully", "success")
     except Exception as e:
@@ -324,7 +302,7 @@ def patient_profile(patient_id):
     flash("Patient not found", "danger")
     return redirect(url_for("admin.home"))
 
-  patient_address = PatientAddress.query.filter_by(patient_id=patient.id).first()
+  patient_address = PatientAddress.query.filter_by(id=patient.address_id).first()
   patient_lab_analysis = LabAnalysis.query.filter_by(patient_id=patient.id).all()
   patient_prescriptions = Prescription.query.filter_by(patient_id=patient.id).all()
   patient_payments = Payment.query.filter_by(patient_id=patient.id).all()
@@ -403,6 +381,8 @@ def appointment(appointment_id):
     "prescription_details": prescription_details,
     "diseases": Disease.query.all(),
     "medicines": Medicine.query.all(),
+    "feedback": Feedback.query.filter_by(appointment_id=appointment.id).first(),
+    "form": FeedbackForm() 
   }
 
   return render_template("Main/appointment.html", **context)
@@ -650,6 +630,29 @@ def complete_appointment(appointment_id):
     flash(f"Error: {str(e)}", "danger")
 
   return redirect(url_for("admin.home"))
+
+@admin.route("/patient/feedback/<int:appointment_id>", methods=["POST"])
+def patient_feedback(appointment_id):
+  try:
+    appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
+    if not appointment:
+      flash("Appointment not found", "danger")
+      return redirect(url_for("admin.home"))
+    
+    form = FeedbackForm()
+    if form.validate_on_submit():
+      new_feeback = Feedback(
+        status = form.feedback.data,
+        appointment_id = appointment.id
+      )
+      db.session.add(new_feeback)
+      db.session.commit()
+      flash("Feedback recorded successfully", "success")
+      return redirect(url_for("admin.appointment", appointment_id=appointment.unique_id))
+    
+  except Exception as e:
+    flash(f"{str(e)}", "danger")
+    return redirect(request.referrer)
 
 @admin.route("/pay/prescription/<int:prescription_id>")
 @login_required
