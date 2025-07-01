@@ -1,0 +1,21 @@
+.container {
+  color: var(--black);
+}
+
+.analytics-box {
+  padding: 1rem;
+  background-color: var(--white);
+  border-radius: 10px;
+  display: grid;
+  gap: 1rem;
+}
+
+.analytics-details ol {
+  padding-left: 1rem;
+}
+
+.filter-box form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
