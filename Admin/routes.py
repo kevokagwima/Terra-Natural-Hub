@@ -519,6 +519,7 @@ def diagnosis_details(diagnosis_id, diagnosed_diseases_ids):
     new_diagnosis_detail = DiagnosisDetails(
       diagnosis_id = diagnosis.id,
       disease_id = disease.id,
+      month_created = int(get_local_time().strftime("%m"))
     )
     db.session.add(new_diagnosis_detail)
     db.session.commit()
@@ -581,7 +582,8 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
       new_prescription_detail = PrescriptionDetails(
         prescription_id = prescription.id,
         medicine_id = medicine.id,
-        amount = medicine.price
+        amount = medicine.price,
+        month_created = int(get_local_time().strftime("%m"))
       )
       db.session.add(new_prescription_detail)
       flash("Prescription saved successfully", "success")
@@ -712,44 +714,73 @@ def export_transaction(payment_id):
 
   return redirect(url_for("admin.home"))
 
-# @admin.route('/api/analytics')
-# def get_analytics():
-#   month = request.args.get('month', 'all')
-#   year = request.args.get('year', get_local_time.year)
+@admin.route("/analytics", methods=["POST", "GET"])
+def analytics():
+  diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.id).order_by(func.count(DiagnosisDetails.disease_id).desc()).all()]
+
+  diagnosis_disease_idz = db.session.query(DiagnosisDetails.diagnosis_id, func.count(DiagnosisDetails.diagnosis_id).label('count')).group_by(DiagnosisDetails.diagnosis_id).order_by(func.count(DiagnosisDetails.diagnosis_id).desc()).all()
+
+  prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).all()]
+
+  if request.method == "POST":
+    selected_month = request.form.get("filter")
+    diagnosis_disease_ids = [diagnosis.id for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).filter(DiagnosisDetails.month_created == int(selected_month)).all()]
+
+    diagnosis_disease_idz = db.session.query(DiagnosisDetails.diagnosis_id, func.count(DiagnosisDetails.diagnosis_id).label('count')).group_by(DiagnosisDetails.diagnosis_id).order_by(func.count(DiagnosisDetails.diagnosis_id).desc()).filter(DiagnosisDetails.month_created == int(selected_month)).all()
+
+    prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).filter(DiagnosisDetails.month_created == int(selected_month)).all()]
+
+  context = {
+    "diagnosis_disease_ids": diagnosis_disease_ids,
+    "diagnosis_disease_idz": diagnosis_disease_idz,
+    "prescription_medicine_ids": prescription_medicine_ids,
+    "diseases": Disease.query.all(),
+    "medicines": Medicine.query.all(),
+    "all_diagnosis": Diagnosis.query.all(),
+    "diagnosis_details": DiagnosisDetails.query.all(),
+    "patients": Patients.query.all(),
+  }
+
+  return render_template("Main/analytics.html", **context)
+
+@admin.route("/api/analytics")
+def get_analytics():
+  month = request.args.get('month', 'all')
+  year = request.args.get('year', get_local_time.year)
   
-#   try:
-#     # Get most diagnosed diseases
-#     diseases_query = db.session.query(
-#       Diagnosis.diagnosed_disease.name,
-#       db.func.count(Diagnosis.id).label('count')
-#     )
+  try:
+    # Get most diagnosed diseases
+    diseases_query = db.session.query(
+      Diagnosis.diagnosed_disease.name,
+      db.func.count(Diagnosis.id).label('count')
+    )
     
-#     if month != 'all':
-#       diseases_query = diseases_query.filter(
-#         db.extract('month', Diagnosis.created_at) == month,
-#         db.extract('year', Diagnosis.created_at) == year
-#       )
+    if month != 'all':
+      diseases_query = diseases_query.filter(
+        db.extract('month', Diagnosis.created_at) == month,
+        db.extract('year', Diagnosis.created_at) == year
+      )
     
-#     top_diseases = diseases_query.group_by(Diagnosis.diagnosed_disease.name).order_by(db.desc('count')).limit(5).all()
+    top_diseases = diseases_query.group_by(Diagnosis.diagnosed_disease.name).order_by(db.desc('count')).limit(5).all()
     
-#     # Get most prescribed medications
-#     meds_query = db.session.query(
-#       Prescription.prescribed_medicine.name,
-#       db.func.count(Prescription.id).label('count')
-#     )
+    # Get most prescribed medications
+    meds_query = db.session.query(
+      Prescription.prescribed_medicine.name,
+      db.func.count(Prescription.id).label('count')
+    )
     
-#     if month != 'all':
-#       meds_query = meds_query.filter(
-#         db.extract('month', Prescription.created_at) == month,
-#         db.extract('year', Prescription.created_at) == year
-#       )
+    if month != 'all':
+      meds_query = meds_query.filter(
+        db.extract('month', Prescription.created_at) == month,
+        db.extract('year', Prescription.created_at) == year
+      )
     
-#     top_medications = meds_query.group_by(Prescription.prescribed_medicine.name).order_by(db.desc('count')).limit(5).all()
+    top_medications = meds_query.group_by(Prescription.prescribed_medicine.name).order_by(db.desc('count')).limit(5).all()
     
-#     return jsonify({
-#       'diseases': [{'name': d[0], 'count': d[1]} for d in top_diseases],
-#       'medications': [{'name': m[0], 'count': m[1]} for m in top_medications]
-#     })
+    return jsonify({
+      'diseases': [{'name': d[0], 'count': d[1]} for d in top_diseases],
+      'medications': [{'name': m[0], 'count': m[1]} for m in top_medications]
+    })
       
-#   except Exception as e:
-#     return jsonify({'error': str(e)}), 500
+  except Exception as e:
+    return jsonify({'error': str(e)}), 500
