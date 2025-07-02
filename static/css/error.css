@@ -1,22 +1,15 @@
-.side-nav-menu {
-  display: none;
-}
-
 .container {
-  padding: 4rem;
-  display: grid;
-  place-items: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .error-box {
   display: grid;
   justify-content: center;
   gap: 2rem;
-}
-
-.container div {
-  max-width: max-content;
-  margin-inline: auto;
+  text-align: center;
 }
 
 .error-title h1 {
@@ -30,9 +23,19 @@
   text-align: center;
 }
 
+.error-img i {
+  font-size: 4rem;
+}
+
 .error-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-top: 1rem;
+  max-width: max-content;
+  margin-inline: auto;
+}
+
+.error-actions button {
+  color: var(--white);
 }

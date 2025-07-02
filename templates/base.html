@@ -13,31 +13,9 @@
   <title>Terra Natural Herbs | {% block title %}{% endblock %}
   </title>
 </head>
-{%endblock%}
+{% endblock %}
 
 <body>
-  <header>
-    <div class="logo-container">
-      <a href="{{ url_for('admin.home') }}">
-        <img src="{{ url_for('static', filename='image/logo.webp') }}" alt="Terra Natural Herbs Logo"
-          class="header-logo">
-      </a>
-    </div>
-
-    {% if current_user.is_authenticated %}
-    <div class="link2">
-      <p class="username">Welcome, <b>{{current_user.email}}</b></p>
-      <p><a href="{{url_for('auth.logout')}}">LOGOUT</a></p>
-    </div>
-    {% else %}
-    <div class="hamburger-container">
-      <div class="link1" id="mobile-menu">
-        <a href="{{url_for('auth.signup')}}">Sign up</a>
-        <a href="{{url_for('auth.signin')}}">Sign in</a>
-      </div>
-    </div>
-    {% endif %}
-  </header>
   <div class="content-box">
     <aside class="sidebar">
       <div class="sidebar-header">

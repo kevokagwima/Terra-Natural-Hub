@@ -6,4 +6,4 @@ class Disease(BaseModel, db.Model):
   diagnosis_details = db.relationship("DiagnosisDetails", backref="diagnosed_disease", lazy=True)
 
   def __repr__(self):
-    return f"{self.diagnosis_details}"
+    return f"{self.name}"

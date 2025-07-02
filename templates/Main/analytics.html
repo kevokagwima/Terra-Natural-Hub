@@ -3,93 +3,183 @@
 {% block head %}
 {{ super() }}
 <link rel="stylesheet" href="{{url_for('static',filename='css/analytics.css')}}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
 
 {% block title %}
-Analytics
+Analytics Dashboard
 {% endblock %}
 
 {% block nav %}
 <a href="{{ url_for('admin.home') }}" class="nav-item">
-  <i class="fas fa-home"></i>
-  Dashboard
+  <i class="fas fa-chevron-left"></i>
+  Back To Dashboard
 </a>
 {% endblock %}
 
 {% block body %}
-<div class="header">
-  <div class="page-title">
-    <div class="page-title-box">
-      <h1>Analytics</h1>
+<div class="analytics-container">
+  <div class="analytics-header-box">
+    <div class="analytics-header">
+      <h1>
+        <i class="fas fa-chart-line"></i> Analytics
+      </h1>
+      <p>Insights into diagnosis and prescriptions</p>
+    </div>
+    <div class="filter-card">
+      <form action="{{ url_for('admin.analytics') }}" method="post" class="filter-form">
+        <div class="form-group">
+          <select name="filter" id="month-filter" class="styled-select">
+            <option value="0">All Months</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+        </div>
+        <button type="submit" class="filter-button">
+          <i class="fas fa-filter"></i> Apply Filter
+        </button>
+      </form>
     </div>
   </div>
-</div>
-<div class="analytics-box">
-  <div class="filter-box">
-    <form action="{{ url_for('admin.analytics') }}" method="post">
-      <select name="filter" id="">
-        <option value="1">January</option>
-        <option value="2">February</option>
-        <option value="3">March</option>
-        <option value="4">April</option>
-        <option value="5">May</option>
-        <option value="6">June</option>
-        <option value="7">July</option>
-        <option value="8">August</option>
-        <option value="9">September</option>
-        <option value="10">October</option>
-        <option value="11">November</option>
-        <option value="12">December</option>
-      </select>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-  <div class="analytics-details">
-    <ol>
-      {% if diagnosis_disease_ids %}
-      {% for diagnosis_disease_id, count in diagnosis_disease_ids %}
-      <li>
-        {% for diagnosis_detail in diagnosis_details if diagnosis_detail.id == diagnosis_disease_id %}
-        {% for disease in diseases if disease.id == diagnosis_detail.disease_id %}
-        <details>
-          <summary><b>{{ disease.name }}</b> - diagnosed {{ count }} time(s)</summary>
-          {% for each_diagnosis in all_diagnosis if each_diagnosis.id == diagnosis_detail.diagnosis_id %}
-          {% for patient in patients if patient.id == each_diagnosis.patient_id %}
-          <details>
-            <summary><b>Region(s): </b>{{ patient.patient_address.region }}, {{ patient.patient_address.district }}
-            </summary>
-            <p><b>Patient: </b>{{ patient.first_name }} {{ patient.last_name }}</p>
-            <p>
-              <b>Appointment: </b>
-              <a target="_blank"
-                href="{{ url_for('admin.appointment', appointment_id=each_diagnosis.appointment_diagnosis.unique_id) }}">#{{
-                each_diagnosis.appointment_id }}
-            </p></a>
-          </details>
-          {% endfor %}
-          {% endfor %}
-        </details>
+
+  <div class="analytics-content">
+    {% if month_selected %}
+    <p id="month-selected">
+      Showing results for:
+      <b>
+        {% if month_selected == 1 %}
+        January
+        {% elif month_selected == 2 %}
+        February
+        {% elif month_selected == 3 %}
+        March
+        {% elif month_selected == 4 %}
+        April
+        {% elif month_selected == 5 %}
+        May
+        {% elif month_selected == 6 %}
+        June
+        {% elif month_selected == 7 %}
+        July
+        {% elif month_selected == 8 %}
+        August
+        {% elif month_selected == 9 %}
+        September
+        {% elif month_selected == 10 %}
+        October
+        {% elif month_selected == 11 %}
+        November
+        {% elif month_selected == 12 %}
+        December
+        {% else %}
+        All Months
+        {% endif %}
+      </b>
+    </p>
+    {% endif %}
+    <div class="results-card">
+      <div class="card-header">
+        <h2><i class="fas fa-diagnoses"></i> Diagnosis Statistics</h2>
+        <span class="badge">{{ results|length }} conditions found</span>
+      </div>
+
+      <div class="diagnosis-list">
+        {% if not results %}
+        <p class="else">No Data to show</p>
+        {% else %}
+        {% for result in results %}
+        <div class="diagnosis-item">
+          <div class="diagnosis-header">
+            <span class="rank">{{ loop.index }}</span>
+            <div class="diagnosis-info">
+              <h3>
+                {% for disease in diseases if disease.id == result.disease_id %}
+                {{ disease.name }}
+                {% endfor %}
+              </h3>
+              <div class="diagnosis-meta">
+                <span class="count-badge">{{ "{:,}".format(result.count) }} {{ 'diagnoses' if result.count > 1 else
+                  'diagnosis'
+                  }}</span>
+                <button class="toggle-details" data-target="details-{{ loop.index }}">
+                  <i class="fas fa-chevron-down"></i> View Cases
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="diagnosis-details" id="details-{{ loop.index }}">
+            {% for diagnosis in result.diagnoses %}
+            <div class="case-card">
+              <div class="case-header">
+                <h4>
+                  {% for d in all_diagnosis if d.id == diagnosis.diagnosis_id %}
+                  {% for patient in patients if patient.id == d.patient_id %}
+                  <a target="_blank" href="{{ url_for('admin.patient_profile', patient_id=patient.unique_id) }}"
+                    class="patient-link">
+                    <i class="fas fa-user"></i> {{ patient.first_name }} {{ patient.last_name }}
+                  </a>
+                  {% endfor %}
+                  {% endfor %}
+                </h4>
+                <span class="case-date">
+                  {% for d in all_diagnosis if d.id == diagnosis.diagnosis_id %}
+                  {{ d.date_created.strftime('%b %d, %Y') }}
+                  {% endfor %}
+                </span>
+              </div>
+
+              <div class="case-details">
+                <div class="detail-item">
+                  <span class="detail-label"><i class="fas fa-map-marker-alt"></i> Address</span>
+                  <span class="detail-value">
+                    {% for d in all_diagnosis if d.id == diagnosis.diagnosis_id %}
+                    {% for patient in patients if patient.id == d.patient_id %}
+                    {% if patient.address_id %}
+                    {{ patient.patient_address.region }}, {{ patient.patient_address.district }}
+                    {% else %}
+                    ---
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                  </span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label"><i class="fas fa-calendar-check"></i> Appointment</span>
+                  <span class="detail-value">
+                    {% for d in all_diagnosis if d.id == diagnosis.diagnosis_id %}
+                    <a target="_blank"
+                      href="{{ url_for('admin.appointment', appointment_id=d.appointment_diagnosis.unique_id) }}"
+                      id="appointment-link">
+                      #{{ d.appointment_diagnosis.unique_id }}
+                      <i class="fas fa-arrow-right"></i>
+                    </a>
+                    {% endfor %}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
         {% endfor %}
-        {% endfor %}
-      </li>
-      {% endfor %}
-      {% else %}
-      <p>No data found</p>
-      {% endif %}
-    </ol>
-    <br><br>
-    <ol>
-      {% for prescription_medicine_id, counts in prescription_medicine_ids %}
-      <li>
-        {% for medicine in medicines if medicine.id == prescription_medicine_id %}
-        <b>{{ medicine.name }}</b> - prescribed {{ counts }} time(s)
-        {% endfor %}
-      </li>
-      {% endfor %}
-    </ol>
+        {% endif %}
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
 
 {% block script %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
 {% endblock %}

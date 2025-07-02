@@ -17,7 +17,7 @@ class DiagnosisDetails(BaseModel, db.Model):
   __tablename__ = "diagnosis_details"
   diagnosis_id = db.Column(db.Integer(), db.ForeignKey("diagnosis.id"))
   disease_id = db.Column(db.Integer(), db.ForeignKey("disease.id"))
-  month_created = db.Column(db.Integer())
+  month_created = db.Column(db.Integer(), default=int(get_local_time().strftime("%m")))
 
   def __repr__(self):
     return f"{self.id}"

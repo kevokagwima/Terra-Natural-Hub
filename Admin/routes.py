@@ -12,7 +12,7 @@ from Models.diagnosis import Diagnosis, DiagnosisDetails
 from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
-from collections import Counter
+from collections import Counter, defaultdict
 import folium
 import pandas as pd
 from sqlalchemy.sql import func, cast, literal_column
@@ -519,7 +519,6 @@ def diagnosis_details(diagnosis_id, diagnosed_diseases_ids):
     new_diagnosis_detail = DiagnosisDetails(
       diagnosis_id = diagnosis.id,
       disease_id = disease.id,
-      month_created = int(get_local_time().strftime("%m"))
     )
     db.session.add(new_diagnosis_detail)
     db.session.commit()
@@ -583,7 +582,6 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
         prescription_id = prescription.id,
         medicine_id = medicine.id,
         amount = medicine.price,
-        month_created = int(get_local_time().strftime("%m"))
       )
       db.session.add(new_prescription_detail)
       flash("Prescription saved successfully", "success")
@@ -699,6 +697,7 @@ def record_transaction(prescription_id):
   db.session.commit()
 
 @admin.route("/export/transaction/<int:payment_id>")
+@login_required
 def export_transaction(payment_id):
   payment = Payment.query.filter_by(unique_id=payment_id).first()
   if not payment:
@@ -715,72 +714,60 @@ def export_transaction(payment_id):
   return redirect(url_for("admin.home"))
 
 @admin.route("/analytics", methods=["POST", "GET"])
+@login_required
 def analytics():
-  diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.id).order_by(func.count(DiagnosisDetails.disease_id).desc()).all()]
+  details = db.session.query(
+    DiagnosisDetails.id,
+    DiagnosisDetails.diagnosis_id,
+    DiagnosisDetails.disease_id
+  ).all()
 
-  diagnosis_disease_idz = db.session.query(DiagnosisDetails.diagnosis_id, func.count(DiagnosisDetails.diagnosis_id).label('count')).group_by(DiagnosisDetails.diagnosis_id).order_by(func.count(DiagnosisDetails.diagnosis_id).desc()).all()
-
-  prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).all()]
+  month_selected = 0
 
   if request.method == "POST":
-    selected_month = request.form.get("filter")
-    diagnosis_disease_ids = [diagnosis.id for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).filter(DiagnosisDetails.month_created == int(selected_month)).all()]
+    month_selected = request.form.get("filter")
+    if int(month_selected) == 0:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id
+      ).all()
+    else:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id
+      ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
 
-    diagnosis_disease_idz = db.session.query(DiagnosisDetails.diagnosis_id, func.count(DiagnosisDetails.diagnosis_id).label('count')).group_by(DiagnosisDetails.diagnosis_id).order_by(func.count(DiagnosisDetails.diagnosis_id).desc()).filter(DiagnosisDetails.month_created == int(selected_month)).all()
+  # Then process in Python to count and group
+  disease_counts = defaultdict(list)
 
-    prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).filter(DiagnosisDetails.month_created == int(selected_month)).all()]
+  for detail in details:
+    disease_counts[detail.disease_id].append({
+      'diagnosis_detail_id': detail.id,
+      'diagnosis_id': detail.diagnosis_id
+    })
+
+  # Convert to final structure
+  result = []
+  for disease_id, entries in disease_counts.items():
+    result.append({
+      'disease_id': disease_id,
+      'count': len(entries),
+      'diagnoses': entries
+    })
+
+  # Sort by count descending
+  result.sort(key=lambda x: x['count'], reverse=True)
 
   context = {
-    "diagnosis_disease_ids": diagnosis_disease_ids,
-    "diagnosis_disease_idz": diagnosis_disease_idz,
-    "prescription_medicine_ids": prescription_medicine_ids,
+    "results": result,
     "diseases": Disease.query.all(),
     "medicines": Medicine.query.all(),
     "all_diagnosis": Diagnosis.query.all(),
     "diagnosis_details": DiagnosisDetails.query.all(),
     "patients": Patients.query.all(),
+    "month_selected": int(month_selected)
   }
 
   return render_template("Main/analytics.html", **context)
-
-@admin.route("/api/analytics")
-def get_analytics():
-  month = request.args.get('month', 'all')
-  year = request.args.get('year', get_local_time.year)
-  
-  try:
-    # Get most diagnosed diseases
-    diseases_query = db.session.query(
-      Diagnosis.diagnosed_disease.name,
-      db.func.count(Diagnosis.id).label('count')
-    )
-    
-    if month != 'all':
-      diseases_query = diseases_query.filter(
-        db.extract('month', Diagnosis.created_at) == month,
-        db.extract('year', Diagnosis.created_at) == year
-      )
-    
-    top_diseases = diseases_query.group_by(Diagnosis.diagnosed_disease.name).order_by(db.desc('count')).limit(5).all()
-    
-    # Get most prescribed medications
-    meds_query = db.session.query(
-      Prescription.prescribed_medicine.name,
-      db.func.count(Prescription.id).label('count')
-    )
-    
-    if month != 'all':
-      meds_query = meds_query.filter(
-        db.extract('month', Prescription.created_at) == month,
-        db.extract('year', Prescription.created_at) == year
-      )
-    
-    top_medications = meds_query.group_by(Prescription.prescribed_medicine.name).order_by(db.desc('count')).limit(5).all()
-    
-    return jsonify({
-      'diseases': [{'name': d[0], 'count': d[1]} for d in top_diseases],
-      'medications': [{'name': m[0], 'count': m[1]} for m in top_medications]
-    })
-      
-  except Exception as e:
-    return jsonify({'error': str(e)}), 500

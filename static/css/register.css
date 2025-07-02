@@ -1,5 +1,16 @@
-.side-nav-menu {
+.sidebar {
   display: none;
+}
+
+.main-content {
+  margin-left: 0;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auth-container {
@@ -13,10 +24,11 @@
 
 .auth-container h1 {
   color: var(--black);
+  font-size: 1.8rem;
 }
 
 form {
-  margin-top: 1rem;
+  margin-top: 2rem;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;

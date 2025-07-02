@@ -9,14 +9,21 @@
 {{ message }}
 {% endblock %}
 
+{% block nav %}
+<a href="{{ url_for('admin.home') }}" class="nav-item">
+  <i class="fas fa-chevron-left"></i>
+  Back To Dashboard
+</a>
+{% endblock %}
+
 {% block body %}
 <div class="container">
   <div class="error-box">
+    <div class="error-img">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
     <div class="error-title">
       <h1>{{ message }}</h1>
-    </div>
-    <div class="error-img">
-      <img src="{{ url_for('static', filename='images/error-image.png') }}" alt="">
     </div>
     <div class="error-info">
       <p>{{ error }}</p>
@@ -24,9 +31,6 @@
     <div class="error-actions">
       <a href="{{ url_for('admin.home') }}">
         <button>Back Home</button>
-      </a>
-      <a href="#">
-        <button>Contact Us</button>
       </a>
     </div>
   </div>

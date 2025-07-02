@@ -12,8 +12,8 @@ Patient Appointment
 
 {% block nav %}
 <a href="{{ url_for('admin.home') }}" class="nav-item">
-  <i class="fas fa-home"></i>
-  Dashboard
+  <i class="fas fa-chevron-left"></i>
+  Back To Dashboard
 </a>
 <a href="{{ url_for('admin.patient_profile', patient_id=appointment.patient_appointment.unique_id) }}" class="nav-item">
   <i class="fas fa-user-injured"></i> Client Profile

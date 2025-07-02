@@ -1,10 +1,10 @@
 from flask import Flask
 from Models.base_model import db
 from Models.users import *
-from Models.diagnosis import *
-from Models.prescription import *
 from Models.diseases import *
+from Models.diagnosis import *
 from Models.medicine import *
+from Models.prescription import *
 from Models.payment import *
 from config import Config
 
@@ -32,6 +32,6 @@ def add_roles():
 
 if __name__ == "__main__":
   with app.app_context():
-    drop_tables()
+    # drop_tables()
     create_tables()
-    add_roles()
+    # add_roles()
