@@ -16,8 +16,7 @@ Edit Patient
 {% block nav %}
 <a href="{{ url_for('admin.home') }}" class="nav-item">
   <i class="fas fa-chevron-left"></i>
-
-  Dashboard
+  Back To Dashboard
 </a>
 {% endblock %}
 
@@ -92,7 +91,7 @@ Edit Patient
 
       <div class="form-section">
         <h2 class="section-title">Address Information</h2>
-        {% if patient.address_id %}
+        {% if patient and patient.address_id %}
         <div class="patient-address-box">
           <h4>Saved Address</h4>
           {{ patient.patient_address.region }}, {{ patient.patient_address.district }}

@@ -801,7 +801,7 @@ Home
           {% endif %}
         </div>
         <div class="right-btns">
-          <a href="{{ url_for('admin.export_transaction', payment_id=payment.unique_id) }}">
+          <a target="_blank" href="{{ url_for('admin.export_transaction', payment_id=payment.unique_id) }}">
             <button class="btn btn-primary">
               <i class="fas fa-file-pdf"></i> Export as PDF
             </button>

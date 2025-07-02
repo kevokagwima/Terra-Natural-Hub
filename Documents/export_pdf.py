@@ -1,8 +1,10 @@
+from flask import send_file
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from datetime import datetime
+from io import BytesIO
 import os
 
 def generate_payment_pdf(patient_info, payment_info, output_path="Documents/Receipts"):
@@ -10,13 +12,14 @@ def generate_payment_pdf(patient_info, payment_info, output_path="Documents/Rece
   os.makedirs(output_path, exist_ok=True)
   
   # Generate filename
-  timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-  filename = f"payment_{patient_info['first_name']}_{patient_info['last_name']}_{timestamp}.pdf"
-  filepath = os.path.join(output_path, filename)
+  timestamp = datetime.now().strftime("%Y-%m-%d")
+  filename = f"payment-receipt-{patient_info['first_name']}_{patient_info['last_name']}-{timestamp}.pdf"
+
+  buffer = BytesIO()
   
   # Create PDF document
   doc = SimpleDocTemplate(
-    filepath,
+    buffer,
     pagesize=letter,
     leftMargin=40,
     rightMargin=40,
@@ -122,4 +125,11 @@ def generate_payment_pdf(patient_info, payment_info, output_path="Documents/Rece
   
   # Generate PDF
   doc.build(elements)
-  return filepath
+
+  buffer.seek(0)
+  return send_file(
+    buffer,
+    as_attachment=False,
+    mimetype='application/pdf',
+    download_name=filename
+  )

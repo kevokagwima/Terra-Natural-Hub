@@ -709,8 +709,7 @@ def export_transaction(payment_id):
 
   try:
     patient = Patients.query.get(payment.patient_id)
-    generate_payment_pdf(patient.to_dict(), payment.to_dict())
-    flash("Payment exported successfully", "success")
+    return generate_payment_pdf(patient.to_dict(), payment.to_dict())
   except Exception as e:
     flash(f"{str(e)}", "danger")
 
