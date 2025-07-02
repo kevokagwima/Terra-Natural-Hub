@@ -10,6 +10,13 @@
 Signin
 {% endblock %}
 
+{% block nav %}
+<a href="{{ url_for('admin.home') }}" class="nav-item">
+  <i class="fas fa-chevron-left"></i>
+  Back To Dashboard
+</a>
+{% endblock %}
+
 {% block body %}
 <div class="container">
   <div class="auth-container">
@@ -22,7 +29,10 @@ Signin
       </div>
       <div class="input">
         {{ form.password.label }}
-        {{ form.password(placeholder="Enter Password", class="name") }}
+        <div id="input">
+          {{ form.password(placeholder="Enter Password", class="name password") }}
+          <i class="fa fa-eye password-toggle"></i>
+        </div>
       </div>
       <button class="btn" type="submit">
         <span class="button--text">Sign In</span>
@@ -34,4 +44,8 @@ Signin
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
 {% endblock %}

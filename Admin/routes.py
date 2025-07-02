@@ -54,6 +54,7 @@ def home():
   return render_template("Main/home.html", **context)
 
 @admin.route("/find-patient/<string:search_text>")
+@login_required
 def patient_search(search_text):
   patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%")).all()
   
@@ -632,6 +633,8 @@ def complete_appointment(appointment_id):
   return redirect(url_for("admin.home"))
 
 @admin.route("/patient/feedback/<int:appointment_id>", methods=["POST"])
+@login_required
+@role_required(["Admin"])
 def patient_feedback(appointment_id):
   try:
     appointment = Appointment.query.filter_by(unique_id=appointment_id).first()

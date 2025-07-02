@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block title %}
-Analytics Dashboard
+Analytics
 {% endblock %}
 
 {% block nav %}
@@ -29,7 +29,8 @@ Analytics Dashboard
     <div class="filter-card">
       <form action="{{ url_for('admin.analytics') }}" method="post" class="filter-form">
         <div class="form-group">
-          <select name="filter" id="month-filter" class="styled-select">
+          <select required name="filter" id="month-filter" class="styled-select">
+            <option value="">Select Month</option>
             <option value="0">All Months</option>
             <option value="1">January</option>
             <option value="2">February</option>

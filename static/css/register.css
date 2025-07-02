@@ -1,11 +1,3 @@
-.sidebar {
-  display: none;
-}
-
-.main-content {
-  margin-left: 0;
-}
-
 .container {
   height: 100%;
   display: flex;
@@ -51,6 +43,11 @@ select {
 
 input::placeholder {
   color: var(--grey);
+}
+
+input:focus,
+select:focus {
+  outline: none;
 }
 
 #input {
