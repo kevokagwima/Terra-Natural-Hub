@@ -115,49 +115,16 @@ textarea:focus {
   outline: 1px solid var(--light-green);
 }
 
-.container {
-  height: 100vh;
-}
-
-.link1,
-.link2 {
-  display: flex;
-  gap: 1.4rem;
-}
-
-header {
-  background: var(--white);
-  display: none;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  width: 100%;
-  max-height: max-content;
-  position: sticky;
-  top: 0;
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 10px; /* Add some space between the logo and the text */
-}
-
-/* Logo styles */
-.header-logo {
-  max-height: 6rem;
-}
-
 .content-box {
   display: flex;
-  height: calc(100svh - 100px);
+  height: 100svh;
 }
 
 .sidebar {
   background-color: var(--white);
   min-width: 14rem;
   border-radius: var(--radius-s);
-  height: 100%;
+  min-height: 100%;
   position: fixed;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   padding: 1.5rem 0;
@@ -253,7 +220,7 @@ header {
 
 .main-content {
   margin-left: 14rem;
-  height: 100%;
+  min-height: 100svh;
   padding: 2rem;
   flex: 1;
   background-color: var(--light-grey);
@@ -417,6 +384,7 @@ header {
 .tab-content,
 .tabContent {
   display: none;
+  padding-bottom: 1rem;
 }
 
 .tab-content.active,

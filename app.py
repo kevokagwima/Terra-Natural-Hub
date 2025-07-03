@@ -21,7 +21,7 @@ login_manager.blueprint_login_views = {
   'admin': '/auth/signin',
 }
 login_manager.login_message="Please Login or Sign Up to access this page"
-login_manager.login_message_category="danger"
+login_manager.login_message_category="info"
 login_manager.refresh_view = "/auth/signin"
 login_manager.needs_refresh_message = ("Your account has been inactive for a long time please login.")
 login_manager.needs_refresh_message_category = "info"

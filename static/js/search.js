@@ -42,3 +42,12 @@ $(document).ready(function () {
     });
   });
 });
+
+$(document).ready(function () {
+  $("#labtest-search").on("keyup", function () {
+    var value = $(this).val().toLowerCase();
+    $(".labtest-box .diagnosis-container").filter(function () {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
+  });
+});

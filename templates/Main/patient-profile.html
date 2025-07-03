@@ -2,7 +2,7 @@
 
 {% block head %}
 {{super()}}
-<link rel="stylesheet" href="{{url_for('static',filename='css/clients_details.css')}}">
+<link rel="stylesheet" href="{{url_for('static',filename='css/patient-profile.css')}}">
 {% endblock %}
 
 {% block title %}
@@ -65,6 +65,14 @@ Patient Profile | {{ patient.first_name }} {{ patient.last_name }}
         <label>Address</label>
         {% if patient_address %}
         <p>{{ patient_address.region }}, {{ patient_address.district }}</p>
+        {% else %}
+        <p>---</p>
+        {% endif %}
+      </div>
+      <div style="margin-top: 1rem;" class="info-item">
+        <label>Location</label>
+        {% if patient_address %}
+        <p>{{ patient_address.location }}</p>
         {% else %}
         <p>---</p>
         {% endif %}

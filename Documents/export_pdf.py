@@ -5,12 +5,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from datetime import datetime
 from io import BytesIO
-import os
 
-def generate_payment_pdf(patient_info, payment_info, output_path="Documents/Receipts"):
-  # Create output directory if it doesn't exist
-  os.makedirs(output_path, exist_ok=True)
-  
+def generate_payment_pdf(patient_info, payment_info):
   # Generate filename
   timestamp = datetime.now().strftime("%Y-%m-%d")
   filename = f"payment-receipt-{patient_info['first_name']}_{patient_info['last_name']}-{timestamp}.pdf"

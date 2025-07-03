@@ -25,6 +25,10 @@ Home
   <i class="fas fa-hospital"></i>
   Medical Data
 </a>
+<a data-tab="lab-analysis" class="nav-item">
+  <i class="fas fa-microscope"></i>
+  Lab Analysis
+</a>
 <a data-tab="diagnosis" class="nav-item">
   <i class="fas fa-stethoscope"></i>
   Diagnosis
@@ -567,6 +571,88 @@ Home
     </div>
     {% endfor %}
   </div>
+</div>
+<div id="lab-analysis" class="tabContent">
+  <div class="header">
+    <div class="page-title">
+      <h1>Lab Analysis</h1>
+    </div>
+  </div>
+  <div class="search-medical-data">
+    <input class="search-inputs" type="text" name="search-labtest" id="labtest-search"
+      placeholder="Search for lab tests">
+  </div>
+  {% if lab_tests %}
+  <div class="labtest-box">
+    {% for lab_test in lab_tests|sort(attribute="date_created", reverse=True) %}
+    <div class="diagnosis-container">
+      <div class="diagnosis-header">
+        <div class="patient-info">
+          <div class="patient-details">
+            <h3>{{ lab_test.patient_labtest.first_name }} {{ lab_test.patient_labtest.last_name }}</h3>
+            <div class="patient-meta">
+              <span>{{ lab_test.patient_labtest.age }} years old</span>
+              <span style="text-transform: capitalize;">{{ lab_test.patient_labtest.gender }}</span>
+              <span>ID: PT - {{ lab_test.patient_labtest.unique_id }}</span>
+              <span>Date Created: {{ lab_test.date_created.strftime("%B %d, %Y") }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="diagnosis-meta">
+          <div class="diagnosis-id">Lab Analysis ID: LB-{{ lab_test.unique_id }}</div>
+        </div>
+      </div>
+
+      <div class="diseases-list">
+        {% if lab_test.lab_analysis_details %}
+        <div class="labtest-list-box">
+          {% for lab_test_detail in lab_test.lab_analysis_details %}
+          <div class="lab-item">
+            <div class="lab-header">
+              <h2 class="section-title">Test Conducted</h2>
+            </div>
+            <div class="lab-details">
+              <div class="disease-name">
+                <p>{{ lab_test_detail.test }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="lab-item">
+            <div class="lab-header">
+              <h2 class="section-title">Test Result</h2>
+            </div>
+            <div class="lab-details">
+              <div class="disease-name">
+                <p>{{ lab_test_detail.result }}</p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="actions-section">
+        <div class="left">
+          {% if lab_test.is_approved %}
+          <span class="status-badge completed">Approved</span>
+          {% else %}
+          <span class="status-badge pending">Pending</span>
+          {% endif %}
+        </div>
+        <div class="right">
+          <a href="{{ url_for('admin.appointment', appointment_id=lab_test.appointment_lab_analysis.unique_id) }}">
+            <button class="btn btn-outline">
+              <i class="fas fa-arrow-right"></i> View in appointment
+            </button>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="else">No data to show</p>
+  {% endif %}
 </div>
 <div id="diagnosis" class="tabContent">
   <div class="header">

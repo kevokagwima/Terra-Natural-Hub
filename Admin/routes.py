@@ -12,13 +12,39 @@ from Models.diagnosis import Diagnosis, DiagnosisDetails
 from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
-from collections import Counter, defaultdict
-import folium
-import pandas as pd
-from sqlalchemy.sql import func, cast, literal_column
-from sqlalchemy.types import String
+from collections import defaultdict
+from sqlalchemy.sql import func
 
 admin = Blueprint("admin", __name__)
+region_districts = {
+  "Arusha": ["Monduli", "Arusha", "Arumeru", "Karatu", "Longido", "Ngorongoro"],
+  "Dar es Salaam": ["Ilala", "Kinondoni", "Temeke", "Kigamboni", "Ubungo"],
+  "Dodoma": ["Bahi", "Chamwino", "Chemba", "Dodoma", "Kondoa", "Kongwa", "Mpwapwa"],
+  "Geita": ["Bukombe", "Chato", "Geita", "Mbogwe", "Nyang'hwale"],
+  "Iringa": ["Iringa", "Kilolo", "Mafinga Town", "Mufindi"],
+  "Kagera": ["Biharamulo", "Bukoba", "Karagwe", "Kyerwa", "Missenyi", "Muleba", "Ngara"],
+  "Katavi": ["Mlele", "Mpanda"],
+  "Kigoma": ["Buhigwe", "Kakonko", "Kasulu", "Kibondo", "Kigoma", "Uvinz"],
+  "Kilimanjaro": ["Hai", "Moshi", "Mwanga", "Rombo", "Same", "Siha"],
+  "Lindi": ["Kilwa", "Lindi", "Liwale", "Nachingwea", "Ruangwa"],
+  "Manyara": ["Babati", "Hanang", "Kiteto", "Mbulu", "Simanjiro"],
+  "Mara": ["Bunda", "Butiama", "Musoma", "Rorya", "Serengeti", "Tarime"],
+  "Mbeya": ["Busokelo", "Chunya", "Kyela", "Mbarali", "Mbeya", "Rungwe"],
+  "Mororgoro": ["Gairo", "Kilombero", "Kilosa", "Morogoro", "Mvomero", "Ulanga"],
+  "Mtwara": ["Masasi", "Mtwara", "Nanyumbu", "Newala", "Tandahimba"],
+  "Mwanza": ["Ilemela", "Kwimba", "Magu", "Misungwi", "Nyamagana", "Sengerema", "Ukerewe"],
+  "Njombe": ["Ludewa", "Makambako Town", "Makete", "Njombe", "Wanging'ombe"],
+  "Pwani": ["Bagamoyo", "Kibaha", "Kisarawe", "Mafia", "Mkuranga", "Rufiji"],
+  "Rukwa": ["Kalambo", "Nkasi", "Sumbawanga"],
+  "Ruvuma": ["Mbinga", "Namtumbo", "Nyasa", "Songea", "Tunduru"],
+  "Shinyanga": ["Kahama", "Kishapu", "Shinyanga"],
+  "Simiyu": ["Bariadi", "Busega", "Itilima", "Maswa", "Meat"],
+  "Singida": ["Ikungi", "Iramba", "Manyoni", "Mkalama", "Singida"],
+  "Songwe": ["Ileje", "Mbozi", "Momba", "Songwe"],
+  "Tabora": ["Igunga", "Kaliua", "Nzega", "Sikonge", "Tabora", "Uyu"],
+  "Tanga": ["Handeni", "Kilindi", "Korogwe", "Lushoto", "Mkinga", "Muheza", "Pangani", "Tanga"],
+  "Zanzibar": ["Zanzibar Central/South", "Zanzibar North", "Zanzibar Urban/West"]
+}
 
 @admin.route("/")
 @admin.route("/home")
@@ -226,22 +252,35 @@ def remove_disease(disease_id):
 @login_required
 def add_patient():
   form = AddPatientForm()
-  form.address.choices = [(address.id, f"{address.region}, {address.district}") for address in PatientAddress.query.all()]
+  form.district.choices = [('', 'Select District')]
+  if 'region' in request.form:
+    region = request.form['region']
+    form.district.choices = [(d, d) for d in region_districts.get(region, [])]
   if form.validate_on_submit():
     try:
-      patient = Patients(
+      new_patient = Patients(
         first_name = form.first_name.data,
         last_name = form.last_name.data,
         age = form.age.data,
         gender = form.gender.data,
         phone_number_1 = form.phone_number_1.data,
         phone_number_2 = form.phone_number_2.data,
-        address = form.address.data
+        branch = form.branch.data,
       )
-      db.session.add(patient)
+      db.session.add(new_patient)
+      db.session.commit()
+      if form.region.data or form.district.data or form.location.data:
+        new_patient_address = PatientAddress(
+          region = form.region.data,
+          district = form.district.data,
+          location = form.location.data
+        )
+        db.session.add(new_patient_address)
+      db.session.commit()
+      new_patient.address_id = new_patient_address.id
       db.session.commit()
       flash('Patient created successfully!', 'success')
-      return redirect(url_for('admin.home'))
+      return redirect(url_for('admin.patient_profile', patient_id=new_patient.unique_id))
         
     except Exception as e:
       db.session.rollback()
@@ -254,6 +293,10 @@ def add_patient():
 
   return render_template("Main/add-patient.html", **context)
 
+@admin.route("/get-districts/<region>")
+def get_districts(region):
+  return jsonify(districts=region_districts.get(region, []))
+
 @admin.route("/edit/patient/<int:patient_id>", methods=["POST", "GET"])
 @login_required
 def edit_patient(patient_id):
@@ -261,13 +304,29 @@ def edit_patient(patient_id):
   if not patient:
     flash("Patient not found", "danger")
     return redirect(url_for("admin.home"))
-      
+
+  patient_address = PatientAddress.query.filter_by(id=patient.address_id).first()
   form = AddPatientForm(obj=patient)
-  form.address.choices = [(address.id, f"{address.region}, {address.district}") for address in PatientAddress.query.all()]
+  form.district.choices = [('', 'Select District')]
+  if "region" in request.form:
+    region = request.form['region']
+    form.district.choices = [(d, d) for d in region_districts.get(region, [])]
+      
   if form.validate_on_submit():
     try:
       form.populate_obj(patient)
-      patient.address_id = form.address.data
+      if not patient.address_id:
+        new_patient_address = PatientAddress(
+          region = form.region.data,
+          district = form.district.data,
+          location = form.location.data,
+        )
+        db.session.add(new_patient_address)
+      else:
+        if form.region.data or form.district.data or form.location.data:
+          patient_address.region = form.region.data
+          patient_address.district = form.district.data
+          patient_address.location = form.location.data
       db.session.commit()
       flash("Patient details updated successfully", "success")
     except Exception as e:

@@ -219,7 +219,7 @@ Patient Appointment
   {% if appointment.is_active %}
   <div class="form-actions">
     <a href="{{ url_for('admin.complete_appointment', appointment_id=appointment.unique_id) }}">
-      <button class="btn btn-primary">
+      <button id="complete" class="btn btn-primary">
         Complete & Sign
       </button>
     </a>

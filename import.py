@@ -26,18 +26,6 @@ def add_clients():
     db.session.add(new_patient)
     db.session.commit()
 
-def add_location():
-  user_file = open("Locations_data.csv")
-  read_files = csv.reader(user_file)
-
-  for region, district in read_files:
-    new_patient_address = PatientAddress(
-      region = region,
-      district = district,
-    )
-    db.session.add(new_patient_address)
-    db.session.commit()
-
 def add_diseases():
   user_file = open("Disease2.csv")
   read_files = csv.reader(user_file)
@@ -66,6 +54,5 @@ def add_medicine():
 if __name__ == "__main__":
   with app.app_context():
     add_clients()
-    add_location()
     add_diseases()
     add_medicine()

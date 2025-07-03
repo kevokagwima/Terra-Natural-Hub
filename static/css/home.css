@@ -282,7 +282,8 @@ td {
 
 .diagnosis-box,
 .prescription-box,
-.transaction-box {
+.transaction-box,
+.labtest-box {
   display: grid;
   gap: 1rem;
 }
@@ -350,6 +351,21 @@ td {
   margin-bottom: 0.5rem;
 }
 
+.labtest-list-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lab-item {
+  background-color: var(--white);
+}
+
+.lab-header h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
 .disease-item {
   display: flex;
   align-items: center;
@@ -372,6 +388,11 @@ td {
   font-weight: 600;
   color: var(--white);
   font-size: 0.8rem;
+}
+
+.lab-details .disease-name p {
+  color: var(--grey);
+  font-size: 1rem;
 }
 
 .notes-content {

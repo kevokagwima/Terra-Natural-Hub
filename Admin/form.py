@@ -2,15 +2,71 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, SelectField, TextAreaField
 from wtforms.validators import Length, DataRequired, Optional, NumberRange
 
+region_districts = {
+  "Arusha": ["Monduli", "Arusha", "Arumeru", "Karatu", "Longido", "Ngorongoro"],
+  "Dar es Salaam": ["Ilala", "Kinondoni", "Temeke", "Kigamboni", "Ubungo"],
+  "Dodoma": ["Bahi", "Chamwino", "Chemba", "Dodoma", "Kondoa", "Kongwa", "Mpwapwa"],
+  "Geita": ["Bukombe", "Chato", "Geita", "Mbogwe", "Nyang'hwale"],
+  "Iringa": ["Iringa", "Kilolo", "Mafinga Town", "Mufindi"],
+  "Kagera": ["Biharamulo", "Bukoba", "Karagwe", "Kyerwa", "Missenyi", "Muleba", "Ngara"],
+  "Katavi": ["Mlele", "Mpanda"],
+  "Kigoma": ["Buhigwe", "Kakonko", "Kasulu", "Kibondo", "Kigoma", "Uvinz"],
+  "Kilimanjaro": ["Hai", "Moshi", "Mwanga", "Rombo", "Same", "Siha"],
+  "Lindi": ["Kilwa", "Lindi", "Liwale", "Nachingwea", "Ruangwa"],
+  "Manyara": ["Babati", "Hanang", "Kiteto", "Mbulu", "Simanjiro"],
+  "Mara": ["Bunda", "Butiama", "Musoma", "Rorya", "Serengeti", "Tarime"],
+  "Mbeya": ["Busokelo", "Chunya", "Kyela", "Mbarali", "Mbeya", "Rungwe"],
+  "Mororgoro": ["Gairo", "Kilombero", "Kilosa", "Morogoro", "Mvomero", "Ulanga"],
+  "Mtwara": ["Masasi", "Mtwara", "Nanyumbu", "Newala", "Tandahimba"],
+  "Mwanza": ["Ilemela", "Kwimba", "Magu", "Misungwi", "Nyamagana", "Sengerema", "Ukerewe"],
+  "Njombe": ["Ludewa", "Makambako Town", "Makete", "Njombe", "Wanging'ombe"],
+  "Pwani": ["Bagamoyo", "Kibaha", "Kisarawe", "Mafia", "Mkuranga", "Rufiji"],
+  "Rukwa": ["Kalambo", "Nkasi", "Sumbawanga"],
+  "Ruvuma": ["Mbinga", "Namtumbo", "Nyasa", "Songea", "Tunduru"],
+  "Shinyanga": ["Kahama", "Kishapu", "Shinyanga"],
+  "Simiyu": ["Bariadi", "Busega", "Itilima", "Maswa", "Meat"],
+  "Singida": ["Ikungi", "Iramba", "Manyoni", "Mkalama", "Singida"],
+  "Songwe": ["Ileje", "Mbozi", "Momba", "Songwe"],
+  "Tabora": ["Igunga", "Kaliua", "Nzega", "Sikonge", "Tabora", "Uyu"],
+  "Tanga": ["Handeni", "Kilindi", "Korogwe", "Lushoto", "Mkinga", "Muheza", "Pangani", "Tanga"],
+  "Zanzibar": ["Zanzibar Central/South", "Zanzibar North", "Zanzibar Urban/West"]
+}
+
 class AddPatientForm(FlaskForm):
-  first_name = StringField('First Name', validators=[DataRequired(message="First Name required"), Length(max=50)])
-  last_name = StringField('Last Name', validators=[DataRequired(message="Last Name required"), Length(max=50)])
+  first_name = StringField('First Name', validators=[DataRequired(message="First Name required"), Length(max=150)])
+  last_name = StringField('Last Name', validators=[DataRequired(message="Last Name required"), Length(max=150)])
   age = IntegerField('Age', validators=[DataRequired(message="Age Required")])
   gender = SelectField('Gender', choices=[('', 'Select Gender'), ('male', 'Male'), ('female', 'Female')
   ], validators=[DataRequired(message="Gender field required")])
   phone_number_1 = StringField('Primary Phone', validators=[DataRequired(message="Phone Number required"), Length(max=20)])
   phone_number_2 = StringField('Secondary Phone', validators=[Optional(), Length(max=20)])
-  address = SelectField('Address', choices=[], validators=[Optional()])
+  branch = SelectField(label="Registered Branch", choices=[("","Select Branch"),("Arusha","Arusha"), ("Dodoma","Dodoma")], validators=[DataRequired(message="Branch required")])
+  region = SelectField('Region', choices=[], validators=[Optional()])
+  district = SelectField('District', choices=[], validators=[Optional()])
+  location = StringField('Location', validators=[Optional(), Length(max=50)])
+
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    # Populate regions
+    self.region.choices = [(r, r) for r in region_districts.keys()]
+      
+  def validate(self, extra_validators=None):
+    # First run basic validations
+    if not super().validate():
+      return False
+    
+    # Custom validation: Check if district belongs to region
+    selected_region = self.region.data
+    selected_district = self.district.data
+    
+    if not selected_district:
+      return True
+    
+    if selected_district not in region_districts.get(selected_region, []):
+      self.district.errors.append(f"Invalid district for {selected_region} region")
+      return False
+
+    return True
 
 class AddMedicineForm(FlaskForm):
   name = StringField('Medicine Name', validators=[DataRequired(message="Medicine name field required"), Length(max=200)])
