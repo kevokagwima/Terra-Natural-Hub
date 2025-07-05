@@ -362,12 +362,14 @@ textarea:focus {
 
 .tab-content,
 .tabContent,
-.medical-data-table {
+.medical-data-table,
+.results-card {
   display: none;
 }
 
 .tab-content.active,
-.medical-data-table.active {
+.medical-data-table.active,
+.results-card.active {
   display: block;
 }
 
@@ -433,7 +435,7 @@ textarea:focus {
   width: var(--progress, 100%);
   height: 4px;
   background: rgba(255, 255, 255, 0.5);
-  animation: progress 5s linear forwards;
+  animation: progress 10s linear forwards;
 }
 
 .flash-content {

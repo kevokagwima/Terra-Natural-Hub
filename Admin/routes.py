@@ -315,13 +315,15 @@ def edit_patient(patient_id):
   if form.validate_on_submit():
     try:
       form.populate_obj(patient)
-      if not patient.address_id:
+      if not patient_address:
         new_patient_address = PatientAddress(
           region = form.region.data,
           district = form.district.data,
           location = form.location.data,
         )
         db.session.add(new_patient_address)
+        db.session.commit()
+        patient.address_id = new_patient_address.id
       else:
         if form.region.data or form.district.data or form.location.data:
           patient_address.region = form.region.data
@@ -783,22 +785,26 @@ def analytics():
     DiagnosisDetails.disease_id
   ).all()
 
+  prescription_details = db.session.query(
+    PrescriptionDetails.id,
+    PrescriptionDetails.prescription_id,
+    PrescriptionDetails.medicine_id
+  ).all()
+
   month_selected = 0
 
   if request.method == "POST":
     month_selected = request.form.get("filter")
-    if int(month_selected) == 0:
-      details = db.session.query(
-        DiagnosisDetails.id,
-        DiagnosisDetails.diagnosis_id,
-        DiagnosisDetails.disease_id
-      ).all()
-    else:
-      details = db.session.query(
-        DiagnosisDetails.id,
-        DiagnosisDetails.diagnosis_id,
-        DiagnosisDetails.disease_id
-      ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
+    details = db.session.query(
+      DiagnosisDetails.id,
+      DiagnosisDetails.diagnosis_id,
+      DiagnosisDetails.disease_id
+    ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
+    prescription_details = db.session.query(
+      PrescriptionDetails.id,
+      PrescriptionDetails.prescription_id,
+      PrescriptionDetails.medicine_id
+    ).filter(PrescriptionDetails.month_created == int(month_selected)).all()
 
   # Then process in Python to count and group
   disease_counts = defaultdict(list)
@@ -818,14 +824,34 @@ def analytics():
       'diagnoses': entries
     })
 
+  medicine_counts = defaultdict(list)
+
+  for detail in prescription_details:
+    medicine_counts[detail.medicine_id].append({
+      'prescription_detail_id': detail.id,
+      'prescription_id': detail.prescription_id
+    })
+
+  # Convert to final structure
+  prescription_result = []
+  for medicine_id, entries in medicine_counts.items():
+    prescription_result.append({
+      'medicine_id': medicine_id,
+      'count': len(entries),
+      'prescriptions': entries
+    })
+
   # Sort by count descending
   result.sort(key=lambda x: x['count'], reverse=True)
+  prescription_result.sort(key=lambda x: x['count'], reverse=True)
 
   context = {
     "results": result,
+    "prescription_results": prescription_result,
     "diseases": Disease.query.all(),
     "medicines": Medicine.query.all(),
     "all_diagnosis": Diagnosis.query.all(),
+    "prescriptions": Prescription.query.all(),
     "diagnosis_details": DiagnosisDetails.query.all(),
     "patients": Patients.query.all(),
     "month_selected": int(month_selected)
