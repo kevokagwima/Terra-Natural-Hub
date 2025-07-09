@@ -184,7 +184,8 @@
   font-weight: 500;
 }
 
-.toggle-details {
+.diagnosis-toggle,
+.prescription-toggle {
   background: none;
   border: none;
   color: var(--light-green);
@@ -197,16 +198,19 @@
   box-shadow: none;
 }
 
-.toggle-details:hover {
+.diagnosis-toggle:hover,
+.prescription-toggle:hover {
   box-shadow: none;
 }
 
-.toggle-details i {
+.diagnosis-toggle i,
+.prescription-toggle i {
   transition: transform 0.3s ease;
 }
 
 /* Diagnosis Details */
-.diagnosis-details {
+.diagnosis-details,
+.prescription-details {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.3s ease, padding 0.3s ease;
@@ -215,10 +219,11 @@
   flex-wrap: wrap;
   gap: 1rem;
   background-color: var(--dark-grey);
-  overflow-y: scroll;
 }
 
-.diagnosis-details.active {
+.diagnosis-details.active,
+.prescription-details.active {
+  overflow-y: scroll;
   max-height: 15rem;
   padding-bottom: 1.5rem;
 }

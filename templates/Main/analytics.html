@@ -111,13 +111,13 @@ Analytics
                 <span class="count-badge">{{ "{:,}".format(result.count) }} {{ 'diagnoses' if result.count > 1 else
                   'diagnosis'
                   }}</span>
-                <button class="toggle-details" data-target="details-{{ loop.index }}">
+                <button class="diagnosis-toggle" data-target="diagnosis-details-{{ loop.index }}">
                   <i class="fas fa-chevron-down"></i> View Cases
                 </button>
               </div>
             </div>
           </div>
-          <div class="diagnosis-details" id="details-{{ loop.index }}">
+          <div class="diagnosis-details" id="diagnosis-details-{{ loop.index }}">
             {% for diagnosis in result.diagnoses %}
             <div class="case-card">
               <div class="case-header">
@@ -174,6 +174,7 @@ Analytics
         {% endif %}
       </div>
     </div>
+
     <div id="prescription" class="results-card">
       <div class="card-header">
         <h2><i class="fas fa-diagnoses"></i> Prescription Statistics</h2>
@@ -197,14 +198,14 @@ Analytics
                 <span class="count-badge">{{ "{:,}".format(result.count) }} {{ 'medicines' if result.count > 1 else
                   'medicine'
                   }}</span>
-                <button class="toggle-details" data-target="details-{{ loop.index }}">
+                <button class="prescription-toggle" data-target="prescription-details-{{ loop.index }}">
                   <i class="fas fa-chevron-down"></i> View Cases
                 </button>
               </div>
             </div>
           </div>
 
-          <div class="diagnosis-details" id="details-{{ loop.index }}">
+          <div class="prescription-details" id="prescription-details-{{ loop.index }}">
             {% for prescription in result.prescriptions %}
             <div class="case-card">
               <div class="case-header">
