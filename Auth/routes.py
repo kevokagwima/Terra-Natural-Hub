@@ -11,13 +11,9 @@ def signup():
   form = StaffRegistrationForm()
   form.role.choices = [(role.unique_id, role.name) for role in Role.query.all()]
   staff_count = Staff.query.count()
-
   try:
     if form.validate_on_submit():
-      if staff_count == 5:
-        flash("Only 5 user accounts are allowed", category="warning")
-        return redirect(url_for("register"))
-      else:
+      if staff_count < 5:
         new_staff = Staff(
           first_name = form.first_name.data,
           last_name = form.last_name.data, 
@@ -30,6 +26,9 @@ def signup():
         db.session.commit()
         flash("Account created successfully", "success")
         return redirect(url_for("auth.signin"))
+      else:
+        flash("You've reached maximum number of staff allowed", category="warning")
+        return redirect(url_for("auth.signup"))
 
     if form.errors != {}:
       for err_msg in form.errors.values():
