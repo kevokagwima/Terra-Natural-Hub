@@ -624,6 +624,10 @@ textarea:focus {
     font-size: 0.85rem;
     padding: 0.4rem 0;
   }
+
+  .main-content {
+    padding: 0.5rem 1rem 1rem;
+  }
 }
 
 /* === 300px and below === */
