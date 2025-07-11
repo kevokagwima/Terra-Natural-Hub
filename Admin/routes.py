@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
-from flask_login import login_required
+from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
 from Models.users import Patients, PatientAddress
 from Models.medicine import Medicine
@@ -13,7 +13,7 @@ from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisFo
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
 from collections import defaultdict
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, desc
 
 admin = Blueprint("admin", __name__)
 region_districts = {
@@ -49,6 +49,7 @@ region_districts = {
 @admin.route("/")
 @admin.route("/home")
 @login_required
+@fresh_login_required
 def home():
   patients = Patients.query.all()
   medicines = Medicine.query.all()
@@ -81,6 +82,7 @@ def home():
 
 @admin.route("/find-patient/<string:search_text>")
 @login_required
+@fresh_login_required
 def patient_search(search_text):
   patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%")).all()
   
@@ -107,6 +109,7 @@ def render_map():
 
 @admin.route("/add/medicine", methods=["POST", "GET"])
 @login_required
+@fresh_login_required
 def add_medicine():
   form = AddMedicineForm()
   if form.validate_on_submit():
@@ -134,6 +137,7 @@ def add_medicine():
 
 @admin.route("/edit/medicine/<int:medicine_id>", methods=["POST", "GET"])
 @login_required
+@fresh_login_required
 def edit_medicine(medicine_id):
   medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
   if not medicine:
@@ -164,6 +168,7 @@ def edit_medicine(medicine_id):
 
 @admin.route("/remove/medicine/<int:medicine_id>")
 @login_required
+@fresh_login_required
 def remove_medicine(medicine_id):
   medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
   if not medicine:
@@ -181,6 +186,7 @@ def remove_medicine(medicine_id):
 
 @admin.route("/add/disease", methods=["POST", "GET"])
 @login_required
+@fresh_login_required
 def add_disease():
   form = AddDiseaseForm()
   if form.validate_on_submit():
@@ -206,6 +212,7 @@ def add_disease():
 
 @admin.route("/edit/disease/<int:disease_id>", methods=["POST", "GET"])
 @login_required
+@fresh_login_required
 def edit_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
@@ -233,6 +240,7 @@ def edit_disease(disease_id):
 
 @admin.route("/remove/disease/<int:disease_id>")
 @login_required
+@fresh_login_required
 def remove_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
@@ -250,6 +258,7 @@ def remove_disease(disease_id):
 
 @admin.route("/add/patient", methods=["POST", "GET"])
 @login_required
+@fresh_login_required
 def add_patient():
   form = AddPatientForm()
   form.district.choices = [('', 'Select District')]
@@ -299,6 +308,7 @@ def get_districts(region):
 
 @admin.route("/edit/patient/<int:patient_id>", methods=["POST", "GET"])
 @login_required
+@fresh_login_required
 def edit_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -346,6 +356,7 @@ def edit_patient(patient_id):
 
 @admin.route("/remove-patient/<int:patient_id>")
 @login_required
+@fresh_login_required
 def remove_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -358,6 +369,7 @@ def remove_patient(patient_id):
 
 @admin.route("/profile/patient/<int:patient_id>")
 @login_required
+@fresh_login_required
 def patient_profile(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -383,6 +395,7 @@ def patient_profile(patient_id):
 
 @admin.route("/create-appointment/<int:patient_id>")
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Lab Tech", "Clerk"])
 def create_appointment(patient_id):
   patient = Patients.query.filter_by(unique_id=patient_id).first()
@@ -404,6 +417,7 @@ def create_appointment(patient_id):
 
 @admin.route("/appointment/<int:appointment_id>")
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Lab Tech", "Clerk"])
 def appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -451,6 +465,7 @@ def appointment(appointment_id):
 
 @admin.route("/lab-analysis/<int:appointment_id>", methods=["POST"])
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Clerk"])
 def add_lab_analysis(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -494,6 +509,7 @@ def create_lab_analysis_details(lab_analysis_id, form):
 
 @admin.route("/remove-lab-test/<int:lab_analysis_id>")
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Lab Tech"])
 def remove_lab_analysis(lab_analysis_id):
   lab_analysis = LabAnalysisDetails.query.filter_by(unique_id=lab_analysis_id).first()
@@ -511,6 +527,7 @@ def remove_lab_analysis(lab_analysis_id):
 
 @admin.route("/approve/lab-analysis/<int:lab_analysis_id>")
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Lab Tech"])
 def approve_lab_analysis(lab_analysis_id):
   lab_analysis = LabAnalysis.query.filter_by(unique_id=lab_analysis_id).first()
@@ -535,6 +552,7 @@ def approve_lab_analysis(lab_analysis_id):
 
 @admin.route("/diagnose/patient/<int:appointment_id>", methods=["POST"])
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Lab Tech"])
 def add_diagnosis(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -593,6 +611,7 @@ def remove_diagnosis_disease(diagnosis_id):
 
 @admin.route("/prescribe/patient/<int:appointment_id>", methods=["POST"])
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Lab Tech"])
 def add_prescription(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -664,6 +683,7 @@ def remove_prescribed_medicine(prescription_id):
 
 @admin.route("/complete/appointment/<int:appointment_id>")
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Lab Tech"])
 def complete_appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
@@ -695,6 +715,7 @@ def complete_appointment(appointment_id):
 
 @admin.route("/patient/feedback/<int:appointment_id>", methods=["POST"])
 @login_required
+@fresh_login_required
 @role_required(["Admin"])
 def patient_feedback(appointment_id):
   try:
@@ -720,6 +741,7 @@ def patient_feedback(appointment_id):
 
 @admin.route("/pay/prescription/<int:prescription_id>")
 @login_required
+@fresh_login_required
 @role_required(["Admin", "Accountant"])
 def prescription_payment(prescription_id):
   prescription = Prescription.query.filter_by(unique_id=prescription_id).first()
@@ -762,6 +784,7 @@ def record_transaction(prescription_id):
 
 @admin.route("/export/transaction/<int:payment_id>")
 @login_required
+@fresh_login_required
 def export_transaction(payment_id):
   payment = Payment.query.filter_by(unique_id=payment_id).first()
   if not payment:
@@ -778,6 +801,7 @@ def export_transaction(payment_id):
 
 @admin.route("/analytics", methods=["POST", "GET"])
 @login_required
+@fresh_login_required
 def analytics():
   details = db.session.query(
     DiagnosisDetails.id,
@@ -794,17 +818,65 @@ def analytics():
   month_selected = 0
 
   if request.method == "POST":
-    month_selected = request.form.get("filter")
-    details = db.session.query(
-      DiagnosisDetails.id,
-      DiagnosisDetails.diagnosis_id,
-      DiagnosisDetails.disease_id
-    ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
-    prescription_details = db.session.query(
-      PrescriptionDetails.id,
-      PrescriptionDetails.prescription_id,
-      PrescriptionDetails.medicine_id
-    ).filter(PrescriptionDetails.month_created == int(month_selected)).all()
+    region_selected = request.form.get("region-filter")
+    month_selected = request.form.get("month-filter")
+
+    if not month_selected:
+      month_selected = 0
+
+    if region_selected:
+      details = db.session.query(
+        Disease.name,
+        func.count(DiagnosisDetails.disease_id).label('count')
+        ).join(
+            DiagnosisDetails,
+            DiagnosisDetails.disease_id == Disease.id
+        ).join(
+            Diagnosis,
+            Diagnosis.id == DiagnosisDetails.diagnosis_id
+        ).join(
+            Appointment,
+            Appointment.id == Diagnosis.appointment_id
+        ).join(
+            Patients,
+            Patients.id == Appointment.patient_id
+        ).join(
+            PatientAddress,
+            PatientAddress.id == Patients.address_id
+        ).filter(
+            PatientAddress.region == region_selected
+        ).group_by(
+            Disease.name
+        ).order_by(
+            desc('count')
+        ).all()
+      print(details)
+
+      # Analytics - Region filter
+
+      # Input from the filter -> Name of the Region (String)
+
+      # Expected Output -> The order of most diagnosed disease & most prescribed medicine based on the selected region
+
+      # How?
+
+      # Patient Class > Appointment Class > Diagnosis Class > DiagnosisDetails Class > Disease Class
+
+      # Group similar disease together -> Count
+
+      # Display the disease ordered from top -> Descending order
+
+    if month_selected and month_selected != 0:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id
+      ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
+      prescription_details = db.session.query(
+        PrescriptionDetails.id,
+        PrescriptionDetails.prescription_id,
+        PrescriptionDetails.medicine_id
+      ).filter(PrescriptionDetails.month_created == int(month_selected)).all()
 
   # Then process in Python to count and group
   disease_counts = defaultdict(list)
@@ -854,7 +926,9 @@ def analytics():
     "prescriptions": Prescription.query.all(),
     "diagnosis_details": DiagnosisDetails.query.all(),
     "patients": Patients.query.all(),
-    "month_selected": int(month_selected)
+    "month_selected": int(month_selected),
+    "regions": ["Arusha","Dar es Salaam","Dodoma","Geita","Iringa","Kagera","Katavi","Kigoma","Kilimanjaro","Lindi","Manyara","Mara","Mbeya","Mororgoro","Mtwara","Mwanza","Njombe","Pwani","Rukwa","Ruvuma","Shinyanga","Simiyu","Singida","Songwe","Tabora","Tanga","Zanzibar"
+    ]
   }
 
   return render_template("Main/analytics.html", **context)

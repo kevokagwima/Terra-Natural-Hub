@@ -421,7 +421,7 @@ Home
         </tr>
       </thead>
       <tbody>
-        {% for medicine in medicines|sort(attribute="id", reverse=true) %}
+        {% for medicine in medicines|sort(attribute="name") %}
         <tr id="medicine-name">
           <th>MD - {{ medicine.unique_id }}</th>
           <td>{{ medicine.name|truncate(60) }}</td>
@@ -445,50 +445,6 @@ Home
         {% endfor %}
       </tbody>
     </table>
-
-    <!-- Mobile view cards (hidden on desktop) -->
-    {% for patient in patients|sort(attribute=id, reverse=true) %}
-    <div class="mobile-patient-card">
-      <div class="mobile-card-header">
-        <div style="flex: 1;">
-          <div style="font-weight: 500;">{{ patient.name }}</div>
-          <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ patient.unique_id }}</div>
-        </div>
-      </div>
-      <div class="mobile-card-body">
-        <div class="mobile-card-field">
-          <label>Phone</label>
-          <div>
-            {{ patient.phone_number_1 }}
-            {% if patient.phone_number_2 %}
-            /{{ patient.phone_number_2 }}
-            {% endif %}
-          </div>
-        </div>
-        <div class="mobile-card-field">
-          <label>Age</label>
-          <div>{{ patient.age }}</div>
-        </div>
-        <div class="mobile-card-field">
-          <label>Gender</label>
-          <div>
-            <span class="gender-badge gender-{{ patient.gender }}">
-              <i class="fas fa-venus"></i>
-              {{ patient.gender }}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="mobile-card-actions">
-        <button class="btn-icon edit">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="btn-icon delete">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    {% endfor %}
   </div>
   <div id="disease" class="medical-data-table">
     <div class="search-medical-data">
@@ -504,7 +460,7 @@ Home
         </tr>
       </thead>
       <tbody>
-        {% for disease in diseases|sort(attribute="id", reverse=true) %}
+        {% for disease in diseases|sort(attribute="name") %}
         <tr id="disease-name">
           <th>DS - {{ disease.unique_id }}</th>
           <td>{{ disease.name|truncate(60) }}</td>
@@ -526,50 +482,6 @@ Home
         {% endfor %}
       </tbody>
     </table>
-
-    <!-- Mobile view cards (hidden on desktop) -->
-    {% for patient in patients|sort(attribute=id, reverse=true) %}
-    <div class="mobile-patient-card">
-      <div class="mobile-card-header">
-        <div style="flex: 1;">
-          <div style="font-weight: 500;">{{ patient.name }}</div>
-          <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ patient.unique_id }}</div>
-        </div>
-      </div>
-      <div class="mobile-card-body">
-        <div class="mobile-card-field">
-          <label>Phone</label>
-          <div>
-            {{ patient.phone_number_1 }}
-            {% if patient.phone_number_2 %}
-            /{{ patient.phone_number_2 }}
-            {% endif %}
-          </div>
-        </div>
-        <div class="mobile-card-field">
-          <label>Age</label>
-          <div>{{ patient.age }}</div>
-        </div>
-        <div class="mobile-card-field">
-          <label>Gender</label>
-          <div>
-            <span class="gender-badge gender-{{ patient.gender }}">
-              <i class="fas fa-venus"></i>
-              {{ patient.gender }}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="mobile-card-actions">
-        <button class="btn-icon edit">
-          <i class="fas fa-edit"></i>
-        </button>
-        <button class="btn-icon delete">
-          <i class="fas fa-trash"></i>
-        </button>
-      </div>
-    </div>
-    {% endfor %}
   </div>
 </div>
 <div id="lab-analysis" class="tabContent">

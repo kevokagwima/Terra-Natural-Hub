@@ -27,7 +27,15 @@ Analytics
     <div class="filter-card">
       <form action="{{ url_for('admin.analytics') }}" method="post" class="filter-form">
         <div class="form-group">
-          <select required name="filter" id="month-filter" class="styled-select">
+          <select name="region-filter" id="region-filter" class="styled-select">
+            <option value="">Select Region</option>
+            {% for region in regions %}
+            <option value="{{ region }}">{{ region }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <select name="month-filter" id="month-filter" class="styled-select">
             <option value="">Select Month</option>
             <option value="1">January</option>
             <option value="2">February</option>
