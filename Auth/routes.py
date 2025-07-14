@@ -13,7 +13,7 @@ def signup():
   staff_count = Staff.query.count()
   try:
     if form.validate_on_submit():
-      if staff_count < 5:
+      if staff_count < 14:
         new_staff = Staff(
           first_name = form.first_name.data,
           last_name = form.last_name.data, 

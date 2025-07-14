@@ -110,6 +110,7 @@ def render_map():
 @admin.route("/add/medicine", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def add_medicine():
   form = AddMedicineForm()
   if form.validate_on_submit():
@@ -138,6 +139,7 @@ def add_medicine():
 @admin.route("/edit/medicine/<int:medicine_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin", "Stock Controller"])
 def edit_medicine(medicine_id):
   medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
   if not medicine:
@@ -169,6 +171,7 @@ def edit_medicine(medicine_id):
 @admin.route("/remove/medicine/<int:medicine_id>")
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def remove_medicine(medicine_id):
   medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
   if not medicine:
@@ -187,6 +190,7 @@ def remove_medicine(medicine_id):
 @admin.route("/add/disease", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def add_disease():
   form = AddDiseaseForm()
   if form.validate_on_submit():
@@ -213,6 +217,7 @@ def add_disease():
 @admin.route("/edit/disease/<int:disease_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def edit_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
@@ -241,6 +246,7 @@ def edit_disease(disease_id):
 @admin.route("/remove/disease/<int:disease_id>")
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def remove_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
@@ -259,6 +265,7 @@ def remove_disease(disease_id):
 @admin.route("/add/patient", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin", "Clerk"])
 def add_patient():
   form = AddPatientForm()
   form.district.choices = [('', 'Select District')]
@@ -303,12 +310,16 @@ def add_patient():
   return render_template("Main/add-patient.html", **context)
 
 @admin.route("/get-districts/<region>")
+@login_required
+@fresh_login_required
+@role_required(["Admin", "Clerk"])
 def get_districts(region):
   return jsonify(districts=region_districts.get(region, []))
 
 @admin.route("/edit/patient/<int:patient_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin", "Clerk"])
 def edit_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -357,6 +368,7 @@ def edit_patient(patient_id):
 @admin.route("/remove-patient/<int:patient_id>")
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def remove_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -370,6 +382,7 @@ def remove_patient(patient_id):
 @admin.route("/profile/patient/<int:patient_id>")
 @login_required
 @fresh_login_required
+@role_required(["Admin", "Clerk"])
 def patient_profile(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
