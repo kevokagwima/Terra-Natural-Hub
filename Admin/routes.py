@@ -816,6 +816,7 @@ def analytics():
   ).all()
 
   month_selected = 0
+  region_selected = ""
 
   if request.method == "POST":
     region_selected = request.form.get("region-filter")
@@ -826,6 +827,9 @@ def analytics():
 
     if region_selected:
       details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id,
         Disease.name,
         func.count(DiagnosisDetails.disease_id).label('count')
         ).join(
@@ -846,27 +850,113 @@ def analytics():
         ).filter(
             PatientAddress.region == region_selected
         ).group_by(
-            Disease.name
+            DiagnosisDetails.id,
+            DiagnosisDetails.disease_id,
+            DiagnosisDetails.diagnosis_id,
+            Disease.name,
         ).order_by(
             desc('count')
         ).all()
-      print(details)
 
-      # Analytics - Region filter
+      prescription_details = db.session.query(
+        PrescriptionDetails.id,
+        PrescriptionDetails.prescription_id,
+        PrescriptionDetails.medicine_id,
+        Medicine.name,
+        func.count(PrescriptionDetails.medicine_id).label('count')
+        ).join(
+            PrescriptionDetails,
+            PrescriptionDetails.medicine_id == Medicine.id
+        ).join(
+            Prescription,
+            Prescription.id == PrescriptionDetails.prescription_id
+        ).join(
+            Appointment,
+            Appointment.id == Prescription.appointment_id
+        ).join(
+            Patients,
+            Patients.id == Appointment.patient_id
+        ).join(
+            PatientAddress,
+            PatientAddress.id == Patients.address_id
+        ).filter(
+            PatientAddress.region == region_selected
+        ).group_by(
+            PrescriptionDetails.id,
+            PrescriptionDetails.medicine_id,
+            PrescriptionDetails.prescription_id,
+            Medicine.name,
+        ).order_by(
+            desc('count')
+        ).all()
 
-      # Input from the filter -> Name of the Region (String)
+    if region_selected and month_selected and month_selected != 0:
+      details = db.session.query(
+        DiagnosisDetails.id,
+        DiagnosisDetails.diagnosis_id,
+        DiagnosisDetails.disease_id,
+        Disease.name,
+        func.count(DiagnosisDetails.disease_id).label('count')
+        ).join(
+            DiagnosisDetails,
+            DiagnosisDetails.disease_id == Disease.id
+        ).join(
+            Diagnosis,
+            Diagnosis.id == DiagnosisDetails.diagnosis_id
+        ).join(
+            Appointment,
+            Appointment.id == Diagnosis.appointment_id
+        ).join(
+            Patients,
+            Patients.id == Appointment.patient_id
+        ).join(
+            PatientAddress,
+            PatientAddress.id == Patients.address_id
+        ).filter(
+            PatientAddress.region == region_selected, DiagnosisDetails.month_created == month_selected
+        ).group_by(
+            DiagnosisDetails.id,
+            DiagnosisDetails.disease_id,
+            DiagnosisDetails.diagnosis_id,
+            Disease.name,
+        ).order_by(
+            desc('count')
+        ).all()
 
-      # Expected Output -> The order of most diagnosed disease & most prescribed medicine based on the selected region
+      prescription_details = db.session.query(
+        PrescriptionDetails.id,
+        PrescriptionDetails.prescription_id,
+        PrescriptionDetails.medicine_id,
+        Medicine.name,
+        func.count(PrescriptionDetails.medicine_id).label('count')
+        ).join(
+            PrescriptionDetails,
+            PrescriptionDetails.medicine_id == Medicine.id
+        ).join(
+            Prescription,
+            Prescription.id == PrescriptionDetails.prescription_id
+        ).join(
+            Appointment,
+            Appointment.id == Prescription.appointment_id
+        ).join(
+            Patients,
+            Patients.id == Appointment.patient_id
+        ).join(
+            PatientAddress,
+            PatientAddress.id == Patients.address_id
+        ).filter(
+            PatientAddress.region == region_selected, PrescriptionDetails.month_created == month_selected
+        ).group_by(
+            PrescriptionDetails.id,
+            PrescriptionDetails.medicine_id,
+            PrescriptionDetails.prescription_id,
+            Medicine.name,
+        ).order_by(
+            desc('count')
+        ).all()
 
-      # How?
 
-      # Patient Class > Appointment Class > Diagnosis Class > DiagnosisDetails Class > Disease Class
-
-      # Group similar disease together -> Count
-
-      # Display the disease ordered from top -> Descending order
-
-    if month_selected and month_selected != 0:
+    if month_selected and month_selected != 0 and not region_selected:
       details = db.session.query(
         DiagnosisDetails.id,
         DiagnosisDetails.diagnosis_id,
@@ -928,7 +1018,8 @@ def analytics():
     "patients": Patients.query.all(),
     "month_selected": int(month_selected),
     "regions": ["Arusha","Dar es Salaam","Dodoma","Geita","Iringa","Kagera","Katavi","Kigoma","Kilimanjaro","Lindi","Manyara","Mara","Mbeya","Mororgoro","Mtwara","Mwanza","Njombe","Pwani","Rukwa","Ruvuma","Shinyanga","Simiyu","Singida","Songwe","Tabora","Tanga","Zanzibar"
-    ]
+    ],
+    "region_selected": region_selected
   }
 
   return render_template("Main/analytics.html", **context)

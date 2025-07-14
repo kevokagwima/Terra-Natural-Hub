@@ -58,44 +58,60 @@ Analytics
     </div>
   </div>
   <div class="analytics-content">
+    {% if month_selected or region_selected %}
+    <div class="filter-result-box">
+      {% if region_selected %}
+      <p id="filter-result">
+        Showing results for:
+        <b>{{ region_selected }}</b>
+      </p>
+      {% endif %}
+
+      {% if month_selected %}
+      <p id="filter-result">
+        Showing results for:
+        <b>
+          {% if month_selected == 1 %}
+          January
+          {% elif month_selected == 2 %}
+          February
+          {% elif month_selected == 3 %}
+          March
+          {% elif month_selected == 4 %}
+          April
+          {% elif month_selected == 5 %}
+          May
+          {% elif month_selected == 6 %}
+          June
+          {% elif month_selected == 7 %}
+          July
+          {% elif month_selected == 8 %}
+          August
+          {% elif month_selected == 9 %}
+          September
+          {% elif month_selected == 10 %}
+          October
+          {% elif month_selected == 11 %}
+          November
+          {% elif month_selected == 12 %}
+          December
+          {% else %}
+          All Months
+          {% endif %}
+        </b>
+      </p>
+      {% endif %}
+
+      <a href="{{ url_for('admin.analytics') }}" id="clear-filter">Remove Filters</a>
+
+    </div>
+    {% endif %}
+
     <div class="table-menu">
       <div class="med-tab active" data-tab="diagnosis">Diagnosis</div>
       <div class="med-tab" data-tab="prescription">Prescription</div>
     </div>
-    {% if month_selected %}
-    <p id="month-selected">
-      Showing results for:
-      <b>
-        {% if month_selected == 1 %}
-        January
-        {% elif month_selected == 2 %}
-        February
-        {% elif month_selected == 3 %}
-        March
-        {% elif month_selected == 4 %}
-        April
-        {% elif month_selected == 5 %}
-        May
-        {% elif month_selected == 6 %}
-        June
-        {% elif month_selected == 7 %}
-        July
-        {% elif month_selected == 8 %}
-        August
-        {% elif month_selected == 9 %}
-        September
-        {% elif month_selected == 10 %}
-        October
-        {% elif month_selected == 11 %}
-        November
-        {% elif month_selected == 12 %}
-        December
-        {% else %}
-        All Months
-        {% endif %}
-      </b>
-    </p>
-    {% endif %}
+
     <div id="diagnosis" class="results-card active">
       <div class="card-header">
         <h2><i class="fas fa-diagnoses"></i> Diagnosis Statistics</h2>

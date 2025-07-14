@@ -74,6 +74,21 @@
   gap: 0.4rem;
 }
 
+.filter-result-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+#filter-result {
+  color: var(--white);
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-s);
+  background-color: var(--light-green-2);
+}
+
 .table-menu {
   display: flex;
   align-items: center;
@@ -86,6 +101,7 @@
   border-radius: var(--radius-s);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  margin-top: 1rem;
   display: none;
 }
 
