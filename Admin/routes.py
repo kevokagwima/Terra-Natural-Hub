@@ -808,7 +808,6 @@ def analytics():
     DiagnosisDetails.diagnosis_id,
     DiagnosisDetails.disease_id
   ).all()
-
   prescription_details = db.session.query(
     PrescriptionDetails.id,
     PrescriptionDetails.prescription_id,
@@ -821,6 +820,10 @@ def analytics():
   if request.method == "POST":
     region_selected = request.form.get("region-filter")
     month_selected = request.form.get("month-filter")
+
+    if not region_selected and not month_selected:
+      flash("Select at least one filter from the dropdown before submitting", "warning")
+      return redirect(url_for("admin.analytics"))
 
     if not month_selected:
       month_selected = 0
@@ -922,7 +925,6 @@ def analytics():
         ).order_by(
             desc('count')
         ).all()
-
       prescription_details = db.session.query(
         PrescriptionDetails.id,
         PrescriptionDetails.prescription_id,
@@ -954,7 +956,6 @@ def analytics():
         ).order_by(
             desc('count')
         ).all()
-
 
     if month_selected and month_selected != 0 and not region_selected:
       details = db.session.query(
