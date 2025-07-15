@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session
 from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
 from Models.users import Patients, PatientAddress
@@ -47,6 +47,7 @@ region_districts = {
   "Zanzibar": ["Zanzibar Central/South", "Zanzibar North", "Zanzibar Urban/West"]
 }
 
+@admin.route("/")
 @admin.route("/branch/select", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
@@ -54,17 +55,21 @@ def select_branch():
   form = AddClinicForm()
 
   if form.validate_on_submit():
-    new_clinic = Clinic(
-      name = form.name.data,
-      alias = form.name.data.lower().replace(" ", "-").replace("/", "-").replace(".", "-").replace(",", "-").replace("_", "-").replace("'", "-").replace('"', "-"),
-      region = form.region.data,
-      district = form.district.data,
-      clinic_type_id = ClinicType.query.filter_by(name=form.branch_type.data).first().id
-    )
-    db.session.add(new_clinic)
-    db.session.commit()
-    flash("Branch added successfully", "success")
-    return redirect(url_for("admin.select_branch"))
+    try:
+      new_clinic = Clinic(
+        name = form.name.data,
+        alias = form.name.data.lower().replace(" ", "-").replace("/", "-").replace(".", "-").replace(",", "-").replace("_", "-").replace("'", "-").replace('"', "-"),
+        region = form.region.data,
+        district = form.district.data,
+        clinic_type_id = ClinicType.query.filter_by(name=form.branch_type.data).first().id
+      )
+      db.session.add(new_clinic)
+      db.session.commit()
+      flash("Branch added successfully", "success")
+      return redirect(url_for("admin.select_branch"))
+    except Exception as e:
+      flash(f"{str(e)}", "danger")
+      return redirect(url_for("admin.select_branch"))
 
   if form.errors != {}:
     for err_msg in form.errors.values():
@@ -78,36 +83,39 @@ def select_branch():
 
   return render_template("Main/select-branch.html", **context)
 
-@admin.route("/")
-@admin.route("/home")
+@admin.route("/load/branch/<string:branch_name>")
+def load_clinic(branch_name):
+  clinic = Clinic.query.filter_by(alias=branch_name).first()
+  if not clinic:
+    flash("Branch not found", "danger")
+    return redirect(url_for('admin.select_branch'))
+  session["clinic_id"] = clinic.id
+  return redirect(url_for('admin.dashboard'))
+
+@admin.route("/dashboard")
 @login_required
 @fresh_login_required
-def home():
-  patients = Patients.query.all()
-  medicines = Medicine.query.all()
-  appointments = Appointment.query.all()
-  client_medicines = Prescription.query.all()
-  payments = Payment.query.all()
-  diseases = Disease.query.all()
-  diagnosis = Diagnosis.query.all()
-  prescriptions = Prescription.query.all()
-
+def dashboard():
+  if not "clinic_id" in session:
+    flash("Select a clinic", "warning")
+    return redirect(url_for('admin.select_branch'))
+  
   diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).limit(limit=5).all()]
 
   prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).limit(limit=5).all()]
 
   context = {
-    "patients": patients,
-    "client_medicines" : client_medicines, 
-    "payments" : payments,
-    "medicines" : medicines,
-    "diseases" : diseases,
-    "all_diagnosis" : diagnosis,
-    "prescriptions" : prescriptions,
-    "appointments" : appointments,
-    "lab_tests" : LabAnalysis.query.all(),
+    "patients": Patients.query.filter_by(clinic_id=session["clinic_id"]).all(),
+    "payments" : Payment.query.filter_by(clinic_id=session["clinic_id"]).all(),
+    "medicines" : Medicine.query.all(),
+    "diseases" : Disease.query.all(),
+    "all_diagnosis" : Diagnosis.query.filter_by(clinic_id=session["clinic_id"]).all(),
+    "prescriptions" : Prescription.query.filter_by(clinic_id=session["clinic_id"]).all(),
+    "appointments" : Appointment.query.filter_by(clinic_id=session["clinic_id"]).all(),
+    "lab_tests" : LabAnalysis.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "diagnosis_disease_ids": diagnosis_disease_ids,
     "prescription_medicine_ids": prescription_medicine_ids,
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
   
   return render_template("Main/home.html", **context)
@@ -116,9 +124,8 @@ def home():
 @login_required
 @fresh_login_required
 def patient_search(search_text):
-  patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%")).all()
-  
-  patients_count = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%")).count()
+  patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%"), Patients.clinic_id == session["clinic_id"]).all()
+  patients_count = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%"), Patients.clinic_id == session["clinic_id"]).count()
 
   patients_list = [
     {
@@ -148,7 +155,7 @@ def add_medicine():
       db.session.add(new_medicine)
       db.session.commit()
       flash('Medicine added successfully!', 'success')
-      return redirect(url_for('admin.home'))
+      return redirect(url_for('admin.dashboard'))
         
     except Exception as e:
       db.session.rollback()
@@ -156,7 +163,8 @@ def add_medicine():
       return redirect(url_for('admin.add_medicine'))
   
   context = {
-    "form": form
+    "form": form,
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template("Main/add-medicine.html", **context)
@@ -169,7 +177,7 @@ def edit_medicine(medicine_id):
   medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
   if not medicine:
     flash("Medicine not found", category="danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   
   form = AddMedicineForm(obj=medicine)
 
@@ -188,7 +196,8 @@ def edit_medicine(medicine_id):
 
   context = {
     "form": form,
-    "title_message": "Edit"
+    "title_message": "Edit",
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template("Main/add-medicine.html", **context)
@@ -201,7 +210,7 @@ def remove_medicine(medicine_id):
   medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
   if not medicine:
     flash("Medicine not found", category="danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   
   try:
     db.session.delete(medicine)
@@ -210,7 +219,7 @@ def remove_medicine(medicine_id):
   except Exception as e:
     flash(f"Error: {str(e)}", "danger")
 
-  return redirect(url_for('admin.home'))
+  return redirect(url_for('admin.dashboard'))
 
 @admin.route("/add/disease", methods=["POST", "GET"])
 @login_required
@@ -226,7 +235,7 @@ def add_disease():
       db.session.add(new_disease)
       db.session.commit()
       flash('Disease added successfully!', 'success')
-      return redirect(url_for('admin.home'))
+      return redirect(url_for('admin.dashboard'))
         
     except Exception as e:
       db.session.rollback()
@@ -234,7 +243,8 @@ def add_disease():
       return redirect(url_for('admin.add_disease'))
   
   context = {
-    "form": form
+    "form": form,
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template("Main/add-disease.html", **context)
@@ -247,7 +257,7 @@ def edit_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
     flash("Disease not found", category="danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   
   form = AddMedicineForm(obj=disease)
 
@@ -263,7 +273,8 @@ def edit_disease(disease_id):
 
   context = {
     "form": form,
-    "title_message": "Edit"
+    "title_message": "Edit",
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template("Main/add-disease.html", **context)
@@ -276,7 +287,7 @@ def remove_disease(disease_id):
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
     flash("Disease not found", category="danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   
   try:
     db.session.delete(disease)
@@ -285,7 +296,7 @@ def remove_disease(disease_id):
   except Exception as e:
     flash(f"Error: {str(e)}", "danger")
 
-  return redirect(url_for('admin.home'))
+  return redirect(url_for('admin.dashboard'))
 
 @admin.route("/add/patient", methods=["POST", "GET"])
 @login_required
@@ -307,6 +318,7 @@ def add_patient():
         phone_number_1 = form.phone_number_1.data,
         phone_number_2 = form.phone_number_2.data,
         branch = form.branch.data,
+        clinic_id = session["clinic_id"]
       )
       db.session.add(new_patient)
       db.session.commit()
@@ -329,7 +341,8 @@ def add_patient():
       return redirect(url_for('admin.add_patient'))
   
   context = {
-    "form": form
+    "form": form,
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template("Main/add-patient.html", **context)
@@ -349,7 +362,7 @@ def edit_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
     flash("Patient not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
 
   patient_address = PatientAddress.query.filter_by(id=patient.address_id).first()
   form = AddPatientForm(obj=patient)
@@ -385,7 +398,8 @@ def edit_patient(patient_id):
   context = {
     "patient": patient,
     "form": form,
-    "title_message": "Edit"
+    "title_message": "Edit",
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template("Main/add-patient.html", **context)
@@ -398,11 +412,11 @@ def remove_patient(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
     flash("Patient not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   db.session.delete(patient)
   db.session.commit()
   flash("Patient removed successfully", "success")
-  return redirect(url_for('admin.home'))
+  return redirect(url_for('admin.dashboard'))
 
 @admin.route("/profile/patient/<int:patient_id>")
 @login_required
@@ -412,7 +426,7 @@ def patient_profile(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
     flash("Patient not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
 
   patient_address = PatientAddress.query.filter_by(id=patient.address_id).first()
   patient_lab_analysis = LabAnalysis.query.filter_by(patient_id=patient.id).all()
@@ -427,6 +441,7 @@ def patient_profile(patient_id):
     "patient_prescriptions": patient_prescriptions,
     "patient_payments": patient_payments,
     "patient_appointments": patient_apointments,
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template('Main/patient-profile.html', **context)
@@ -439,13 +454,14 @@ def create_appointment(patient_id):
   patient = Patients.query.filter_by(unique_id=patient_id).first()
   if not patient:
     flash("Failed to create appointment, patient not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   
   existing_appointment = Appointment.query.filter_by(patient_id=patient.id, is_active=True).first()
 
   if not existing_appointment:
     new_appointment = Appointment(
-      patient_id = patient.id
+      patient_id = patient.id,
+      clinic_id = session["clinic_id"]
     )
     db.session.add(new_appointment)
     db.session.commit()
@@ -461,7 +477,7 @@ def appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   
   patient = Patients.query.filter_by(id=appointment.patient_id).first()
 
@@ -496,7 +512,8 @@ def appointment(appointment_id):
     "diseases": Disease.query.all(),
     "medicines": Medicine.query.all(),
     "feedback": Feedback.query.filter_by(appointment_id=appointment.id).first(),
-    "form": FeedbackForm() 
+    "form": FeedbackForm(),
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template("Main/appointment.html", **context)
@@ -509,7 +526,7 @@ def add_lab_analysis(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
 
   if appointment.is_active == False:
     flash("Appointment is not active", "warning")
@@ -523,6 +540,7 @@ def add_lab_analysis(appointment_id):
       new_lab_analysis = LabAnalysis(
         patient_id = appointment.patient_id,
         appointment_id = appointment.id,
+        clinic_id = session["clinic_id"]
       )
       db.session.add(new_lab_analysis)
       db.session.flush()
@@ -540,8 +558,8 @@ def add_lab_analysis(appointment_id):
 def create_lab_analysis_details(lab_analysis_id, form):
   new_lab_detail = LabAnalysisDetails(
     lab_analysis_id = lab_analysis_id,
-    test = form.test.data,       
-    result = form.result.data,       
+    test = form.test.data,
+    result = form.result.data,
   )
   db.session.add(new_lab_detail)
 
@@ -571,7 +589,7 @@ def approve_lab_analysis(lab_analysis_id):
   lab_analysis = LabAnalysis.query.filter_by(unique_id=lab_analysis_id).first()
   if not lab_analysis:
     flash("Lab analysis not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   if lab_analysis.is_approved:
     flash("Lab analysis already approved", "info")
     return redirect(url_for("admin.appointment", appointment_id=lab_analysis.appointment_lab_analysis.unique_id))
@@ -596,7 +614,7 @@ def add_diagnosis(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   
   if appointment.is_active == False:
     flash("Appointment is not active", "warning")
@@ -612,7 +630,8 @@ def add_diagnosis(appointment_id):
       new_diagnosis = Diagnosis(
         patient_id = patient.id,
         appointment_id = appointment.id,
-        note = form.note.data
+        note = form.note.data,
+        clinic_id = session["clinic_id"]
       )
       db.session.add(new_diagnosis)
       db.session.flush()
@@ -655,7 +674,7 @@ def add_prescription(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
 
   if appointment.is_active == False:
     flash("Appointment is not active", "warning")
@@ -671,7 +690,8 @@ def add_prescription(appointment_id):
       new_prescription = Prescription(
         patient_id = patient.id,
         appointment_id = appointment.id,
-        note = form.note.data
+        note = form.note.data,
+        clinic_id = session["clinic_id"]
       )
       db.session.add(new_prescription)
       db.session.flush()
@@ -727,7 +747,7 @@ def complete_appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
     flash("Appointment not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
 
   try:
     appointment_lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id, is_active=True).first()
@@ -749,7 +769,7 @@ def complete_appointment(appointment_id):
     db.session.rollback()
     flash(f"Error: {str(e)}", "danger")
 
-  return redirect(url_for("admin.home"))
+  return redirect(url_for("admin.dashboard"))
 
 @admin.route("/patient/feedback/<int:appointment_id>", methods=["POST"])
 @login_required
@@ -760,7 +780,7 @@ def patient_feedback(appointment_id):
     appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
     if not appointment:
       flash("Appointment not found", "danger")
-      return redirect(url_for("admin.home"))
+      return redirect(url_for("admin.dashboard"))
     
     form = FeedbackForm()
     if form.validate_on_submit():
@@ -785,7 +805,7 @@ def prescription_payment(prescription_id):
   prescription = Prescription.query.filter_by(unique_id=prescription_id).first()
   if not prescription:
     flash("Prescription not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
   
   try:
     prescription_appointment = Appointment.query.get(prescription.appointment_id)
@@ -801,7 +821,7 @@ def prescription_payment(prescription_id):
   except Exception as e:
     flash(f"Error: {str(e)}", "danger")
   
-  return redirect(url_for("admin.home"))
+  return redirect(url_for("admin.dashboard"))
 
 def record_transaction(prescription_id):
   prescription = Prescription.query.get(prescription_id)
@@ -815,7 +835,8 @@ def record_transaction(prescription_id):
     is_completed = True,
     date_paid = get_local_time(),
     prescription_id = prescription.id,
-    patient_id = prescription.patient_id
+    patient_id = prescription.patient_id,
+    clinic_id = session["clinic_id"]
   )
   db.session.add(new_payment)
   db.session.commit()
@@ -827,7 +848,7 @@ def export_transaction(payment_id):
   payment = Payment.query.filter_by(unique_id=payment_id).first()
   if not payment:
     flash("Payment not found", "danger")
-    return redirect(url_for("admin.home"))
+    return redirect(url_for("admin.dashboard"))
 
   try:
     patient = Patients.query.get(payment.patient_id)
@@ -835,7 +856,7 @@ def export_transaction(payment_id):
   except Exception as e:
     flash(f"{str(e)}", "danger")
 
-  return redirect(url_for("admin.home"))
+  return redirect(url_for("admin.dashboard"))
 
 @admin.route("/analytics", methods=["POST", "GET"])
 @login_required
@@ -845,12 +866,12 @@ def analytics():
     DiagnosisDetails.id,
     DiagnosisDetails.diagnosis_id,
     DiagnosisDetails.disease_id
-  ).all()
+  ).filter(Diagnosis.clinic_id == session["clinic_id"]).all()
   prescription_details = db.session.query(
     PrescriptionDetails.id,
     PrescriptionDetails.prescription_id,
     PrescriptionDetails.medicine_id
-  ).all()
+  ).filter(Diagnosis.clinic_id == session["clinic_id"]).all()
 
   month_selected = 0
   region_selected = ""
@@ -889,7 +910,7 @@ def analytics():
             PatientAddress,
             PatientAddress.id == Patients.address_id
         ).filter(
-            PatientAddress.region == region_selected
+            PatientAddress.region == region_selected, Diagnosis.clinic_id == session["clinic_id"]
         ).group_by(
             DiagnosisDetails.id,
             DiagnosisDetails.disease_id,
@@ -921,7 +942,7 @@ def analytics():
             PatientAddress,
             PatientAddress.id == Patients.address_id
         ).filter(
-            PatientAddress.region == region_selected
+            PatientAddress.region == region_selected, Prescription.clinic_id == session["clinic_id"]
         ).group_by(
             PrescriptionDetails.id,
             PrescriptionDetails.medicine_id,
@@ -954,7 +975,7 @@ def analytics():
             PatientAddress,
             PatientAddress.id == Patients.address_id
         ).filter(
-            PatientAddress.region == region_selected, DiagnosisDetails.month_created == month_selected
+            PatientAddress.region == region_selected, DiagnosisDetails.month_created == month_selected, Diagnosis.clinic_id == session["clinic_id"]
         ).group_by(
             DiagnosisDetails.id,
             DiagnosisDetails.disease_id,
@@ -985,7 +1006,7 @@ def analytics():
             PatientAddress,
             PatientAddress.id == Patients.address_id
         ).filter(
-            PatientAddress.region == region_selected, PrescriptionDetails.month_created == month_selected
+            PatientAddress.region == region_selected, PrescriptionDetails.month_created == month_selected, Prescription.clinic_id == session["clinic_id"]
         ).group_by(
             PrescriptionDetails.id,
             PrescriptionDetails.medicine_id,
@@ -1000,12 +1021,12 @@ def analytics():
         DiagnosisDetails.id,
         DiagnosisDetails.diagnosis_id,
         DiagnosisDetails.disease_id
-      ).filter(DiagnosisDetails.month_created == int(month_selected)).all()
+      ).filter(DiagnosisDetails.month_created == int(month_selected), Diagnosis.clinic_id == session["clinic_id"]).all()
       prescription_details = db.session.query(
         PrescriptionDetails.id,
         PrescriptionDetails.prescription_id,
         PrescriptionDetails.medicine_id
-      ).filter(PrescriptionDetails.month_created == int(month_selected)).all()
+      ).filter(PrescriptionDetails.month_created == int(month_selected), Prescription.clinic_id == session["clinic_id"]).all()
 
   # Then process in Python to count and group
   disease_counts = defaultdict(list)
@@ -1058,7 +1079,8 @@ def analytics():
     "month_selected": int(month_selected),
     "regions": ["Arusha","Dar es Salaam","Dodoma","Geita","Iringa","Kagera","Katavi","Kigoma","Kilimanjaro","Lindi","Manyara","Mara","Mbeya","Mororgoro","Mtwara","Mwanza","Njombe","Pwani","Rukwa","Ruvuma","Shinyanga","Simiyu","Singida","Songwe","Tabora","Tanga","Zanzibar"
     ],
-    "region_selected": region_selected
+    "region_selected": region_selected,
+    "clinic": Clinic.query.get(session["clinic_id"])
   }
 
   return render_template("Main/analytics.html", **context)

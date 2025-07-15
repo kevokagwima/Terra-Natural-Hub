@@ -9,13 +9,6 @@
 Select Branch
 {% endblock %}
 
-{% block nav %}
-<a href="{{ url_for('admin.home') }}" class="nav-item">
-  <i class="fas fa-chevron-left"></i>
-  Back To Dashboard
-</a>
-{% endblock %}
-
 {% block body %}
 <div class="container">
   <div class="branches-box">
@@ -29,7 +22,7 @@ Select Branch
     <div class="branches-list">
       {% if clinics %}
       {% for clinic in clinics %}
-      <a href="#" class="branch-link">
+      <a href="{{ url_for('admin.load_clinic', branch_name=clinic.alias) }}" class="branch-link">
         <div class="branch-box">
           <span class="branch-name">
             {{ clinic.name }} {% if clinic.clinic_type.name == "Headquarters" %} - HQ {% endif %}

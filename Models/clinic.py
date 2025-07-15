@@ -2,8 +2,6 @@ from Models.base_model import db, BaseModel, get_local_time
 from Models.appointment import Appointment
 from Models.diagnosis import Diagnosis
 from Models.prescription import Prescription
-from Models.diseases import Disease
-from Models.medicine import Medicine
 from Models.payment import Payment
 from Models.users import Patients
 from Models.lab_analysis import LabAnalysis
@@ -28,8 +26,6 @@ class Clinic(BaseModel, db.Model):
   appointment = db.relationship("Appointment", backref="clinic_appointment", lazy=True)
   diagnosis = db.relationship("Diagnosis", backref="clinic_diagnosis", lazy=True)
   prescription = db.relationship("Prescription", backref="clinic_prescription", lazy=True)
-  disease = db.relationship("Disease", backref="clinic_disease", lazy=True)
-  medicine = db.relationship("Medicine", backref="clinic_medicine", lazy=True)
   payment = db.relationship("Payment", backref="clinic_payment", lazy=True)
   patients = db.relationship("Patients", backref="clinic_patients", lazy=True)
   lab_analysis = db.relationship("LabAnalysis", backref="clinic_labanalysis", lazy=True)

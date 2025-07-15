@@ -19,7 +19,7 @@
   <div class="content-box">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <a href="{{ url_for('admin.home') }}">
+        <a href="{{ url_for('admin.select_branch') }}">
           <img src="{{ url_for('static', filename='image/logo.webp') }}" alt="Clinic Logo">
         </a>
         <span onclick="closeSideBar()" id="close-sidebar">&Cross;</span>
@@ -28,6 +28,12 @@
         {% block nav %} {% endblock %}
       </nav>
       <div class="sidebar-footer">
+        {% if clinic %}
+        <a id="branch-link" href="{{ url_for('admin.select_branch') }}">
+          <span>{{ clinic.name }}</span>
+          <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
         <div class="user-profile">
           {% if current_user.is_authenticated %}
           <div class="user-info">

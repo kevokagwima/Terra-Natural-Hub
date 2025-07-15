@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, fresh_login_required
 from Models.base_model import db
 from Models.users import Staff, Role
 from .form import StaffRegistrationForm, StaffLoginForm
@@ -58,7 +58,7 @@ def signin():
         login_user(staff, remember=True)
         flash("Login successfull", "success")
         next = request.args.get("next")
-        return redirect(next or url_for("admin.home"))
+        return redirect(next or url_for("admin.select_branch"))
       else:
         flash("Invalid credentials", "danger")
         return redirect(url_for("auth.signin"))
@@ -80,6 +80,7 @@ def signin():
 
 @auth.route("/logout")
 @login_required
+@fresh_login_required
 def logout():
   try:
     logout_user()
