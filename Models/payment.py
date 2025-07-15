@@ -9,6 +9,7 @@ class Payment(BaseModel, db.Model):
   date_paid = db.Column(db.DateTime(), default=get_local_time())
   prescription_id = db.Column(db.Integer(), db.ForeignKey("prescription.id"))
   patient_id = db.Column(db.Integer(), db.ForeignKey("patient.id"))
+  clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
 
   def __repr__(self):
     return f"{self.amount} - {self.prescription_id}"

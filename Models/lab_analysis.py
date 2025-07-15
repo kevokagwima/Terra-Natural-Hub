@@ -4,6 +4,7 @@ class LabAnalysis(BaseModel, db.Model):
   __tablename__ = "lab_analysis"
   patient_id = db.Column(db.Integer(), db.ForeignKey("patient.id"))
   appointment_id = db.Column(db.Integer(), db.ForeignKey("appointment.id"))
+  clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
   is_active = db.Column(db.Boolean(), default=True)
   is_approved = db.Column(db.Boolean(), default=False)
   date_created = db.Column(db.DateTime(), default=get_local_time())

@@ -90,3 +90,9 @@ class PrescriptionForm(FlaskForm):
 
 class FeedbackForm(FlaskForm):
   feedback = SelectField(label="Patient Feedback", choices=[("", "Select an option"), ("Recovered", "Recovered"), ("Not Recovered", "Not Recovered")], validators=[DataRequired(message="Feedback field is required")])
+
+class AddClinicForm(FlaskForm):
+  name = StringField('Clinic Name', validators=[DataRequired(message="Clinic Name required"), Length(max=150)])
+  branch_type = SelectField(label="Branch Type", choices=[("","Select Branch Type"),("Headquarters","Headquarters"), ("Other","Other")], validators=[DataRequired(message="Branch Type required")])
+  region = StringField('Region', validators=[DataRequired(message="Region field required")])
+  district = StringField('District', validators=[DataRequired(message="District field required")])

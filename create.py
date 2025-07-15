@@ -6,6 +6,7 @@ from Models.diagnosis import *
 from Models.medicine import *
 from Models.prescription import *
 from Models.payment import *
+from Models.clinic import *
 from config import Config
 
 app = Flask(__name__)
@@ -30,8 +31,20 @@ def add_roles():
     db.session.commit()
     print(f"{role} role added")
 
+def add_branch():
+  branches = ["Headquarters", "Other"]
+  for branch in branches:
+    new_clinic_type = ClinicType(
+      name = branch
+    )
+    db.session.add(new_clinic_type)
+    db.session.commit()
+    print(f"Branch: {branch} added")
+  
+
 if __name__ == "__main__":
   with app.app_context():
     drop_tables()
     create_tables()
     add_roles()
+    add_branch()

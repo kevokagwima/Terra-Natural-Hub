@@ -9,7 +9,8 @@ from Models.lab_analysis import LabAnalysis, LabAnalysisDetails
 from Models.appointment import Appointment, Feedback
 from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
-from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm
+from Models.clinic import Clinic, ClinicType
+from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm, AddClinicForm
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
 from collections import defaultdict
@@ -45,6 +46,37 @@ region_districts = {
   "Tanga": ["Handeni", "Kilindi", "Korogwe", "Lushoto", "Mkinga", "Muheza", "Pangani", "Tanga"],
   "Zanzibar": ["Zanzibar Central/South", "Zanzibar North", "Zanzibar Urban/West"]
 }
+
+@admin.route("/branch/select", methods=["POST", "GET"])
+@login_required
+@fresh_login_required
+def select_branch():
+  form = AddClinicForm()
+
+  if form.validate_on_submit():
+    new_clinic = Clinic(
+      name = form.name.data,
+      alias = form.name.data.lower().replace(" ", "-").replace("/", "-").replace(".", "-").replace(",", "-").replace("_", "-").replace("'", "-").replace('"', "-"),
+      region = form.region.data,
+      district = form.district.data,
+      clinic_type_id = ClinicType.query.filter_by(name=form.branch_type.data).first().id
+    )
+    db.session.add(new_clinic)
+    db.session.commit()
+    flash("Branch added successfully", "success")
+    return redirect(url_for("admin.select_branch"))
+
+  if form.errors != {}:
+    for err_msg in form.errors.values():
+      flash(f"{err_msg}", "danger")
+      return redirect(request.referrer)
+  
+  context = {
+    "form": form,
+    "clinics": Clinic.query.all()
+  }
+
+  return render_template("Main/select-branch.html", **context)
 
 @admin.route("/")
 @admin.route("/home")
@@ -99,13 +131,6 @@ def patient_search(search_text):
   ]
 
   return jsonify(patients_list)
-
-@admin.route("/map")
-def render_map():
-  try:
-    return render_template("tanzania_map.html")
-  except:
-    return "No data to display on the map"
 
 @admin.route("/add/medicine", methods=["POST", "GET"])
 @login_required

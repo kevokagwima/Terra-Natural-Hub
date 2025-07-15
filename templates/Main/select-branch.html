@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/select-branch.css') }}">
+{% endblock %}
+
+{% block title %}
+Select Branch
+{% endblock %}
+
+{% block nav %}
+<a href="{{ url_for('admin.home') }}" class="nav-item">
+  <i class="fas fa-chevron-left"></i>
+  Back To Dashboard
+</a>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="branches-box">
+    <div class="branch-header">
+      <h2>
+        Our Clinic Branches
+        <span><b>{{ clinics|count }}</b> Branches</span>
+      </h2>
+      <button id="addBranchBtn" class="btn-primary">+ Add New Branch</button>
+    </div>
+    <div class="branches-list">
+      {% if clinics %}
+      {% for clinic in clinics %}
+      <a href="#" class="branch-link">
+        <div class="branch-box">
+          <span class="branch-name">
+            {{ clinic.name }} {% if clinic.clinic_type.name == "Headquarters" %} - HQ {% endif %}
+          </span>
+          <span class="branch-address">
+            {{ clinic.region }}, {{ clinic.district }}
+          </span>
+        </div>
+        <i class="fas fa-chevron-right"></i>
+      </a>
+      {% endfor %}
+      {% else %}
+      <p class="else">No branches added</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div id="branchModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Add New Clinic Branch</h2>
+    <form id="branchForm" method="post">
+      {{ form.csrf_token }}
+      <div class="form-group extend">
+        {{ form.name.label }}
+        {{ form.name(placeholder="Enter Clinic Name") }}
+      </div>
+      <div class="form-group">
+        {{ form.region.label }}
+        {{ form.region(placeholder="Enter name of region") }}
+      </div>
+      <div class="form-group">
+        {{ form.district.label }}
+        {{ form.district(placeholder="Enter name of district") }}
+      </div>
+      <div class="form-group extend">
+        {{ form.branch_type.label }}
+        {{ form.branch_type }}
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-primary" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn-primary">Add Branch</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/select_branch.js') }}"></script>
+{% endblock %}

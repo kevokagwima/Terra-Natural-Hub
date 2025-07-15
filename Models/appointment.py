@@ -6,6 +6,7 @@ from Models.lab_analysis import LabAnalysis
 class Appointment(BaseModel, db.Model):
   __tablename__ = "appointment"
   patient_id = db.Column(db.Integer(), db.ForeignKey("patient.id"))
+  clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
   is_active = db.Column(db.Boolean(), default=True)
   is_paid = db.Column(db.Boolean(), default=False)
   date_created = db.Column(db.DateTime(), default=get_local_time())
