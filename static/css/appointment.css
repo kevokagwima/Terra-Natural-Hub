@@ -283,6 +283,11 @@ textarea.form-control {
   background-color: var(--yellow);
 }
 
+button:disabled {
+  background-color: var(--dark-grey);
+  cursor: auto;
+}
+
 @media (max-width: 768px) {
   .form-grid {
     grid-template-columns: 1fr;

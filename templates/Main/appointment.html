@@ -218,11 +218,17 @@ Patient Appointment
   {% if current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Lab Tech" %}
   {% if appointment.is_active %}
   <div class="form-actions">
+    {% if appointment.lab_analysis and appointment.diagnosis and appointment.prescription %}
     <a href="{{ url_for('admin.complete_appointment', appointment_id=appointment.unique_id) }}">
       <button id="complete" class="btn btn-primary">
         Complete & Sign
       </button>
     </a>
+    {% else %}
+    <button disabled class="btn btn-primary">
+      Complete & Sign
+    </button>
+    {% endif %}
   </div>
   {% endif %}
   {% endif %}

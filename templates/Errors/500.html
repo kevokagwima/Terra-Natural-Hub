@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block nav %}
-<a href="{{ url_for('admin.dashboard') }}" class="nav-item">
+<a href="{{ url_for('admin.select-branch') }}" class="nav-item">
   <i class="fas fa-chevron-left"></i>
-  Back To Dashboard
+  Back
 </a>
 {% endblock %}
 
@@ -29,7 +29,7 @@
       <p>{{ error }}</p>
     </div>
     <div class="error-actions">
-      <a href="{{ url_for('admin.home') }}">
+      <a href="{{ url_for('admin.select_branch') }}">
         <button>Home</button>
       </a>
     </div>

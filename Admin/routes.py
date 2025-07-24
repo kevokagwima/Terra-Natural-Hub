@@ -48,6 +48,7 @@ region_districts = {
 }
 
 @admin.route("/")
+@admin.route("/home")
 @admin.route("/branch/select", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
@@ -750,6 +751,9 @@ def complete_appointment(appointment_id):
     return redirect(url_for("admin.dashboard"))
 
   try:
+    if not appointment.lab_analysis and not appointment.diagnosis and not appointment.prescription:
+      flash("Appointment missing either an approved lab test or diagnosis or prescription", "warning")
+      return redirect(request.referrer)
     appointment_lab_analysis = LabAnalysis.query.filter_by(appointment_id=appointment.id, is_active=True).first()
     if appointment_lab_analysis:
       approve_lab_analysis.is_active = False
