@@ -657,6 +657,7 @@ def diagnosis_details(diagnosis_id, diagnosed_diseases_ids):
     new_diagnosis_detail = DiagnosisDetails(
       diagnosis_id = diagnosis.id,
       disease_id = disease.id,
+      clinic_id = session["clinic_id"]
     )
     db.session.add(new_diagnosis_detail)
     db.session.commit()
@@ -722,6 +723,7 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
         prescription_id = prescription.id,
         medicine_id = medicine.id,
         amount = medicine.price,
+        clinic_id = session["clinic_id"]
       )
       db.session.add(new_prescription_detail)
       flash("Prescription saved successfully", "success")
@@ -870,12 +872,12 @@ def analytics():
     DiagnosisDetails.id,
     DiagnosisDetails.diagnosis_id,
     DiagnosisDetails.disease_id
-  ).filter(Diagnosis.clinic_id == session["clinic_id"]).all()
+  ).filter(DiagnosisDetails.clinic_id == session["clinic_id"]).all()
   prescription_details = db.session.query(
     PrescriptionDetails.id,
     PrescriptionDetails.prescription_id,
     PrescriptionDetails.medicine_id
-  ).filter(Diagnosis.clinic_id == session["clinic_id"]).all()
+  ).filter(PrescriptionDetails.clinic_id == session["clinic_id"]).all()
 
   month_selected = 0
   region_selected = ""
@@ -914,7 +916,7 @@ def analytics():
             PatientAddress,
             PatientAddress.id == Patients.address_id
         ).filter(
-            PatientAddress.region == region_selected, Diagnosis.clinic_id == session["clinic_id"]
+            PatientAddress.region == region_selected, DiagnosisDetails.clinic_id == session["clinic_id"]
         ).group_by(
             DiagnosisDetails.id,
             DiagnosisDetails.disease_id,
@@ -946,7 +948,7 @@ def analytics():
             PatientAddress,
             PatientAddress.id == Patients.address_id
         ).filter(
-            PatientAddress.region == region_selected, Prescription.clinic_id == session["clinic_id"]
+            PatientAddress.region == region_selected, PrescriptionDetails.clinic_id == session["clinic_id"]
         ).group_by(
             PrescriptionDetails.id,
             PrescriptionDetails.medicine_id,
@@ -979,7 +981,7 @@ def analytics():
             PatientAddress,
             PatientAddress.id == Patients.address_id
         ).filter(
-            PatientAddress.region == region_selected, DiagnosisDetails.month_created == month_selected, Diagnosis.clinic_id == session["clinic_id"]
+            PatientAddress.region == region_selected, DiagnosisDetails.month_created == month_selected, DiagnosisDetails.clinic_id == session["clinic_id"]
         ).group_by(
             DiagnosisDetails.id,
             DiagnosisDetails.disease_id,
@@ -1010,7 +1012,7 @@ def analytics():
             PatientAddress,
             PatientAddress.id == Patients.address_id
         ).filter(
-            PatientAddress.region == region_selected, PrescriptionDetails.month_created == month_selected, Prescription.clinic_id == session["clinic_id"]
+            PatientAddress.region == region_selected, PrescriptionDetails.month_created == month_selected, PrescriptionDetails.clinic_id == session["clinic_id"]
         ).group_by(
             PrescriptionDetails.id,
             PrescriptionDetails.medicine_id,
@@ -1030,7 +1032,7 @@ def analytics():
         PrescriptionDetails.id,
         PrescriptionDetails.prescription_id,
         PrescriptionDetails.medicine_id
-      ).filter(PrescriptionDetails.month_created == int(month_selected), Prescription.clinic_id == session["clinic_id"]).all()
+      ).filter(PrescriptionDetails.month_created == int(month_selected), PrescriptionDetails.clinic_id == session["clinic_id"]).all()
 
   # Then process in Python to count and group
   disease_counts = defaultdict(list)

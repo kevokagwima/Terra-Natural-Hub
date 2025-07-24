@@ -24,6 +24,7 @@ class PrescriptionDetails(BaseModel, db.Model):
   medicine_id = db.Column(db.Integer(), db.ForeignKey("medicine.id"))
   amount = db.Column(db.Integer(), default=0)
   month_created = db.Column(db.Integer(), default=int(get_local_time().strftime("%m")))
+  clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
 
   def __repr__(self):
     return f"{self.prescription_id} - {self.medicine_id}, {self.amount}"
