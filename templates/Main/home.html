@@ -21,6 +21,10 @@ Home
   <i class="fas fa-user-injured"></i>
   Patients
 </a>
+<a data-tab="staff" class="nav-item">
+  <i class="fas fa-user"></i>
+  Staff
+</a>
 <a data-tab="medical-data" class="nav-item">
   <i class="fas fa-hospital"></i>
   Medical Data
@@ -282,7 +286,7 @@ Home
       <thead>
         <tr>
           <th>Patient ID</th>
-          <th>Patient Full Name</th>
+          <th>Full Name</th>
           <th>Phone</th>
           <th>Age</th>
           <th>Gender</th>
@@ -343,7 +347,7 @@ Home
     <div class="mobile-patient-card">
       <div class="mobile-card-header">
         <div style="flex: 1;">
-          <div style="font-weight: 500;">{{ patient.name }}</div>
+          <div style="font-weight: 500;">{{ patient.first_name }} {{ patient.last_name }}</div>
           <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ patient.unique_id }}</div>
         </div>
       </div>
@@ -378,6 +382,114 @@ Home
         <button class="btn-icon delete">
           <i class="fas fa-trash"></i>
         </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<div id="staff" class="tabContent">
+  <div class="header">
+    <div class="page-title">
+      <h1>Staff</h1>
+    </div>
+    <button id="addBranchBtn" class="btn btn-primary">
+      <i class="fas fa-plus"></i>
+      Add Staff
+    </button>
+  </div>
+  <div class="patients-table-container">
+    <table id="patients-table">
+      <thead>
+        <tr>
+          <th>Staff ID</th>
+          <th>Full Name</th>
+          <th>Phone Number</th>
+          <th>Email Address</th>
+          <th>Role</th>
+          <th>Branch</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for staff in staffs|sort(attribute="first_name", reverse=true) %}
+        <tr id="patient-list">
+          <td>
+            <b>ST - {{ staff.unique_id }}</b>
+          </td>
+          <td>
+            <div class="patient-cell">
+              <div class="patient-info">
+                <div class="patient-name">
+                  {{ staff.first_name }} {{ staff.last_name }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            {% if staff.phone %}
+            0{{ staff.phone }}
+            {% else %}
+            ---
+            {% endif %}
+          </td>
+          <td>{{ staff.email }}</td>
+          <td>{{ staff.staff_role.name }}</td>
+          <td>
+            {% if staff.staff_role.name == "Admin" %}
+            Overseer
+            {% else %}
+            {{ staff.clinic_staff.name }}
+            {% endif %}
+          </td>
+          <td>
+            {% if staff.staff_role.name != "Admin" %}
+            <div class="table-actions-cell">
+              <a href="{{ url_for('admin.remove_staff', staff_id=staff.unique_id) }}">
+                <button class="btn-icon delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </a>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Mobile view cards (hidden on desktop) -->
+    {% for staff in staffs|sort(attribute=id, reverse=true) %}
+    <div class="mobile-patient-card">
+      <div class="mobile-card-header">
+        <div style="flex: 1;">
+          <div style="font-weight: 500;">{{ staff.first_name }} {{ staff.last_name }}</div>
+          <div style="font-size: 0.75rem; color: #64748b;">ID: PT-{{ staff.unique_id }}</div>
+        </div>
+      </div>
+      <div class="mobile-card-body">
+        <div class="mobile-card-field">
+          <label>Phone Number</label>
+          <div>
+            {{ staff.phone }}
+          </div>
+        </div>
+        <div class="mobile-card-field">
+          <label>Email Address</label>
+          <div>{{ staff.email }}</div>
+        </div>
+        <div class="mobile-card-field">
+          <label>Branch</label>
+          <div>
+            {{ staff.clinic_staff.name }}
+          </div>
+        </div>
+      </div>
+      <div class="mobile-card-actions">
+        <a href="{{ url_for('admin.remove_staff', staff_id=staff.unique_id) }}">
+          <button class=" btn-icon delete">
+            <i class="fas fa-trash"></i>
+          </button>
+        </a>
       </div>
     </div>
     {% endfor %}
@@ -496,7 +608,7 @@ Home
   </div>
   {% if lab_tests %}
   <div class="labtest-box">
-    {% for lab_test in lab_tests|sort(attribute="date_created", reverse=True) %}
+    {% for lab_test in lab_tests|sort(attribute="id", reverse=True) %}
     <div class="diagnosis-container">
       <div class="diagnosis-header">
         <div class="patient-info">
@@ -578,7 +690,7 @@ Home
   </div>
   {% if all_diagnosis %}
   <div class="diagnosis-box">
-    {% for diagnosis in all_diagnosis|sort(attribute="date_created", reverse=True) %}
+    {% for diagnosis in all_diagnosis|sort(attribute="id", reverse=True) %}
     <div class="diagnosis-container">
       <div class="diagnosis-header">
         <div class="patient-info">
@@ -663,7 +775,7 @@ Home
   </div>
   {% if prescriptions %}
   <div class="prescription-box">
-    {% for prescription in prescriptions|sort(attribute="date_created", reverse=True) %}
+    {% for prescription in prescriptions|sort(attribute="id", reverse=True) %}
     <div class="prescription-container">
       <div class="diagnosis-header">
         <div class="patient-info">
@@ -683,7 +795,6 @@ Home
           <div class="diagnosis-id">Prescription ID: PS-{{ prescription.unique_id }}</div>
         </div>
       </div>
-
       <div class="diseases-list">
         <h2 class="section-title">Prescribed Medication</h2>
 
@@ -709,7 +820,6 @@ Home
         </div>
         {% endif %}
       </div>
-
       <div class="notes-section">
         <h2 class="section-title">Doctor's Notes</h2>
         {% if prescription.note %}
@@ -723,7 +833,6 @@ Home
         </div>
         {% endif %}
       </div>
-
       <div class="actions-section">
         <div class="left-btns">
           {% if prescription.is_paid %}
@@ -732,12 +841,10 @@ Home
           <span class="status-badge pending">Appointment Ongoing</span>
           {% elif (current_user.staff_role.name == "Admin" or current_user.staff_role.name == "Accountant") and
           prescription.is_paid == False %}
-          <a href="{{ url_for('admin.prescription_payment', prescription_id=prescription.unique_id) }}">
-            <button class="btn btn-outline">
-              <i class="fas fa-wallet"></i>
-              Pay
-            </button>
-          </a>
+          <button id="pay-btn" class="btn btn-outline" data-id="{{ prescription.unique_id }}">
+            <i class="fas fa-wallet"></i>
+            Pay
+          </button>
           {% else %}
           <span class="status-badge cancelled">Not Paid</span>
           {% endif %}
@@ -926,11 +1033,62 @@ Home
     </div>
   </div>
 </div>
+
+<div class="modal">
+  <div class="modal-content">
+    <div class="modal-body">
+      <p>Are you sure you want to mark this prescription as paid</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn cancel-btn">Cancel</button>
+      <button class="btn confirm-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="branchModal" class="branchmodal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Add New Staff</h2>
+    <form action="{{ url_for('auth.signup') }}" id="branchForm" method="post">
+      {{ form.csrf_token }}
+      <div class="form-group">
+        {{ form.first_name.label }}
+        {{ form.first_name(placeholder="Enter First Name") }}
+      </div>
+      <div class="form-group">
+        {{ form.last_name.label }}
+        {{ form.last_name(placeholder="Enter Last Name") }}
+      </div>
+      <div class="form-group">
+        {{ form.email_address.label }}
+        {{ form.email_address(placeholder="Enter Email Address") }}
+      </div>
+      <div class="form-group">
+        {{ form.phone_number.label }}
+        {{ form.phone_number(placeholder="Enter Phone Number") }}
+      </div>
+      <div class="form-group">
+        {{ form.role.label }}
+        {{ form.role }}
+      </div>
+      <div class="form-group">
+        {{ form.branch.label }}
+        {{ form.branch }}
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-primary" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn-primary">Add Staff</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}
 
 {% block script %}
+<script src="{{ url_for('static', filename='js/home.js') }}"></script>
 <script src="{{ url_for('static', filename='js/patient-search.js') }}"></script>
 <script src="{{ url_for('static', filename='js/search.js') }}"></script>
-<script src="{{ url_for('static', filename='js/home.js') }}"></script>
 <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
 {% endblock %}

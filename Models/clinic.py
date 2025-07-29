@@ -28,6 +28,7 @@ class Clinic(BaseModel, db.Model):
   prescription = db.relationship("Prescription", backref="clinic_prescription", lazy=True)
   payment = db.relationship("Payment", backref="clinic_payment", lazy=True)
   patients = db.relationship("Patients", backref="clinic_patients", lazy=True)
+  staff = db.relationship("Staff", backref="clinic_staff", lazy=True)
   lab_analysis = db.relationship("LabAnalysis", backref="clinic_labanalysis", lazy=True)
 
   def __repr__(self):

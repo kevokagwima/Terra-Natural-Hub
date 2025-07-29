@@ -155,7 +155,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 #cancelBtn {

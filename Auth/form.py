@@ -9,8 +9,7 @@ class StaffRegistrationForm(FlaskForm):
   email_address = EmailField(label="Email Address", validators=[Email(), DataRequired(message="Email Address field required")])
   phone_number = StringField(label="Phone Number", validators=[Length(min=10, max=10, message="Invalid Phone Number"), DataRequired(message="Phone Number field required")])
   role = SelectField(label="Select Role", choices=[], validators=[DataRequired(message="Role required")])
-  password = PasswordField(label="Password", validators=[Length(min=5,message="Password has to be between 5 and 25 characters long",), DataRequired(message="Password field required")])
-  confirm_password = PasswordField(label="Confirm Password", validators=[EqualTo("password",message="Passwords do not match"), DataRequired(message="Confirm Password field required")])
+  branch = SelectField(label="Select Branch", choices=[], validators=[DataRequired(message="Branch required")])
 
   def validate_phone_number(self, phone_number_to_validate):
     phone_number = phone_number_to_validate.data

@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session
 from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
-from Models.users import Patients, PatientAddress
+from Models.users import Role
+from Models.users import Patients, PatientAddress, Staff
 from Models.medicine import Medicine
 from Models.diseases import Disease
 from Models.payment import Payment
@@ -11,10 +12,12 @@ from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
 from Models.clinic import Clinic, ClinicType
 from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm, AddClinicForm
+from Auth.form import StaffRegistrationForm
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
 from collections import defaultdict
 from sqlalchemy.sql import func, desc
+from slugify import slugify
 
 admin = Blueprint("admin", __name__)
 region_districts = {
@@ -59,7 +62,7 @@ def select_branch():
     try:
       new_clinic = Clinic(
         name = form.name.data,
-        alias = form.name.data.lower().replace(" ", "-").replace("/", "-").replace(".", "-").replace(",", "-").replace("_", "-").replace("'", "-").replace('"', "-"),
+        alias = slugify(form.name.data),
         region = form.region.data,
         district = form.district.data,
         clinic_type_id = ClinicType.query.filter_by(name=form.branch_type.data).first().id
@@ -101,12 +104,17 @@ def dashboard():
     flash("Select a clinic", "warning")
     return redirect(url_for('admin.select_branch'))
   
+  form = StaffRegistrationForm()
+  form.branch.choices = [(clinic.unique_id, clinic.name) for clinic in Clinic.query.all()]
+  form.role.choices = [(role.unique_id, role.name) for role in Role.query.all()]
+  
   diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).limit(limit=5).all()]
 
   prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).limit(limit=5).all()]
 
   context = {
     "patients": Patients.query.filter_by(clinic_id=session["clinic_id"]).all(),
+    "staffs": Staff.query.all(),
     "payments" : Payment.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "medicines" : Medicine.query.all(),
     "diseases" : Disease.query.all(),
@@ -116,7 +124,8 @@ def dashboard():
     "lab_tests" : LabAnalysis.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "diagnosis_disease_ids": diagnosis_disease_ids,
     "prescription_medicine_ids": prescription_medicine_ids,
-    "clinic": Clinic.query.get(session["clinic_id"])
+    "clinic": Clinic.query.get(session["clinic_id"]),
+    "form": form
   }
   
   return render_template("Main/home.html", **context)
@@ -417,6 +426,20 @@ def remove_patient(patient_id):
   db.session.delete(patient)
   db.session.commit()
   flash("Patient removed successfully", "success")
+  return redirect(url_for('admin.dashboard'))
+
+@admin.route("/remove-staff/<int:staff_id>")
+@login_required
+@fresh_login_required
+@role_required(["Admin"])
+def remove_staff(staff_id):
+  staff = Staff.query.filter_by(unique_id = staff_id).first()
+  if not staff:
+    flash("Staff not found", "danger")
+  else:
+    db.session.delete(staff)
+    db.session.commit()
+    flash("Staff removed successfully", "success")
   return redirect(url_for('admin.dashboard'))
 
 @admin.route("/profile/patient/<int:patient_id>")

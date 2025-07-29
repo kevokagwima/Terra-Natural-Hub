@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, TextAreaField
-from wtforms.validators import Length, DataRequired, Optional, NumberRange
+from wtforms import StringField, IntegerField, SelectField, TextAreaField, EmailField
+from wtforms.validators import Length, DataRequired, Optional, NumberRange, ValidationError, Email
+from Models.users import Staff
 
 region_districts = {
   "Arusha": ["Monduli", "Arusha", "Arumeru", "Karatu", "Longido", "Ngorongoro"],
@@ -96,3 +97,4 @@ class AddClinicForm(FlaskForm):
   branch_type = SelectField(label="Branch Type", choices=[("","Select Branch Type"),("Headquarters","Headquarters"), ("Other","Other")], validators=[DataRequired(message="Branch Type required")])
   region = StringField('Region', validators=[DataRequired(message="Region field required")])
   district = StringField('District', validators=[DataRequired(message="District field required")])
+

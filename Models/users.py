@@ -19,6 +19,7 @@ class Role(BaseModel, db.Model):
 class Staff(BaseModel, UserBaseModel, UserMixin, db.Model):
   __tablename__ = 'user'
   role_id = db.Column(db.Integer(), db.ForeignKey("role.id"))
+  clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
 
   @property
   def passwords(self):
