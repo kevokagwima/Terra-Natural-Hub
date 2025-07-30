@@ -1,3 +1,7 @@
+#branch-link {
+  display: none;
+}
+
 form {
   grid-template-columns: 1fr;
 }

@@ -203,7 +203,7 @@ textarea:focus {
 
 #branch-link {
   padding: 0.3rem 0.6em;
-  background: linear-gradient(60deg, var(--yellow), var(--light-green));
+  background: linear-gradient(-60deg, var(--yellow), var(--light-green));
   border-radius: var(--radius-s);
   color: var(--white);
   display: flex;

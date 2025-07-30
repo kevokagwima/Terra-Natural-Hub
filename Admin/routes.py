@@ -55,6 +55,7 @@ region_districts = {
 @admin.route("/branch/select", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
+@role_required(["Admin"])
 def select_branch():
   form = AddClinicForm()
 
@@ -88,11 +89,14 @@ def select_branch():
   return render_template("Main/select-branch.html", **context)
 
 @admin.route("/load/branch/<string:branch_name>")
+@login_required
+@fresh_login_required
+@role_required(["Admin"])
 def load_clinic(branch_name):
   clinic = Clinic.query.filter_by(alias=branch_name).first()
   if not clinic:
     flash("Branch not found", "danger")
-    return redirect(url_for('admin.select_branch'))
+    return redirect(url_for('admin.select_branch'))  
   session["clinic_id"] = clinic.id
   return redirect(url_for('admin.dashboard'))
 

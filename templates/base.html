@@ -28,11 +28,17 @@
         {% block nav %} {% endblock %}
       </nav>
       <div class="sidebar-footer">
-        {% if clinic %}
+        {% if current_user.is_authenticated %}
+        {% if clinic and current_user.staff_role.name == "Admin" %}
         <a id="branch-link" href="{{ url_for('admin.select_branch') }}">
           <span>{{ clinic.name }}</span>
           <i class="fas fa-chevron-right"></i>
         </a>
+        {% elif current_user.staff_role.name != "Admin" %}
+        <div id="branch-link">
+          <span>{{ current_user.clinic_staff.name }}</span>
+        </div>
+        {% endif %}
         {% endif %}
         <div class="user-profile">
           {% if current_user.is_authenticated %}
@@ -45,8 +51,6 @@
               <i class="fas fa-right-from-bracket"></i>
             </a>
           </div>
-          {% else %}
-          <a href="{{ url_for('auth.signin') }}">Sign In</a>
           {% endif %}
         </div>
       </div>

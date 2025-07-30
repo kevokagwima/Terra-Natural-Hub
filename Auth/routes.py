@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required, login_user, logout_user, fresh_login_required, current_user
 from flask_bcrypt import Bcrypt
 from Models.base_model import db
@@ -80,7 +80,11 @@ def signin():
         login_user(staff, remember=True)
         flash("Login successfull", "success")
         next = request.args.get("next")
-        return redirect(next or url_for("admin.select_branch"))
+        if current_user.staff_role.name == "Admin":
+          return redirect(next or url_for("admin.select_branch"))
+        else:
+          session["clinic_id"] = current_user.clinic_id
+          return redirect(next or url_for("admin.dashboard"))
       else:
         flash("Invalid credentials", "danger")
         return redirect(url_for("auth.signin"))
