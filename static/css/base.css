@@ -227,13 +227,28 @@ textarea:focus {
   justify-content: space-between;
 }
 
-.user-info h4 {
+.user-info-box {
+  display: grid;
+  padding: 0;
+}
+
+.user-info-box:hover {
+  background-color: var(--white);
+}
+
+.user-info-box.nav-item.active {
+  background-color: transparent;
+  color: var(--black);
+  border: none;
+}
+
+.user-info-box h4 {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--dark);
 }
 
-.user-info p {
+.user-info-box p {
   font-size: 0.75rem;
   color: var(--light-green);
 }

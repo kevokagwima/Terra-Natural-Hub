@@ -11,7 +11,7 @@ from Models.appointment import Appointment, Feedback
 from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
 from Models.clinic import Clinic, ClinicType
-from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm, AddClinicForm
+from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm, AddClinicForm, UpdatedPasswordForm
 from Auth.form import StaffRegistrationForm
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required
@@ -125,7 +125,8 @@ def dashboard():
     "diagnosis_disease_ids": diagnosis_disease_ids,
     "prescription_medicine_ids": prescription_medicine_ids,
     "clinic": Clinic.query.get(session["clinic_id"]),
-    "form": form
+    "form": form,
+    "update_password_form": UpdatedPasswordForm()
   }
   
   return render_template("Main/home.html", **context)

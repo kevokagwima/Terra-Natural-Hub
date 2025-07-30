@@ -2,13 +2,13 @@ import os, resend
 
 resend.api_key = os.environ.get("resend_api_key")
 
-def send_email():
+def send_email(**message):
   try:
     params = {
       "from": "TNH <terranaturalherbs.co.tz>",
-      "to": "kevokagwima@gmail.com",
-      "subject": "Test",
-      "html": "It works",
+      "to": message["receiver"],
+      "subject": message["subject"],
+      "html": message["message"],
     }
     email = resend.Emails.send(params)
     print(email)

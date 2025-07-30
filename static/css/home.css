@@ -8,7 +8,7 @@
 .stat-card {
   background: var(--white);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
@@ -536,6 +536,23 @@ input {
 .chart-container {
   height: 300px;
   margin-top: 1.5rem;
+}
+
+.updateformbox {
+  background-color: var(--white);
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.updateformbox form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.updateformbox form button {
+  margin-top: 1rem;
+  color: var(--white);
 }
 
 .modal {

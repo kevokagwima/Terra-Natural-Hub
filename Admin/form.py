@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, TextAreaField, EmailField
-from wtforms.validators import Length, DataRequired, Optional, NumberRange, ValidationError, Email
+from wtforms import StringField, IntegerField, SelectField, TextAreaField, PasswordField
+from wtforms.validators import Length, DataRequired, Optional, NumberRange, EqualTo
 from Models.users import Staff
 
 region_districts = {
@@ -98,3 +98,7 @@ class AddClinicForm(FlaskForm):
   region = StringField('Region', validators=[DataRequired(message="Region field required")])
   district = StringField('District', validators=[DataRequired(message="District field required")])
 
+
+class UpdatedPasswordForm(FlaskForm):
+  new_password = PasswordField("New Password", validators=[DataRequired(message="New password field is required")])
+  confirm_password = PasswordField("Confirm Password", validators=[EqualTo("new_password", message="Passwords do not match"), DataRequired(message="Confirm password field is required")])

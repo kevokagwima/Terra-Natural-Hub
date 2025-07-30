@@ -37,7 +37,7 @@
         <div class="user-profile">
           {% if current_user.is_authenticated %}
           <div class="user-info">
-            <div class="user-info-box">
+            <div class="user-info-box nav-item" data-tab="profile">
               <h4>{{ current_user.first_name }} {{ current_user.last_name }}</h4>
               <p>{{ current_user.staff_role.name }}</p>
             </div>

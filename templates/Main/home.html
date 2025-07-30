@@ -21,10 +21,12 @@ Home
   <i class="fas fa-user-injured"></i>
   Patients
 </a>
+{% if current_user.staff_role.name == "Admin" %}
 <a data-tab="staff" class="nav-item">
   <i class="fas fa-user"></i>
   Staff
 </a>
+{% endif %}
 <a data-tab="medical-data" class="nav-item">
   <i class="fas fa-hospital"></i>
   Medical Data
@@ -64,6 +66,33 @@ Home
     </div>
   </div>
   <div class="stats-grid">
+    <div class="stat-card">
+      <h3>Revenue</h3>
+      <div class="value">
+        {% set revenue = [] %}
+        {% for payment in payments %}
+        {{ revenue.append(payment.amount) or "" }}
+        {% endfor %}
+        {{ "Tsh {:,}".format(revenue|sum) }}
+      </div>
+      <div class="trend">
+        {% set successfull_transactions = [] %}
+        {% set failed_transactions = [] %}
+
+        {% for payment in payments %}
+        {% if payment.is_completed %}
+        {{ successfull_transactions.append(payment) or "" }}
+        {% elif payment.is_canceled %}
+        {{ failed_transactions.append(payment) or "" }}
+        {% endif %}
+        {% endfor %}
+
+        <div class="left">
+          <i class="fas fa-prescription-bottle"></i>
+          {{ successfull_transactions|count }} prescriptions
+        </div>
+      </div>
+    </div>
     <div class="stat-card">
       <h3>Total Patients</h3>
       <div class="value">{{ patients|count }}</div>
@@ -136,31 +165,6 @@ Home
         <div class="right">
           <i class="fas fa-check"></i>
           {{ approved_lab_tests|count }} Approved
-        </div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <h3>Transactions</h3>
-      <div class="value">{{ payments|count }}</div>
-      <div class="trend">
-        {% set successfull_transactions = [] %}
-        {% set failed_transactions = [] %}
-
-        {% for payment in payments %}
-        {% if payment.is_completed %}
-        {{ successfull_transactions.append(payment) or "" }}
-        {% elif payment.is_canceled %}
-        {{ failed_transactions.append(payment) or "" }}
-        {% endif %}
-        {% endfor %}
-
-        <div class="left">
-          <i class="fas fa-check"></i>
-          {{ successfull_transactions|count }} Successfull
-        </div>
-        <div class="right">
-          <i class="fas fa-x"></i>
-          {{ failed_transactions|count }} Failed
         </div>
       </div>
     </div>
@@ -273,7 +277,10 @@ Home
 <div id="patients" class="tabContent">
   <div class="header">
     <div class="page-title">
-      <h1>Patients</h1>
+      <h1>
+        Patients
+        <span>{{ patients|count }}</span>
+      </h1>
     </div>
     <a href="{{ url_for('admin.add_patient') }}">
       <button class="btn btn-primary">
@@ -387,10 +394,14 @@ Home
     {% endfor %}
   </div>
 </div>
+{% if current_user.staff_role.name == "Admin" %}
 <div id="staff" class="tabContent">
   <div class="header">
     <div class="page-title">
-      <h1>Staff</h1>
+      <h1>
+        Staff
+        <span>{{ staffs|count }}</span>
+      </h1>
     </div>
     <button id="addBranchBtn" class="btn btn-primary">
       <i class="fas fa-plus"></i>
@@ -407,11 +418,13 @@ Home
           <th>Email Address</th>
           <th>Role</th>
           <th>Branch</th>
+          {% if current_user.staff_role.name == "Admin" %}
           <th>Actions</th>
+          {% endif %}
         </tr>
       </thead>
       <tbody>
-        {% for staff in staffs|sort(attribute="first_name", reverse=true) %}
+        {% for staff in staffs|sort(attribute="first_name") %}
         <tr id="patient-list">
           <td>
             <b>ST - {{ staff.unique_id }}</b>
@@ -442,7 +455,7 @@ Home
             {% endif %}
           </td>
           <td>
-            {% if staff.staff_role.name != "Admin" %}
+            {% if staff.staff_role.name != "Admin" and current_user.staff_role.name == "Admin" %}
             <div class="table-actions-cell">
               <a href="{{ url_for('admin.remove_staff', staff_id=staff.unique_id) }}">
                 <button class="btn-icon delete">
@@ -458,7 +471,7 @@ Home
     </table>
 
     <!-- Mobile view cards (hidden on desktop) -->
-    {% for staff in staffs|sort(attribute=id, reverse=true) %}
+    {% for staff in staffs|sort(attribute="first_name") %}
     <div class="mobile-patient-card">
       <div class="mobile-card-header">
         <div style="flex: 1;">
@@ -495,6 +508,7 @@ Home
     {% endfor %}
   </div>
 </div>
+{% endif %}
 <div id="medical-data" class="tabContent">
   <div class="header">
     <div class="page-title">
@@ -599,7 +613,10 @@ Home
 <div id="lab-analysis" class="tabContent">
   <div class="header">
     <div class="page-title">
-      <h1>Lab Analysis</h1>
+      <h1>
+        Lab Analysis
+        <span>{{ lab_tests|count }}</span>
+      </h1>
     </div>
   </div>
   <div class="search-medical-data">
@@ -681,7 +698,10 @@ Home
 <div id="diagnosis" class="tabContent">
   <div class="header">
     <div class="page-title">
-      <h1>Diagnosis</h1>
+      <h1>
+        Diagnosis
+        <span>{{ all_diagnosis|count }}</span>
+      </h1>
     </div>
   </div>
   <div class="search-medical-data">
@@ -766,7 +786,10 @@ Home
 <div id="prescription" class="tabContent">
   <div class="header">
     <div class="page-title">
-      <h1>Prescriptions</h1>
+      <h1>
+        Prescriptions
+        <span>{{ prescriptions|count }}</span>
+      </h1>
     </div>
   </div>
   <div class="search-medical-data">
@@ -867,7 +890,10 @@ Home
 <div id="transaction" class="tabContent">
   <div class="header">
     <div class="page-title">
-      <h1>Transactions</h1>
+      <h1>
+        Transactions
+        <span>{{ payments|count }}</span>
+      </h1>
     </div>
   </div>
   <div class="search-medical-data">
@@ -920,117 +946,26 @@ Home
   <p class="else">No data to show</p>
   {% endif %}
 </div>
-<div id="analytics" class="tabContent">
+<div id="profile" class="tabContent">
   <div class="header">
     <div class="page-title">
-      <h1>Analytics</h1>
-    </div>
-    <div class="filter-controls">
-      <div class="filter-group">
-        <label for="month">Month:</label>
-        <select id="month">
-          <option value="all">All Time</option>
-          <option value="1">January</option>
-          <option value="2">February</option>
-          <option value="3">March</option>
-          <option value="4">April</option>
-          <option value="5">May</option>
-          <option value="6">June</option>
-          <option value="7">July</option>
-          <option value="8">August</option>
-          <option value="9">September</option>
-          <option value="10">October</option>
-          <option value="11">November</option>
-          <option value="12">December</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="year">Year:</label>
-        <input type="number" id="year" min="2020" max="2030" value="{{ current_year }}">
-      </div>
-      <button class="btn btn-primary" id="apply-filter">
-        Apply Filter
-      </button>
+      <h1>My Profile</h1>
+      <p>Update password</p>
     </div>
   </div>
-  <div class="analytics-grid">
-    <!-- Most Diagnosed Diseases -->
-    <div class="analytics-card">
-      <div class="card-header">
-        <h2 class="card-title">Most Diagnosed Diseases</h2>
-        <div class="card-icon disease-icon">
-          <i class="fas fa-disease"></i>
-        </div>
+  <div class="updateformbox">
+    <form action="{{ url_for('auth.update_password') }}" method="post">
+      {{ update_password_form.csrf_token }}
+      <div class="form-group">
+        {{ update_password_form.new_password.label }}
+        {{ update_password_form.new_password(placeholder="Enter new password") }}
       </div>
-
-      <div class="stats-container" id="diseases-container">
-        <!-- Example data - will be populated by JavaScript -->
-        <div class="stat-item">
-          <div class="stat-info">
-            <span>1</span>
-            <span>Hypertension</span>
-          </div>
-          <span class="stat-count">42 cases</span>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <span>2</span>
-            <span>Diabetes Mellitus</span>
-          </div>
-          <span class="stat-count">28 cases</span>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <span>3</span>
-            <span>Asthma</span>
-          </div>
-          <span class="stat-count">19 cases</span>
-        </div>
+      <div class="form-group">
+        {{ update_password_form.confirm_password.label }}
+        {{ update_password_form.confirm_password(placeholder="Confirm password") }}
       </div>
-
-      <div class="chart-container">
-        <canvas id="diseasesChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Most Prescribed Medications -->
-    <div class="analytics-card">
-      <div class="card-header">
-        <h2 class="card-title">Most Prescribed Medications</h2>
-        <div class="card-icon medication-icon">
-          <i class="fas fa-pills"></i>
-        </div>
-      </div>
-
-      <div class="stats-container" id="medications-container">
-        <!-- Example data - will be populated by JavaScript -->
-        <div class="stat-item">
-          <div class="stat-info">
-            <span>1</span>
-            <span>Lisinopril</span>
-          </div>
-          <span class="stat-count">58 prescriptions</span>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <span>2</span>
-            <span>Metformin</span>
-          </div>
-          <span class="stat-count">42 prescriptions</span>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <span>3</span>
-            <span>Amoxicillin</span>
-          </div>
-          <span class="stat-count">37 prescriptions</span>
-        </div>
-      </div>
-
-      <div class="chart-container">
-        <canvas id="medicationsChart"></canvas>
-      </div>
-    </div>
+      <button type="submit">Update Password</button>
+    </form>
   </div>
 </div>
 
