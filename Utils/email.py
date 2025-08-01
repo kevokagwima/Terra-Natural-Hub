@@ -5,7 +5,7 @@ resend.api_key = os.environ.get("resend_api_key")
 def send_email(**message):
   try:
     params = {
-      "from": "TNH <terranaturalherbs.co.tz>",
+      "from": "TNH <info@terranaturalherbs.co.tz>",
       "to": message["receiver"],
       "subject": message["subject"],
       "html": message["message"],

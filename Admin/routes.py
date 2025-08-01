@@ -112,9 +112,9 @@ def dashboard():
   form.branch.choices = [(clinic.unique_id, clinic.name) for clinic in Clinic.query.all()]
   form.role.choices = [(role.unique_id, role.name) for role in Role.query.all()]
   
-  diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).limit(limit=5).all()]
+  diagnosis_disease_ids = [diagnosis for diagnosis in db.session.query(DiagnosisDetails.disease_id, func.count(DiagnosisDetails.disease_id).label('count')).group_by(DiagnosisDetails.disease_id).order_by(func.count(DiagnosisDetails.disease_id).desc()).filter_by(clinic_id=session["clinic_id"]).limit(limit=5).all()]
 
-  prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).limit(limit=5).all()]
+  prescription_medicine_ids = [prescription for prescription in db.session.query(PrescriptionDetails.medicine_id, func.count(PrescriptionDetails.medicine_id).label('count')).group_by(PrescriptionDetails.medicine_id).order_by(func.count(PrescriptionDetails.medicine_id).desc()).filter_by(clinic_id=session["clinic_id"]).limit(limit=5).all()]
 
   context = {
     "patients": Patients.query.filter_by(clinic_id=session["clinic_id"]).all(),

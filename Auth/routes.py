@@ -42,7 +42,7 @@ def signup():
           "subject": "TNH Account",
           "message": f"<h2>Dear, {new_staff.first_name} {new_staff.last_name}</h2><p>Your TNH account has been created successfully. A temporary password has been created for your account. After login you can update your password to your password of choice.</p><br><p>Here's your temporary password: {generated_password}<b></b></p><br><h4>Welcome to the team</h4>"
         }
-        # send_email(**email_message)
+        send_email(**email_message)
         return redirect(url_for('admin.dashboard'))
       else:
         flash("You've reached maximum number of staff allowed", category="warning")
