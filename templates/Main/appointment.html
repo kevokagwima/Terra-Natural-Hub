@@ -31,7 +31,8 @@ Patient Appointment
       <span class="status-badge completed">Completed</span>
       {% endif %}
     </div>
-    {% if appointment.is_active == False and appointment.date_closed and current_user.staff_role.name == "Admin" %}
+    {% if appointment.is_active == False and appointment.date_closed and current_user.staff_role.name == "Admin" and
+    appointment.date_paid %}
     <p>{{ appointment.date_closed.strftime("Closed on %d/%m/%Y at %I:%M %p") }}</p>
     <div class="appointment-feedback">
       <h4>Patient Feedback</h4>

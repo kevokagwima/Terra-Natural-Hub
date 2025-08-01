@@ -609,7 +609,7 @@ input {
   padding: 1rem;
 }
 
-.modal-content {
+.branchmodal .modal-content {
   background-color: var(--white);
   border-radius: 12px;
   width: 100%;

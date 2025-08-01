@@ -25,3 +25,4 @@ class Feedback(BaseModel, db.Model):
   __tablename__ = "feedback"
   appointment_id = db.Column(db.Integer(), db.ForeignKey("appointment.id"))
   status = db.Column(db.String(20), nullable=False)
+  date_recorded = db.Column(db.DateTime(), default=get_local_time())

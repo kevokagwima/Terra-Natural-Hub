@@ -1,11 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 import random, pytz
 
 db = SQLAlchemy()
 
 def get_local_time():
-  utc_timezone = datetime.now(pytz.utc)
+  utc_timezone = datetime.now(pytz.utc) + timedelta(minutes=3)
   local_tz = pytz.timezone('Africa/Nairobi')
   return utc_timezone.astimezone(local_tz)
 
