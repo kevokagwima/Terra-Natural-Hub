@@ -3,7 +3,7 @@ from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
 from Models.users import Role
 from Models.users import Patients, PatientAddress, Staff
-from Models.medicine import Medicine
+from Models.medicine import Medicine, Inventory
 from Models.diseases import Disease
 from Models.payment import Payment
 from Models.lab_analysis import LabAnalysis, LabAnalysisDetails
@@ -71,6 +71,8 @@ def select_branch():
       db.session.add(new_clinic)
       db.session.commit()
       flash("Branch added successfully", "success")
+      if not populate_inventory(new_clinic.unique_id):
+        flash("Could not populate medicine data", "danger")
       return redirect(url_for("admin.select_branch"))
     except Exception as e:
       flash(f"{str(e)}", "danger")
@@ -87,6 +89,31 @@ def select_branch():
   }
 
   return render_template("Main/select-branch.html", **context)
+
+def populate_inventory(branch_id):
+  try:
+    clinic = Clinic.query.filter_by(unique_id=branch_id).first()
+
+    medicines = Medicine.query.all()
+
+    clinic_inventory = Inventory.query.filter_by(clinic_id=clinic.id).all()
+
+    if len(medicines) != len(clinic_inventory):
+      for medicine in medicines:
+        existing_clinic_inventory = Inventory.query.filter_by(clinic_id=clinic.id, medicine_id=medicine.id).first()
+        if not existing_clinic_inventory:
+          new_inventory = Inventory(
+            clinic_id = clinic.id,
+            medicine_id = medicine.id,
+            quantity = 100
+          )
+          db.session.add(new_inventory)
+          db.session.commit()
+    return True
+  except Exception as e:
+    db.session.rollback()
+    print(f"{str(e)}")
+    return False
 
 @admin.route("/load/branch/<string:branch_name>")
 @login_required
@@ -120,7 +147,7 @@ def dashboard():
     "patients": Patients.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "staffs": Staff.query.all(),
     "payments" : Payment.query.filter_by(clinic_id=session["clinic_id"]).all(),
-    "medicines" : Medicine.query.all(),
+    "inventories" : Inventory.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "diseases" : Disease.query.all(),
     "all_diagnosis" : Diagnosis.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "prescriptions" : Prescription.query.filter_by(clinic_id=session["clinic_id"]).all(),
@@ -184,30 +211,31 @@ def add_medicine():
 
   return render_template("Main/add-medicine.html", **context)
 
-@admin.route("/edit/medicine/<int:medicine_id>", methods=["POST", "GET"])
+@admin.route("/edit/medicine/<int:inventory_id>", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
 @role_required(["Admin", "Stock Controller"])
-def edit_medicine(medicine_id):
-  medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
-  if not medicine:
+def edit_medicine(inventory_id):
+  inventory = Inventory.query.filter_by(unique_id=inventory_id).first()
+  if not inventory:
     flash("Medicine not found", category="danger")
     return redirect(url_for("admin.dashboard"))
   
-  form = AddMedicineForm(obj=medicine)
+  form = AddMedicineForm(obj=inventory.inventory)
 
   if form.validate_on_submit():
     try:
-      medicine.name = form.name.data
-      medicine.price = form.price.data
+      inventory.inventory.name = form.name.data
+      inventory.inventory.price = form.price.data
       if form.quantity.data:
-        medicine.quantity = medicine.quantity + form.quantity.data
+        inventory.quantity = inventory.quantity + form.quantity.data
       db.session.commit()
       flash("Medicine updated successfully", "success")
-      return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
+      return redirect(url_for("admin.dashboard"))
+    
     except Exception as e:
       flash(f"Error: {str(e)}", "danger")
-      return redirect(url_for("admin.edit_medicine", medicine_id=medicine.unique_id))
+      return redirect(url_for("admin.dashboard"))
 
   context = {
     "form": form,
@@ -217,18 +245,17 @@ def edit_medicine(medicine_id):
 
   return render_template("Main/add-medicine.html", **context)
 
-@admin.route("/remove/medicine/<int:medicine_id>")
+@admin.route("/remove/medicine/<int:inventory_id>")
 @login_required
 @fresh_login_required
 @role_required(["Admin"])
-def remove_medicine(medicine_id):
-  medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
-  if not medicine:
-    flash("Medicine not found", category="danger")
-    return redirect(url_for("admin.dashboard"))
-  
+def remove_medicine(inventory_id):
+  inventory = Inventory.query.filter_by(unique_id=inventory_id).first()
+  if not inventory:
+    flash("Inventory not found", category="danger")
+    return redirect(url_for("admin.dashboard"))  
   try:
-    db.session.delete(medicine)
+    db.session.delete(inventory)
     db.session.commit()
     flash("Medicine removed successfully", "success")
   except Exception as e:
@@ -332,7 +359,6 @@ def add_patient():
         gender = form.gender.data,
         phone_number_1 = form.phone_number_1.data,
         phone_number_2 = form.phone_number_2.data,
-        branch = form.branch.data,
         clinic_id = session["clinic_id"]
       )
       db.session.add(new_patient)
@@ -744,7 +770,8 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
   prescription = Prescription.query.get(prescription_id)
   for medicine_id in prescribed_medicine_ids:
     medicine = Medicine.query.filter_by(unique_id=medicine_id).first()
-    if medicine.quantity < 1:
+    inventory = Inventory.query.filter_by(medicine_id=medicine.id, clinic_id=session["clinic_id"]).first()
+    if inventory.quantity < 1:
       flash(f"Medicine {medicine.name} is out of stock", "info")
     else:
       new_prescription_detail = PrescriptionDetails(
@@ -861,9 +888,10 @@ def record_transaction(prescription_id):
   prescription = Prescription.query.get(prescription_id)
   prescription_details = PrescriptionDetails.query.filter_by(prescription_id=prescription.id).all()
   for prescription_detail in prescription_details:
-    medicine = Medicine.query.filter_by(id=prescription_detail.medicine_id).first()
-    if medicine:
-      medicine.quantity = medicine.quantity - 1
+    inventory = Inventory.query.filter_by(medicine_id=prescription_detail.medicine_id, clinic_id=prescription_detail.clinic_id).first()
+    if inventory:
+      inventory.quantity = inventory.quantity - 1
+      db.session.commit()
   new_payment = Payment(
     amount = prescription.total,
     is_completed = True,

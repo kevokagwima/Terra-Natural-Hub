@@ -41,7 +41,6 @@ class AddPatientForm(FlaskForm):
   ], validators=[DataRequired(message="Gender field required")])
   phone_number_1 = StringField('Primary Phone', validators=[DataRequired(message="Phone Number required"), Length(max=20)])
   phone_number_2 = StringField('Secondary Phone', validators=[Optional(), Length(max=20)])
-  branch = SelectField(label="Registered Branch", choices=[("","Select Branch"),("Arusha","Arusha"), ("Dodoma","Dodoma")], validators=[DataRequired(message="Branch required")])
   region = SelectField('Region', choices=[], validators=[Optional()])
   district = SelectField('District', choices=[], validators=[Optional()])
   location = StringField('Location', validators=[Optional(), Length(max=50)])

@@ -528,7 +528,7 @@ Home
     </div>
   </div>
   <div class="table-menu">
-    <div class="med-tab active" data-tab="medicine">Medicines ({{ medicines|count }})</div>
+    <div class="med-tab active" data-tab="medicine">Medicines ({{ inventories|count }})</div>
     <div class="med-tab" data-tab="disease">Diseases ({{ diseases|count }})</div>
   </div>
   <div id="medicine" class="medical-data-table active">
@@ -547,20 +547,20 @@ Home
         </tr>
       </thead>
       <tbody>
-        {% for medicine in medicines|sort(attribute="name") %}
+        {% for inventory in inventories|sort(attribute="name") %}
         <tr id="medicine-name">
-          <th>MD - {{ medicine.unique_id }}</th>
-          <td>{{ medicine.name|truncate(60) }}</td>
-          <td>{{ "Tsh {:,}".format(medicine.price) }}</td>
-          <td>{{ medicine.quantity }}</td>
+          <th>MD - {{ inventory.inventory.unique_id }}</th>
+          <td>{{ inventory.inventory.name|truncate(60) }}</td>
+          <td>{{ "Tsh {:,}".format(inventory.inventory.price) }}</td>
+          <td>{{ inventory.quantity }}</td>
           <td>
             <div class="table-actions-cell">
-              <a href="{{ url_for('admin.edit_medicine', medicine_id=medicine.unique_id) }}">
+              <a href="{{ url_for('admin.edit_medicine', inventory_id=inventory.unique_id) }}">
                 <button class="btn-icon edit">
                   <i class="fas fa-edit"></i>
                 </button>
               </a>
-              <a href="{{ url_for('admin.remove_medicine', medicine_id=medicine.unique_id) }}">
+              <a href="{{ url_for('admin.remove_medicine', inventory_id=inventory.unique_id) }}">
                 <button class="btn-icon delete">
                   <i class="fas fa-trash"></i>
                 </button>

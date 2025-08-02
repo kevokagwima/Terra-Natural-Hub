@@ -3,6 +3,7 @@ from Models.diagnosis import Diagnosis
 from Models.prescription import Prescription
 from Models.payment import Payment
 from Models.appointment import Appointment
+from Models.clinic import Clinic
 from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
 
@@ -17,7 +18,7 @@ class Role(BaseModel, db.Model):
     return f"{self.name}"
 
 class Staff(BaseModel, UserBaseModel, UserMixin, db.Model):
-  __tablename__ = 'user'
+  __tablename__ = 'staff'
   role_id = db.Column(db.Integer(), db.ForeignKey("role.id"))
   clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
 
@@ -43,7 +44,6 @@ class Patients(BaseModel, db.Model):
   gender = db.Column(db.String(6))
   phone_number_1 = db.Column(db.String(20))
   phone_number_2 = db.Column(db.String(20))
-  branch = db.Column(db.String(20))
   address_id = db.Column(db.Integer(), db.ForeignKey("patient_address.id"))
   payment = db.relationship("Payment", backref="clinic_payment", lazy=True)
   clinic_id = db.Column(db.Integer(), db.ForeignKey("clinic.id"))
