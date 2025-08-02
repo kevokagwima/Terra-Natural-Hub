@@ -192,9 +192,10 @@ Patient Appointment
           {% for prescribed_medicine in prescription_details %}
           {{ prescribed_medicine_ids.append(prescribed_medicine.medicine_id) or "" }}
           {% endfor %}
-          {% for medicine in medicines %}
-          <option value="{{ medicine.unique_id }}" {% if medicine.id in prescribed_medicine_ids %}selected{% endif %}>
-            {{ medicine.name }}
+          {% for inventory in inventories %}
+          <option value="{{ inventory.inventory.unique_id }}" {% if inventory.inventory.id in prescribed_medicine_ids
+            %}selected{% endif %}>
+            {{ inventory.inventory.name }}
           </option>
           {% endfor %}
         </select>

@@ -148,6 +148,7 @@ def dashboard():
     "staffs": Staff.query.all(),
     "payments" : Payment.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "inventories" : Inventory.query.filter_by(clinic_id=session["clinic_id"]).all(),
+    "medicines" : Medicine.query.all(),
     "diseases" : Disease.query.all(),
     "all_diagnosis" : Diagnosis.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "prescriptions" : Prescription.query.filter_by(clinic_id=session["clinic_id"]).all(),
@@ -192,9 +193,15 @@ def add_medicine():
       new_medicine = Medicine(
         name = form.name.data,
         price = form.price.data,
-        quantity = form.quantity.data,
       )
       db.session.add(new_medicine)
+      db.session.commit()
+      new_inventory = Inventory(
+        quantity = form.quantity.data,
+        medicine_id = new_medicine.id,
+        clinic_id = session["clinic_id"]
+      )
+      db.session.add(new_inventory)
       db.session.commit()
       flash('Medicine added successfully!', 'success')
       return redirect(url_for('admin.dashboard'))
@@ -566,6 +573,7 @@ def appointment(appointment_id):
     "prescription_details": prescription_details,
     "diseases": Disease.query.all(),
     "medicines": Medicine.query.all(),
+    "inventories": Inventory.query.filter_by(clinic_id=session["clinic_id"]).all(),
     "feedback": Feedback.query.filter_by(appointment_id=appointment.id).first(),
     "form": FeedbackForm(),
     "clinic": Clinic.query.get(session["clinic_id"])
