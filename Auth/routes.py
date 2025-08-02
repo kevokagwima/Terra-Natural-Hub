@@ -23,7 +23,6 @@ def signup():
   try:
     if form.validate_on_submit():
       generated_password = generate_password()
-      print(generated_password)
       if staff_count < 14:
         new_staff = Staff(
           first_name = form.first_name.data,
@@ -38,7 +37,7 @@ def signup():
         db.session.commit()
         flash("Staff account created successfully", "success")
         email_message = {
-          "receiver": "kevokagwima@gmail.com",
+          "receiver": f"{new_staff.email}",
           "subject": "TNH Account",
           "message": f"<h2>Dear, {new_staff.first_name} {new_staff.last_name}</h2><p>Your TNH account has been created successfully. A temporary password has been created for your account. After login you can update your password to your password of choice.</p><br><p>Here's your temporary password: {generated_password}<b></b></p><br><h4>Welcome to the team</h4>"
         }
