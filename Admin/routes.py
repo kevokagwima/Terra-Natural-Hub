@@ -985,7 +985,6 @@ def export_transaction(payment_id):
 @admin.route("/analytics", methods=["POST", "GET"])
 @login_required
 @fresh_login_required
-@cache.cached(timeout=60)
 def analytics():
   details = db.session.query(
     DiagnosisDetails.id,
@@ -1209,4 +1208,7 @@ def analytics():
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template("Main/analytics.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/analytics.html", **context)),
+    timeout=60
+  ) 
