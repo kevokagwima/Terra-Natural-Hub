@@ -43,6 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
       message.style.transform = "translateX(100%)";
       message.style.opacity = "0";
       setTimeout(() => message.remove(), 300);
-    }, 5000);
+    }, 10000);
   });
 });

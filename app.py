@@ -6,25 +6,29 @@ from flask_migrate import Migrate
 from config import Config
 from flask_bcrypt import Bcrypt
 from Errors.handlers import errors
-from Admin.routes import admin
+from Admin.routes import admin, cache
 from Auth.routes import auth
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 migrate = Migrate(app, db)
+cache.init_app(app)
+
 app.register_blueprint(errors)
 app.register_blueprint(admin)
 app.register_blueprint(auth)
 login_manager = LoginManager()
+
 login_manager.blueprint_login_views = {
   'admin': '/auth/signin',
 }
 login_manager.login_message="Please Login or Sign Up to access this page"
 login_manager.login_message_category="info"
 login_manager.refresh_view = "/auth/signin"
-login_manager.needs_refresh_message = ("Your account has been inactive for a long time please login.")
+login_manager.needs_refresh_message = "Your account has been inactive for a long time please authenticate yourself again."
 login_manager.needs_refresh_message_category = "info"
+
 login_manager.init_app(app)
 bcrypt = Bcrypt()
 

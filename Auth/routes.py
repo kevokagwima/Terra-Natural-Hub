@@ -14,6 +14,8 @@ auth = Blueprint("auth", __name__, url_prefix="/auth")
 bcrypt = Bcrypt()
 
 @auth.route("/signup", methods=["POST"])
+@login_required
+@fresh_login_required
 @role_required(["Admin"])
 def signup():
   form = StaffRegistrationForm()

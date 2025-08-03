@@ -547,7 +547,7 @@ Home
         </tr>
       </thead>
       <tbody>
-        {% for inventory in inventories|sort(attribute="name") %}
+        {% for inventory in inventories|sort(attribute="id", reverse=true) %}
         <tr id="medicine-name">
           <th>MD - {{ inventory.inventory.unique_id }}</th>
           <td>{{ inventory.inventory.name|truncate(60) }}</td>

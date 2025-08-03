@@ -14,25 +14,77 @@ Select Branch
   <div class="branches-box">
     <div class="branch-header">
       <h2>
-        Our Clinic Branches
-        <span><b>{{ clinics|count }}</b> Branches</span>
+        Clinic Branches
+        <span>{{ clinics|count }}</span>
       </h2>
       <button id="addBranchBtn" class="btn-primary">+ Add New Branch</button>
     </div>
     <div class="branches-list">
       {% if clinics %}
       {% for clinic in clinics %}
-      <a href="{{ url_for('admin.load_clinic', branch_name=clinic.alias) }}" class="branch-link">
+      <div class="branch">
         <div class="branch-box">
-          <span class="branch-name">
+          <p class="branch-name">
             {{ clinic.name }} {% if clinic.clinic_type.name == "Headquarters" %} - HQ {% endif %}
-          </span>
-          <span class="branch-address">
+          </p>
+          <p class="branch-address">
             {{ clinic.region }}, {{ clinic.district }}
-          </span>
+          </p>
         </div>
-        <i class="fas fa-chevron-right"></i>
-      </a>
+        <div class="branch-stats-box">
+          <div class="branch-stat">
+            <i></i>
+            <p>
+              <span>{{ clinic.patients|count }}</span>
+              <b>
+                Patient{% if clinic.patients|count != 1 %}s{% endif %}
+              </b>
+            </p>
+          </div>
+          <div class="branch-stat">
+            <i></i>
+            <p>
+              <span>{{ clinic.staff|count }}</span>
+              <b>Staff{% if clinic.staff|count != 1 %}s{% endif %}</b>
+            </p>
+          </div>
+          <div class="branch-stat">
+            <i></i>
+            <p>
+              <span>{{ clinic.prescription|count }}</span>
+              <b>Prescription{% if clinic.prescription|count != 1 %}s{% endif %}</b>
+            </p>
+          </div>
+          <div class="branch-stat">
+            <i></i>
+            <p>
+              <span>{{ clinic.diagnosis|count }}</span>
+              <b>Diagnos{% if clinic.diagnosis|count != 1 %}es{% else %}is{% endif %}</b>
+            </p>
+          </div>
+          <div class="branch-stat">
+            <i></i>
+            <p>
+              <span>{{ clinic.inventory|count }}</span>
+              <b>Medicine{% if clinic.inventory|count != 1 %}s{% endif %}</b>
+            </p>
+          </div>
+        </div>
+        <div class="branch-action">
+          <a id="navigate-link" href="{{ url_for('admin.load_clinic', branch_name=clinic.alias) }}">
+            <button>
+              Navigate
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </a>
+          <!-- <a id="remove-link" href="{{ url_for('admin.remove_clinic', branch_name=clinic.alias) }}">
+            <button>
+              Remove
+              <i class="fas fa-trash"></i>
+            </button>
+          </a> -->
+        </div>
+      </div>
       {% endfor %}
       {% else %}
       <p class="else">No branches added</p>
