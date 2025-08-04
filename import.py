@@ -25,6 +25,7 @@ def add_patients():
       phone_number_2 = phone2,
       age = age,
       gender = gender,
+      clinic_id = 1,
     )
     db.session.add(new_patient)
     db.session.commit()

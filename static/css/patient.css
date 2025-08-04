@@ -49,6 +49,19 @@
   font-size: 0.875rem;
 }
 
+/* .checkbox {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: row-reverse;
+  justify-content: center;
+  max-width: max-content;
+}
+
+.checkbox label {
+  min-width: max-content;
+  margin-top: 0.45rem;
+} */
+
 .form-control {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -80,7 +93,8 @@
   border-radius: 10px;
 }
 
-.extend {
+.extend,
+form button {
   grid-column: 1/-1;
 }
 

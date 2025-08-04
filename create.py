@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session
 from Models.base_model import db
 from Models.clinic import *
 from Models.users import *

@@ -31,11 +31,9 @@ Edit Medicine
       {% endif %}
     </div>
   </div>
-
   <div class="patient-form-container">
     <form method="POST">
       {{ form.csrf_token() }}
-
       <div class="form-section">
         <div class="form-grid">
           <div class="form-group">
@@ -45,7 +43,6 @@ Edit Medicine
             <div class="error-message">{{ form.name.errors[0] }}</div>
             {% endif %}
           </div>
-
           <div class="form-group">
             {{ form.price.label }}
             {{ form.price(class="form-control", placeholder="Enter price of medicine in (Tsh)") }}
@@ -53,8 +50,7 @@ Edit Medicine
             <div class="error-message">{{ form.price.errors[0] }}</div>
             {% endif %}
           </div>
-
-          <div class="form-group">
+          <div class="form-group extend">
             {{ form.quantity.label }}
             {{ form.quantity(class="form-control", value="", placeholder="Add quantity") }}
             {% if form.quantity.errors %}
@@ -63,7 +59,6 @@ Edit Medicine
           </div>
         </div>
       </div>
-
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">Submit</button>
       </div>

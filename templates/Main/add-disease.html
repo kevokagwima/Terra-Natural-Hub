@@ -38,9 +38,9 @@ Edit Disease
 
       <div class="form-section">
         <div class="form-grid">
-          <div class="form-group">
+          <div class="form-group extend">
             {{ form.name.label }}
-            {{ form.name(class="form-control") }}
+            {{ form.name(class="form-control", placeholder="Enter name of disease") }}
             {% if form.name.errors %}
             <div class="error-message">{{ form.name.errors[0] }}</div>
             {% endif %}

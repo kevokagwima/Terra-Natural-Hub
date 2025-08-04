@@ -6,6 +6,7 @@ from Models.users import Staff, Role
 from Models.clinic import Clinic
 from .form import StaffRegistrationForm, StaffLoginForm
 from Admin.form import UpdatedPasswordForm
+from Admin.routes import cache
 from Utils.email import send_email
 from decorator import role_required
 import secrets, string
@@ -23,6 +24,7 @@ def signup():
   staff_count = Staff.query.count()
   form.branch.choices = [(clinic.unique_id, clinic.name) for clinic in Clinic.query.all()]
   try:
+    cache.clear()
     if form.validate_on_submit():
       generated_password = generate_password()
       if staff_count < 14:
@@ -70,6 +72,7 @@ def generate_password(length=12):
 
 @auth.route("/signin", methods=["POST","GET"])
 def signin():
+  cache.clear()
   form = StaffLoginForm()
   try:
     if form.validate_on_submit():
@@ -109,6 +112,7 @@ def signin():
 @login_required
 @fresh_login_required
 def update_password():
+  cache.clear()
   form = UpdatedPasswordForm()
   try:
     if form.validate_on_submit():
@@ -138,6 +142,7 @@ def update_password():
 @fresh_login_required
 def logout():
   try:
+    cache.clear()
     logout_user()
     flash("Logout successful", "success")
     return redirect(url_for("auth.signin"))

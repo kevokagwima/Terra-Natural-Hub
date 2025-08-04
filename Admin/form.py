@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, TextAreaField, PasswordField
+from wtforms import StringField, IntegerField, SelectField, TextAreaField, PasswordField, BooleanField
 from wtforms.validators import Length, DataRequired, Optional, NumberRange, EqualTo
 from Models.users import Staff
 
@@ -72,6 +72,7 @@ class AddMedicineForm(FlaskForm):
   name = StringField('Medicine Name', validators=[DataRequired(message="Medicine name field required"), Length(max=200)])
   price = IntegerField('Medicine Price', validators=[DataRequired(message="Medicine price field required"), NumberRange(min=1, message="Minimum price is Tsh 1")])
   quantity = IntegerField('Medicine Quantity', validators=[Optional(), NumberRange(min=1, message="Minimum amount is 1")])
+  # is_global = BooleanField("Add to all branches", default=True)
 
 class AddDiseaseForm(FlaskForm):
   name = StringField('Disease Name', validators=[DataRequired(message="Disease name field required"), Length(max=200)])
