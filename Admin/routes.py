@@ -110,7 +110,6 @@ def select_branch():
 @admin.route("/load/branch/<string:branch_name>")
 @login_required
 @fresh_login_required
-@branch_required()
 @role_required(["Admin"])
 def load_clinic(branch_name):
   cache.clear()
