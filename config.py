@@ -1,8 +1,11 @@
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 class Config:
   # SQLALCHEMY_DATABASE_URI = "mysql+mysqldb://root:Hunter9039@localhost/terra"
-  SQLALCHEMY_DATABASE_URI = "mysql+mysqldb://junglefowl:wV9-kZ1=hK1=dF5=oI6=@localhost/minimum-indigo-orangutan"
+  SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
   SQLALCHEMY_TRACK_MODIFICATIONS = False
   SESSION_PERMANENT = False
   SESSION_TYPE = "filesystem"
