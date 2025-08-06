@@ -20,7 +20,7 @@ from collections import defaultdict
 from sqlalchemy.sql import func, desc
 from slugify import slugify
 from celery import Celery, Task
-from .tasks import populate_inventory
+from .tasks import populate_inventory, populate_patients
 
 def celery_init_app(app: Flask) -> Celery:
   class FlaskTask(Task):
@@ -86,6 +86,7 @@ def select_branch():
       db.session.add(new_clinic)
       db.session.commit()
       populate_inventory.delay(new_clinic.unique_id)
+      populate_patients.delay(new_clinic.unique_id)
       flash("Branch added successfully", "success")
       return redirect(url_for("admin.select_branch"))
     except Exception as e:

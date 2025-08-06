@@ -169,6 +169,29 @@ Home
       </div>
     </div>
   </div>
+  {% set feedback_list = [] %}
+  {% for appointment in appointments if appointment.is_active == False and appointment.is_paid == True and not
+  appointment.feedback %}
+  {{ feedback_list.append(appointment) or "" }}
+  {% endfor %}
+  {% if feedback_list %}
+  <div class="feedback-box">
+    <div class="feedback-header">
+      <h4>Feedback</h4>
+      <p>Provide feedback for recent appointments</p>
+    </div>
+    <div class="feedback-list">
+      {% for feedback in feedback_list %}
+      <div class="feedback">
+        <h4>Appointment #{{ feedback.unique_id }}</h4>
+        <a href="{{ url_for('admin.appointment', appointment_id=feedback.unique_id) }}">
+          <button>Update</button>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
   <div class="tabs">
     <div class="tab active" data-tab="today">Recent Appointments</div>
   </div>

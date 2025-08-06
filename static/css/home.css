@@ -46,6 +46,52 @@
   margin-right: 0.25rem;
 }
 
+.feedback-box {
+  display: grid;
+  gap: 1rem;
+  background-color: var(--light-green);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.feedback-header {
+  display: grid;
+}
+
+.feedback-header h4,
+.feedback-header p {
+  color: var(--white);
+}
+
+.feedback-list {
+  display: flex;
+  gap: 1rem;
+  overflow-x: scroll;
+  padding-bottom: 0.4rem;
+}
+
+.feedback-list::-webkit-scrollbar-thumb {
+  background-color: var(--white);
+  opacity: 0.4;
+}
+
+.feedback {
+  flex-grow: 1;
+  min-width: max-content;
+  background-color: var(--white);
+  padding: 0.8rem;
+  border-radius: 10px;
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feedback a button {
+  color: var(--white);
+}
+
 .appointments-table {
   width: 100%;
   background: var(--white);

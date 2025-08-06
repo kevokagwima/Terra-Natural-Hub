@@ -23,6 +23,17 @@
   --radius-l: 10rem;
 }
 
+::-webkit-scrollbar {
+  background: transparent;
+  max-width: 0.3rem;
+  max-height: 0.3rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--light-green);
+  border-radius: 30rem;
+}
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
