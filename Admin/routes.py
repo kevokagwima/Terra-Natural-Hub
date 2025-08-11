@@ -913,7 +913,7 @@ def complete_appointment(appointment_id):
 @login_required
 @fresh_login_required
 @branch_required()
-@role_required(["Admin"])
+@role_required(["Admin", "Clerk"])
 def patient_feedback(appointment_id):
   cache.clear()
   try:

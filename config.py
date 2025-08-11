@@ -13,6 +13,6 @@ class Config:
   CACHE_REDIS_PORT = 6379
   CACHE_DEFAULT_TIMEOUT = 300
   CELERY = {
-    "broker_url": "redis://red-d2crvcjuibrs738qcpd0:6379",
-    "result_backend": "redis://red-d2crvcjuibrs738qcpd0:6379",
+    "broker_url": os.environ.get("REDIS_URL"),
+    "result_backend": os.environ.get("REDIS_URL"),
   }
