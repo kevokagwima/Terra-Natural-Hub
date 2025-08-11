@@ -12,5 +12,5 @@ class Config:
   CACHE_TYPE = "RedisCache"
   CELERY = {
     "broker_url": os.environ.get("REDIS_URL"),
-    "result_backend": os.environ.get("REDIS_URL"),
+    "result_backend": os.environ.get("REDIS_URL")
   }
