@@ -19,20 +19,6 @@ from decorator import role_required, branch_required
 from collections import defaultdict
 from sqlalchemy.sql import func, desc
 from slugify import slugify
-from celery import Celery, Task
-from .tasks import populate_inventory, populate_patients, update_inventory
-
-def celery_init_app(app: Flask) -> Celery:
-  class FlaskTask(Task):
-    def __call__(self, *args: object, **kwargs: object) -> object:
-      with app.app_context():
-        return self.run(*args, **kwargs)
-
-  celery_app = Celery(app.name, task_cls=FlaskTask)
-  celery_app.config_from_object(app.config["CELERY"])
-  celery_app.set_default()
-  app.extensions["celery"] = celery_app
-  return celery_app
 
 admin = Blueprint("admin", __name__)
 cache = Cache()
@@ -68,11 +54,29 @@ region_districts = {
 
 @admin.route("/")
 @admin.route("/home")
-@admin.route("/branch/select", methods=["POST", "GET"])
+@admin.route("/branches")
+@login_required
+@fresh_login_required
+@role_required(["Admin"])
+def clinic_branches():
+  form = AddClinicForm()
+  
+  context = {
+    "form": form,
+    "clinics": Clinic.query.all()
+  }
+
+  return CachedResponse(
+    response = make_response(render_template("Main/select-branch.html", **context)),
+    timeout=300
+  )
+
+@admin.route("/select-branch", methods=["POST"])
 @login_required
 @fresh_login_required
 @role_required(["Admin"])
 def select_branch():
+  cache.clear()
   form = AddClinicForm()
   if form.validate_on_submit():
     try:
@@ -85,28 +89,38 @@ def select_branch():
       )
       db.session.add(new_clinic)
       db.session.commit()
-      populate_inventory.delay(new_clinic.unique_id)
-      populate_patients.delay(new_clinic.unique_id)
+      populate_inventory(new_clinic.unique_id)
       flash("Branch added successfully", "success")
-      return redirect(url_for("admin.select_branch"))
+      return redirect(url_for("admin.clinic_branches"))
     except Exception as e:
       flash(f"{str(e)}", "danger")
-      return redirect(url_for("admin.select_branch"))
+      return redirect(url_for("admin.clinic_branches"))
 
   if form.errors != {}:
     for err_msg in form.errors.values():
       flash(f"{err_msg}", "danger")
-      return redirect(request.referrer)
-  
-  context = {
-    "form": form,
-    "clinics": Clinic.query.all()
-  }
 
-  return CachedResponse(
-    response = make_response(render_template("Main/select-branch.html", **context)),
-    timeout=300
-  )
+  return redirect(url_for("admin.clinic_branches"))
+
+def populate_inventory(branch_id):
+  try:
+    clinic = Clinic.query.filter_by(unique_id=branch_id).first()
+    medicines = Medicine.query.all()
+    clinic_inventory = Inventory.query.filter_by(clinic_id=clinic.id).all()
+    if len(medicines) != len(clinic_inventory):
+      for medicine in medicines:
+        existing_clinic_inventory = Inventory.query.filter_by(clinic_id=clinic.id, medicine_id=medicine.id).first()
+        if not existing_clinic_inventory:
+          new_inventory = Inventory(
+            clinic_id = clinic.id,
+            medicine_id = medicine.id,
+            quantity = 100
+          )
+          db.session.add(new_inventory)
+          db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    print(f"{str(e)}")
 
 @admin.route("/load/branch/<string:branch_name>")
 @login_required
@@ -118,12 +132,12 @@ def load_clinic(branch_name):
     clinic = Clinic.query.filter_by(alias=branch_name).first()
     if not clinic:
       flash("Branch not found", "danger")
-      return redirect(url_for('admin.select_branch'))  
+      return redirect(url_for('admin.clinic_branches'))  
     session["clinic_id"] = clinic.id
     return redirect(url_for('admin.dashboard'))
   except Exception as e:
     flash(f"{str(e)}", "danger")
-    return redirect(url_for('admin.select_branch'))
+    return redirect(url_for('admin.clinic_branches'))
 
 @admin.route("/remove/branch/<string:branch_name>")
 @login_required
@@ -139,16 +153,15 @@ def remove_clinic(branch_name):
     else:
       clinic_count = Clinic.query.count()
       if clinic_count != 1:
-        update_inventory.delay(clinic.unique_id)
         db.session.delete(clinic)
         db.session.commit()
         flash("Branch removed successfully", "success")
       else:
         flash("You need to have at least one branch registered", "warning")
-    return redirect(url_for('admin.select_branch'))
+    return redirect(url_for('admin.clinic_branches'))
   except Exception as e:
     flash(f"{str(e)}", "danger")
-    return redirect(url_for('admin.select_branch'))
+    return redirect(url_for('admin.clinic_branches'))
 
 @admin.route("/dashboard")
 @login_required

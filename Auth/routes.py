@@ -61,7 +61,7 @@ def signup():
 
   return redirect(url_for('admin.dashboard'))
 
-def generate_password(length=12):
+def generate_password(length=15):
   """Generate a secure random password with letters, numbers, and symbols"""
   chars = (
     string.ascii_letters.translate({ord(c): None for c in 'Il1O0'}) +  # Remove ambiguous chars
@@ -85,7 +85,7 @@ def signin():
         flash("Login successfull", "success")
         next = request.args.get("next")
         if current_user.staff_role.name == "Admin":
-          return redirect(next or url_for("admin.select_branch"))
+          return redirect(url_for("admin.clinic_branches"))
         else:
           session["clinic_id"] = current_user.clinic_id
           return redirect(next or url_for("admin.dashboard"))

@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from config import Config
 from flask_bcrypt import Bcrypt
 from Errors.handlers import errors
-from Admin.routes import admin, cache, celery_init_app
+from Admin.routes import admin, cache
 from Auth.routes import auth
 
 def create_app():
@@ -15,7 +15,6 @@ def create_app():
   db.init_app(app)
   Migrate(app, db)
   cache.init_app(app)
-  celery_init_app(app)
 
   app.register_blueprint(errors)
   app.register_blueprint(admin)
