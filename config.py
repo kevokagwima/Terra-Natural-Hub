@@ -10,8 +10,6 @@ class Config:
   SESSION_TYPE = "filesystem"
   SECRET_KEY = os.environ.get("SECRET_KEY")
   CACHE_TYPE = "RedisCache"
-  CACHE_REDIS_PORT = 6379
-  CACHE_DEFAULT_TIMEOUT = 300
   CELERY = {
     "broker_url": os.environ.get("REDIS_URL"),
     "result_backend": os.environ.get("REDIS_URL"),
