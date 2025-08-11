@@ -13,7 +13,7 @@ def create_app():
   app = Flask(__name__)
   app.config.from_object(Config)
   db.init_app(app)
-  migrate = Migrate(app, db)
+  Migrate(app, db)
   cache.init_app(app)
   celery_init_app(app)
 

@@ -20,7 +20,7 @@ from collections import defaultdict
 from sqlalchemy.sql import func, desc
 from slugify import slugify
 from celery import Celery, Task
-from .tasks import populate_inventory, populate_patients
+from .tasks import populate_inventory, populate_patients, update_inventory
 
 def celery_init_app(app: Flask) -> Celery:
   class FlaskTask(Task):
@@ -136,11 +136,16 @@ def remove_clinic(branch_name):
     clinic = Clinic.query.filter_by(alias=branch_name).first()
     if not clinic:
       flash("Branch not found", "danger")
-      return redirect(url_for('admin.select_branch'))
-    db.session.delete(clinic)
-    db.session.commit()
-    flash("Branch removed successfully", "success")
-    return redirect(url_for('admin.dashboard'))
+    else:
+      clinic_count = Clinic.query.count()
+      if clinic_count != 1:
+        update_inventory.delay(clinic.unique_id)
+        db.session.delete(clinic)
+        db.session.commit()
+        flash("Branch removed successfully", "success")
+      else:
+        flash("You need to have at least one branch registered", "warning")
+    return redirect(url_for('admin.select_branch'))
   except Exception as e:
     flash(f"{str(e)}", "danger")
     return redirect(url_for('admin.select_branch'))

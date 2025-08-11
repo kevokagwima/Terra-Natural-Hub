@@ -47,3 +47,20 @@ def populate_patients(branch_id):
   except Exception as e:
     db.session.rollback()
     print(f"{str(e)}")
+
+@shared_task
+def update_inventory(branch_id):
+  try:
+    clinic = Clinic.query.filter_by(unique_id=branch_id).first()
+    if clinic:
+      clinic_inventory = Inventory.query.filter_by(clinic_id=clinic.id).all()
+      for inventory in clinic_inventory:
+        db.session.delete(inventory)
+        db.session.commit()
+      clinic_patients = Patients.query.filter_by(clinic_id=clinic.id).all()
+      for patient in clinic_patients:
+        db.session.delete(patient)
+        db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    print(f"{str(e)}")
