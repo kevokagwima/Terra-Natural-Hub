@@ -10,5 +10,5 @@ class Config:
   SESSION_TYPE = "filesystem"
   SECRET_KEY = os.environ.get("SECRET_KEY")
   CACHE_TYPE = "RedisCache"
-  REDIS_URL = os.environ.get("REDIS_URL")
+  # REDIS_URL = os.environ.get("REDIS_URL")
   CACHE_DEFAULT_TIMEOUT = 300
