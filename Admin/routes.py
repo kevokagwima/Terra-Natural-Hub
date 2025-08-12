@@ -1,4 +1,5 @@
 from flask import Flask, Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, make_response
+from flask_redis import FlaskRedis
 from flask_caching import Cache, CachedResponse
 from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
@@ -19,23 +20,10 @@ from decorator import role_required, branch_required
 from collections import defaultdict
 from sqlalchemy.sql import func, desc
 from slugify import slugify
-from celery import Celery, Task
-from .tasks import populate_inventory
-
-def celery_init_app(app: Flask) -> Celery:
-  class FlaskTask(Task):
-    def __call__(self, *args: object, **kwargs: object) -> object:
-      with app.app_context():
-        return self.run(*args, **kwargs)
-
-  celery_app = Celery(app.name, task_cls=FlaskTask)
-  celery_app.config_from_object(app.config["CELERY"])
-  celery_app.set_default()
-  app.extensions["celery"] = celery_app
-  return celery_app
 
 admin = Blueprint("admin", __name__)
 cache = Cache()
+redis_client = FlaskRedis()
 region_districts = {
   "Arusha": ["Monduli", "Arusha", "Arumeru", "Karatu", "Longido", "Ngorongoro"],
   "Dar es Salaam": ["Ilala", "Kinondoni", "Temeke", "Kigamboni", "Ubungo"],
@@ -89,7 +77,7 @@ def clinic_branches():
 @login_required
 @fresh_login_required
 @role_required(["Admin"])
-def select_branch():
+def add_branch():
   cache.clear()
   form = AddClinicForm()
   if form.validate_on_submit():
@@ -103,7 +91,7 @@ def select_branch():
       )
       db.session.add(new_clinic)
       db.session.commit()
-      populate_inventory.delay(new_clinic.unique_id)
+      populate_inventory(new_clinic.unique_id)
       flash("Branch added successfully", "success")
       return redirect(url_for("admin.clinic_branches"))
     except Exception as e:
@@ -115,6 +103,26 @@ def select_branch():
       flash(f"{err_msg}", "danger")
 
   return redirect(url_for("admin.clinic_branches"))
+
+def populate_inventory(branch_id):
+  try:
+    clinic = Clinic.query.filter_by(unique_id=branch_id).first()
+    medicines = Medicine.query.all()
+    clinic_inventory = Inventory.query.filter_by(clinic_id=clinic.id).all()
+    if len(medicines) != len(clinic_inventory):
+      for medicine in medicines:
+        existing_clinic_inventory = Inventory.query.filter_by(clinic_id=clinic.id, medicine_id=medicine.id).first()
+        if not existing_clinic_inventory:
+          new_inventory = Inventory(
+            clinic_id = clinic.id,
+            medicine_id = medicine.id,
+            quantity = 100
+          )
+          db.session.add(new_inventory)
+          db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    print(f"{str(e)}")
 
 @admin.route("/load/branch/<string:branch_name>")
 @login_required

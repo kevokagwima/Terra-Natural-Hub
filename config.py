@@ -11,7 +11,3 @@ class Config:
   SECRET_KEY = os.environ.get("SECRET_KEY")
   CACHE_TYPE = "RedisCache"
   CACHE_REDIS_URL = os.environ.get("REDIS_URL")
-  CELERY = {
-    "broker_url": os.environ.get("REDIS_URL"),
-    "result_backend": os.environ.get("REDIS_URL"),
-  }
