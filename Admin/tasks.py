@@ -27,28 +27,6 @@ def populate_inventory(branch_id):
     print(f"{str(e)}")
 
 @shared_task
-def populate_patients(branch_id):
-  try:
-    user_file = open("clients.csv")
-    read_files = csv.reader(user_file)
-
-    for fname, lname, age, gender, phone1, phone2 in read_files:
-      new_patient = Patients(
-        first_name = fname,
-        last_name = lname,
-        phone_number_1 = phone1,
-        phone_number_2 = phone2,
-        age = age,
-        gender = gender,
-        clinic_id = Clinic.query.filter_by(unique_id=branch_id).first().id,
-      )
-      db.session.add(new_patient)
-      db.session.commit()
-  except Exception as e:
-    db.session.rollback()
-    print(f"{str(e)}")
-
-@shared_task
 def update_inventory(branch_id):
   try:
     clinic = Clinic.query.filter_by(unique_id=branch_id).first()

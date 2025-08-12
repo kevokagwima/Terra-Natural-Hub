@@ -6,15 +6,16 @@ from flask_migrate import Migrate
 from config import Config
 from flask_bcrypt import Bcrypt
 from Errors.handlers import errors
-from Admin.routes import admin, cache
+from Admin.routes import admin, cache, celery_init_app
 from Auth.routes import auth
 
 def create_app():
   app = Flask(__name__)
   app.config.from_object(Config)
   db.init_app(app)
-  Migrate(app, db)
+  migrate = Migrate(app, db)
   cache.init_app(app)
+  celery_init_app(app)
 
   app.register_blueprint(errors)
   app.register_blueprint(admin)
@@ -41,6 +42,7 @@ def create_app():
       flash("Failed to login the user", "danger")
   
   return app
+
 
 if __name__ == "__main__":
   app = create_app()
