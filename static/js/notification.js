@@ -12,9 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
   notificationsToggle.addEventListener("click", function (e) {
     e.stopPropagation();
     notificationsPanel.classList.toggle("show");
-    if (notificationsPanel.classList.contains("show")) {
-      loadNotifications();
-    }
   });
 
   // Load notifications
@@ -112,9 +109,8 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(`/notifications/${id}/read`, { method: "POST" });
   }
 
-  // Poll for new notifications every 30 seconds
   setInterval(updateBadgeCount, 30000);
+  setInterval(loadNotifications, 3600);
 
-  // Initial load
   updateBadgeCount();
 });

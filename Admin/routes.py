@@ -71,7 +71,7 @@ def clinic_branches():
 
   return CachedResponse(
     response = make_response(render_template("Main/select-branch.html", **context)),
-    timeout=300
+    timeout=600
   )
 
 @admin.route("/select-branch", methods=["POST"])
@@ -198,14 +198,14 @@ def dashboard():
   
   return CachedResponse (
     response = make_response(render_template("Main/home.html", **context)),
-    timeout=300,
+    timeout=600,
   )
 
 @admin.route("/find-patient/<string:search_text>")
 @login_required
 @fresh_login_required
 @branch_required()
-@cache.cached(timeout=300)
+@cache.cached(timeout=600)
 def patient_search(search_text):
   patients = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%"), Patients.clinic_id == session["clinic_id"]).all()
   patients_count = Patients.query.filter(Patients.first_name.like("%" + search_text.capitalize() + "%"), Patients.clinic_id == session["clinic_id"]).count()
@@ -238,14 +238,13 @@ def add_medicine():
       )
       db.session.add(new_medicine)
       db.session.commit()
-      if not form.is_global.data:
-        new_inventory = Inventory(
-          quantity = form.quantity.data,
-          medicine_id = new_medicine.id,
-          clinic_id = session["clinic_id"]
-        )
-        db.session.add(new_inventory)
-        db.session.commit()
+      new_inventory = Inventory(
+        quantity = form.quantity.data,
+        medicine_id = new_medicine.id,
+        clinic_id = session["clinic_id"]
+      )
+      db.session.add(new_inventory)
+      db.session.commit()
       flash('Medicine added successfully!', 'success')
       return redirect(url_for('admin.dashboard'))
         
@@ -455,7 +454,7 @@ def add_patient():
 @fresh_login_required
 @branch_required()
 @role_required(["Admin", "Clerk"])
-@cache.cached(timeout=300)
+@cache.cached(timeout=600)
 def get_districts(region):
   return jsonify(districts=region_districts.get(region, []))
 
@@ -548,7 +547,6 @@ def remove_staff(staff_id):
 @fresh_login_required
 @branch_required()
 @role_required(["Admin", "Clerk"])
-@cache.cached(timeout=300)
 def patient_profile(patient_id):
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
@@ -573,7 +571,7 @@ def patient_profile(patient_id):
 
   return CachedResponse(
     response = make_response(render_template('Main/patient-profile.html', **context)),
-    timeout=300
+    timeout=600
   ) 
 
 @admin.route("/create-appointment/<int:patient_id>")
@@ -652,7 +650,7 @@ def appointment(appointment_id):
 
   return CachedResponse(
     response = make_response(render_template("Main/appointment.html", **context)),
-    timeout=300
+    timeout=600
   ) 
 
 @admin.route("/lab-analysis/<int:appointment_id>", methods=["POST"])
@@ -1262,5 +1260,5 @@ def analytics():
 
   return CachedResponse(
     response = make_response(render_template("Main/analytics.html", **context)),
-    timeout=300
+    timeout=600
   ) 

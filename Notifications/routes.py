@@ -23,5 +23,5 @@ def mark_notification_read(notification_id):
 @notifications.route('/notifications/read-all', methods=['POST'])
 @login_required
 def mark_all_notifications_read():
-  NotificationService.mark_all_as_read(current_user.id)
+  NotificationService.mark_all_as_read(session["clinic_id"])
   return jsonify({'success': True})
