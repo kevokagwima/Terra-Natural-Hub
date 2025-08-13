@@ -1,7 +1,7 @@
-from flask import Flask, Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, make_response
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, make_response
 from flask_redis import FlaskRedis
 from flask_caching import Cache, CachedResponse
-from flask_login import login_required, fresh_login_required
+from flask_login import login_required, fresh_login_required, current_user
 from Models.base_model import db, get_local_time
 from Models.users import Role
 from Models.users import Patients, PatientAddress, Staff
@@ -14,6 +14,7 @@ from Models.prescription import Prescription, PrescriptionDetails
 from Models.diagnosis import Diagnosis, DiagnosisDetails
 from Models.clinic import Clinic, ClinicType
 from .form import AddPatientForm, DiagnosisForm, PrescriptionForm, LabAnalysisForm, AddDiseaseForm, AddMedicineForm, FeedbackForm, AddClinicForm, UpdatedPasswordForm
+from Utils.notification_service import NotificationService
 from Auth.form import StaffRegistrationForm
 from Documents.export_pdf import generate_payment_pdf
 from decorator import role_required, branch_required
@@ -144,7 +145,6 @@ def load_clinic(branch_name):
 @admin.route("/remove/branch/<string:branch_name>")
 @login_required
 @fresh_login_required
-@branch_required()
 @role_required(["Admin"])
 def remove_clinic(branch_name):
   cache.clear()
@@ -606,7 +606,6 @@ def create_appointment(patient_id):
 @fresh_login_required
 @branch_required()
 @role_required(["Admin", "Lab Tech", "Clerk"])
-@cache.cached(timeout=300)
 def appointment(appointment_id):
   appointment = Appointment.query.filter_by(unique_id=appointment_id).first()
   if not appointment:
@@ -651,7 +650,10 @@ def appointment(appointment_id):
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template("Main/appointment.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/appointment.html", **context)),
+    timeout=300
+  ) 
 
 @admin.route("/lab-analysis/<int:appointment_id>", methods=["POST"])
 @login_required
@@ -803,6 +805,10 @@ def diagnosis_details(diagnosis_id, diagnosed_diseases_ids):
     )
     db.session.add(new_diagnosis_detail)
     db.session.commit()
+    NotificationService.create_diagnosis_notification(
+      diagnosis.id,
+      f"{diagnosis.patient_diagnosis.first_name} {diagnosis.patient_diagnosis.last_name}"
+    )
 
 def remove_diagnosis_disease(diagnosis_id):
   diagnosis = Diagnosis.query.filter_by(id=diagnosis_id).first()
@@ -873,6 +879,10 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
       db.session.add(new_prescription_detail)
       flash("Prescription saved successfully", "success")
       db.session.commit()
+      NotificationService.create_prescription_notification(
+        prescription.id,
+        f"{prescription.patient_prescription.first_name} {prescription.patient_prescription.last_name}"
+      )
 
 def calculate_prescription_total(prescription_id):
   prescription = Prescription.query.get(prescription_id)
@@ -998,6 +1008,11 @@ def record_transaction(prescription_id):
   )
   db.session.add(new_payment)
   db.session.commit()
+  NotificationService.create_payment_notification(
+    new_payment.id,
+    new_payment.amount,
+    f"{new_payment.patient_payment.first_name} {new_payment.patient_payment.last_name}"
+  )
 
 @admin.route("/export/transaction/<int:payment_id>")
 @login_required

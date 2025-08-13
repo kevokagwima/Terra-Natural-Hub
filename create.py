@@ -7,6 +7,7 @@ from Models.diagnosis import *
 from Models.medicine import *
 from Models.prescription import *
 from Models.payment import *
+from Models.notification import *
 from config import Config
 
 app = Flask(__name__)

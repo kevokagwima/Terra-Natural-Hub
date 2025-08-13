@@ -95,3 +95,10 @@ window.addEventListener("click", (e) => {
     branchmodal.style.display = "none";
   }
 });
+
+const notification_bell = document.querySelector(".fa-bell");
+const notification_box = document.querySelector(".notifications-container");
+
+notification_bell.addEventListener("click", () => {
+  notification_box.classList.toggle("show-notification-box");
+});

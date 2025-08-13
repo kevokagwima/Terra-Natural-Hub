@@ -4,6 +4,7 @@ from Models.diagnosis import Diagnosis
 from Models.prescription import Prescription
 from Models.payment import Payment
 from Models.lab_analysis import LabAnalysis
+from Models.notification import Notification
 
 class ClinicType(BaseModel, db.Model):
   __tablename__ = "clinic_type"
@@ -30,6 +31,7 @@ class Clinic(BaseModel, db.Model):
   staff = db.relationship("Staff", backref="clinic_staff", lazy=True)
   lab_analysis = db.relationship("LabAnalysis", backref="clinic_labanalysis", lazy=True)
   inventory = db.relationship("Inventory", backref="clinic_inventory", lazy=True)
+  notification = db.relationship("Notification", backref="clinic_notifications", lazy=True)
 
   def __repr__(self):
     return f"{self.name}"

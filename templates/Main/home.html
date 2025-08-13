@@ -58,6 +58,27 @@ Home
   <div class="header">
     <div class="page-title">
       <h1>Dashboard</h1>
+      <div class="notifications-dropdown">
+        <button class="notifications-toggle">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" id="notification-badge">0</span>
+        </button>
+
+        <div class="notifications-panel">
+          <div class="notifications-header">
+            <h4>Notifications</h4>
+            <button class="mark-all-read">Mark all as read</button>
+          </div>
+
+          <div class="notifications-list" id="notifications-list">
+            <!-- Notifications will be loaded here via JavaScript -->
+            <div class="empty-state">
+              <i class="fas fa-bell-slash"></i>
+              <p>No new notifications</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="search-bar">
       <i class="fas fa-search"></i>
@@ -937,7 +958,7 @@ Home
               <span style="text-transform: capitalize;">{{ payment.patient_payment.gender }}</span>
               <span>ID: PT - {{ payment.patient_payment.unique_id }}</span>
               {% if payment.date_paid %}
-              <span>Date Paid: {{ payment.date_paid.strftime("%B %d, %Y") }}</span>
+              <span>Date Paid: {{ payment.date_paid.strftime("%B %d, %Y at %I:%M %p") }}</span>
               {% endif %}
             </div>
           </div>
@@ -1045,6 +1066,7 @@ Home
 
 {% block script %}
 <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+<script src="{{ url_for('static', filename='js/notification.js') }}"></script>
 <script src="{{ url_for('static', filename='js/patient-search.js') }}"></script>
 <script src="{{ url_for('static', filename='js/search.js') }}"></script>
 <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>

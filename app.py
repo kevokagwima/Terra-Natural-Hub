@@ -8,6 +8,7 @@ from flask_bcrypt import Bcrypt
 from Errors.handlers import errors
 from Admin.routes import admin, cache, redis_client
 from Auth.routes import auth
+from Notifications.routes import notifications
 
 def create_app():
   app = Flask(__name__)
@@ -20,10 +21,13 @@ def create_app():
   app.register_blueprint(errors)
   app.register_blueprint(admin)
   app.register_blueprint(auth)
+  app.register_blueprint(notifications)
   login_manager = LoginManager()
 
   login_manager.blueprint_login_views = {
+    'auth': '/auth/signin',
     'admin': '/auth/signin',
+    'notifications': '/auth/signin',
   }
   login_manager.login_message="Please Login or Sign Up to access this page"
   login_manager.login_message_category="info"
