@@ -1,7 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const notificationDropdown = document.querySelector(
-    ".notifications-dropdown"
-  );
   const notificationsToggle = document.querySelector(".notifications-toggle");
   const notificationsPanel = document.querySelector(".notifications-panel");
   const notificationsList = document.getElementById("notifications-list");
@@ -16,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Load notifications
   function loadNotifications() {
-    fetch("/notifications?limit=5")
+    fetch("/notifications")
       .then((response) => response.json())
       .then((notifications) => {
         if (notifications.length === 0) {
@@ -88,6 +85,10 @@ document.addEventListener("DOMContentLoaded", function () {
       payment: '<i class="fas fa-money-bill-wave"></i>',
       inventory: '<i class="fas fa-pills"></i>',
       appointment: '<i class="fas fa-calendar-check"></i>',
+      patient: '<i class="fas fa-user-injured"></i>',
+      staff: '<i class="fas fa-user"></i>',
+      medicine: '<i class="fas fa-capsules"></i>',
+      disease: '<i class="fas fa-disease"></i>',
     };
     return icons[type] || icons["system"];
   }
@@ -110,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   setInterval(updateBadgeCount, 30000);
-  setInterval(loadNotifications, 3600);
+  setInterval(loadNotifications, 1000);
 
   updateBadgeCount();
 });

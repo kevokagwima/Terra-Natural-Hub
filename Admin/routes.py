@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, make_response
 from flask_redis import FlaskRedis
 from flask_caching import Cache, CachedResponse
-from flask_login import login_required, fresh_login_required, current_user
+from flask_login import login_required, fresh_login_required
 from Models.base_model import db, get_local_time
 from Models.users import Role
 from Models.users import Patients, PatientAddress, Staff
@@ -245,6 +245,11 @@ def add_medicine():
       )
       db.session.add(new_inventory)
       db.session.commit()
+      NotificationService.create_new_medicine_notification(
+        new_medicine.id,
+        new_medicine.name,
+        new_inventory.quantity
+      )
       flash('Medicine added successfully!', 'success')
       return redirect(url_for('admin.dashboard'))
         
@@ -258,7 +263,10 @@ def add_medicine():
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template("Main/add-medicine.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/add-medicine.html", **context)),
+    timeout=600
+  )
 
 @admin.route("/edit/medicine/<int:inventory_id>", methods=["POST", "GET"])
 @login_required
@@ -294,7 +302,10 @@ def edit_medicine(inventory_id):
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template("Main/add-medicine.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/add-medicine.html", **context)),
+    timeout=600
+  )
 
 @admin.route("/remove/medicine/<int:inventory_id>")
 @login_required
@@ -308,6 +319,10 @@ def remove_medicine(inventory_id):
     flash("Inventory not found", category="danger")
     return redirect(url_for("admin.dashboard"))  
   try:
+    NotificationService.create_remove_medicine_notification(
+      inventory.id,
+      f"{inventory.inventory.name}"
+    )
     db.session.delete(inventory)
     db.session.commit()
     flash("Medicine removed successfully", "success")
@@ -332,6 +347,10 @@ def add_disease():
       db.session.add(new_disease)
       db.session.commit()
       flash('Disease added successfully!', 'success')
+      NotificationService.create_new_disease_notification(
+        new_disease.id,
+        new_disease.name
+      )
       return redirect(url_for('admin.dashboard'))
         
     except Exception as e:
@@ -344,7 +363,10 @@ def add_disease():
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template("Main/add-disease.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/add-disease.html", **context)),
+    timeout=600
+  )
 
 @admin.route("/edit/disease/<int:disease_id>", methods=["POST", "GET"])
 @login_required
@@ -376,7 +398,10 @@ def edit_disease(disease_id):
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template("Main/add-disease.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/add-disease.html", **context)),
+    timeout=600
+  )
 
 @admin.route("/remove/disease/<int:disease_id>")
 @login_required
@@ -391,6 +416,10 @@ def remove_disease(disease_id):
     return redirect(url_for("admin.dashboard"))
   
   try:
+    NotificationService.create_remove_disease_notification(
+      disease.id,
+      f"{disease.name}"
+    )
     db.session.delete(disease)
     db.session.commit()
     flash("Disease removed successfully", "success")
@@ -434,6 +463,10 @@ def add_patient():
       db.session.commit()
       new_patient.address_id = new_patient_address.id
       db.session.commit()
+      NotificationService.create_new_patient_notification(
+        new_patient.id,
+        f"{new_patient.first_name} {new_patient.last_name}"
+      )
       flash('Patient created successfully!', 'success')
       return redirect(url_for('admin.patient_profile', patient_id=new_patient.unique_id))
         
@@ -447,7 +480,10 @@ def add_patient():
     "clinic": Clinic.query.get(session["clinic_id"])
   }
 
-  return render_template("Main/add-patient.html", **context)
+  return CachedResponse(
+    response = make_response(render_template("Main/add-patient.html", **context)),
+    timeout=600
+  )
 
 @admin.route("/get-districts/<region>")
 @login_required
@@ -521,6 +557,10 @@ def remove_patient(patient_id):
   if not patient:
     flash("Patient not found", "danger")
     return redirect(url_for("admin.dashboard"))
+  NotificationService.create_remove_patient_notification(
+    patient.id,
+    f"{patient.first_name} {patient.last_name}"
+  )
   db.session.delete(patient)
   db.session.commit()
   flash("Patient removed successfully", "success")
@@ -537,6 +577,11 @@ def remove_staff(staff_id):
   if not staff:
     flash("Staff not found", "danger")
   else:
+    NotificationService.create_remove_staff_notification(
+      staff.id,
+      f"{staff.staff_role.name}",
+      f"{staff.first_name} {staff.last_name}"
+    )
     db.session.delete(staff)
     db.session.commit()
     flash("Staff removed successfully", "success")
@@ -595,6 +640,10 @@ def create_appointment(patient_id):
     )
     db.session.add(new_appointment)
     db.session.commit()
+    NotificationService.create_new_appointment_notification(
+      new_appointment.id,
+      f"{patient.first_name} {patient.last_name}"
+    )
     return redirect(url_for("admin.appointment", appointment_id=new_appointment.unique_id))
 
   return redirect(url_for("admin.appointment", appointment_id=existing_appointment.unique_id))
@@ -805,7 +854,8 @@ def diagnosis_details(diagnosis_id, diagnosed_diseases_ids):
     db.session.commit()
     NotificationService.create_diagnosis_notification(
       diagnosis.id,
-      f"{diagnosis.patient_diagnosis.first_name} {diagnosis.patient_diagnosis.last_name}"
+      f"{diagnosis.patient_diagnosis.first_name} {diagnosis.patient_diagnosis.last_name}",
+      f"{disease.name}",
     )
 
 def remove_diagnosis_disease(diagnosis_id):
@@ -853,6 +903,7 @@ def add_prescription(appointment_id):
       calculate_prescription_total(existing_prescription.id)
       form.populate_obj(existing_prescription)
 
+    flash("Prescription saved successfully", "success")
     db.session.commit()
   except Exception as e:
     db.session.rollback()
@@ -875,11 +926,11 @@ def prescription_details(prescription_id, prescribed_medicine_ids):
         clinic_id = session["clinic_id"]
       )
       db.session.add(new_prescription_detail)
-      flash("Prescription saved successfully", "success")
       db.session.commit()
       NotificationService.create_prescription_notification(
         prescription.id,
-        f"{prescription.patient_prescription.first_name} {prescription.patient_prescription.last_name}"
+        f"{prescription.patient_prescription.first_name} {prescription.patient_prescription.last_name}",
+        f"{medicine.name}"
       )
 
 def calculate_prescription_total(prescription_id):
@@ -925,6 +976,10 @@ def complete_appointment(appointment_id):
     appointment.is_active = False
     appointment.date_closed = get_local_time()
     db.session.commit()
+    NotificationService.create_appointment_ended_notification(
+      appointment.id,
+      f"{appointment.patient_appointment.first_name} {appointment.patient_appointment.last_name}"
+    )
     flash("Appointment completed successfully", "success")
   except Exception as e:
     db.session.rollback()

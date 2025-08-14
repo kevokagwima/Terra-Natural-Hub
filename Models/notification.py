@@ -7,6 +7,10 @@ class NotificationType(Enum):
   PAYMENT = 'payment'
   INVENTORY = 'inventory'
   APPOINTMENT = 'appointment'
+  PATIENT = 'patient'
+  STAFF = 'staff'
+  MEDICINE = 'medicine'
+  DISEASE = 'disease'
 
 class Notification(BaseModel, db.Model):
   clinic_id = db.Column(db.Integer, db.ForeignKey('clinic.id'), nullable=False)

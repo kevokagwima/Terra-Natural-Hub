@@ -8,6 +8,7 @@ from .form import StaffRegistrationForm, StaffLoginForm
 from Admin.form import UpdatedPasswordForm
 from Admin.routes import cache
 from Utils.email import send_email
+from Utils.notification_service import NotificationService
 from decorator import role_required
 import secrets, string
 
@@ -46,6 +47,11 @@ def signup():
           "message": f"<h2>Dear, {new_staff.first_name} {new_staff.last_name}</h2><p>Your TNH account has been created successfully. A temporary password has been created for your account. After login you can update your password to your password of choice.</p><br><p>Here's your temporary password: {generated_password}<b></b></p><br><h4>Welcome to the team</h4>"
         }
         send_email(**email_message)
+        NotificationService.create_new_staff_notification(
+          new_staff.id,
+          f"{new_staff.staff_role.name}",
+          f"{new_staff.first_name} {new_staff.last_name}",
+        )
         return redirect(url_for('admin.dashboard'))
       else:
         flash("You've reached maximum number of staff allowed", category="warning")
