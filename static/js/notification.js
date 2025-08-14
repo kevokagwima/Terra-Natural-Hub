@@ -110,7 +110,6 @@ document.addEventListener("DOMContentLoaded", function () {
     fetch(`/notifications/${id}/read`, { method: "POST" });
   }
 
-  setInterval(updateBadgeCount, 30000);
   setInterval(loadNotifications, 1000);
 
   updateBadgeCount();

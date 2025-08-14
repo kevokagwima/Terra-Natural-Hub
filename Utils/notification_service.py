@@ -145,7 +145,7 @@ class NotificationService:
   @staticmethod
   def create_new_medicine_notification(medicine_id, medicine_name, medicine_quantity):
     title = "New Medicine Added"
-    message = f"{medicine_quantity} pieces of {medicine_name} added"
+    message = f"{medicine_quantity} pieces of medicine {medicine_name} added"
     return NotificationService.create_notification(
       NotificationType.MEDICINE,
       title,

@@ -72,7 +72,7 @@ class AddMedicineForm(FlaskForm):
   name = StringField('Medicine Name', validators=[DataRequired(message="Medicine name field required"), Length(max=200)])
   price = IntegerField('Medicine Price', validators=[DataRequired(message="Medicine price field required"), NumberRange(min=1, message="Minimum price is Tsh 1")])
   quantity = IntegerField('Medicine Quantity', validators=[Optional(), NumberRange(min=1, message="Minimum amount is 1")])
-  # is_global = BooleanField("Add to all branches", default=True)
+  # all_clinic = BooleanField("Add to all branches", default=True)
 
 class AddDiseaseForm(FlaskForm):
   name = StringField('Disease Name', validators=[DataRequired(message="Disease name field required"), Length(max=200)])
@@ -97,7 +97,6 @@ class AddClinicForm(FlaskForm):
   branch_type = SelectField(label="Branch Type", choices=[("","Select Branch Type"),("Headquarters","Headquarters"), ("Other","Other")], validators=[DataRequired(message="Branch Type required")])
   region = StringField('Region', validators=[DataRequired(message="Region field required")])
   district = StringField('District', validators=[DataRequired(message="District field required")])
-
 
 class UpdatedPasswordForm(FlaskForm):
   new_password = PasswordField("New Password", validators=[DataRequired(message="New password field is required")])
