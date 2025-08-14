@@ -28,8 +28,8 @@
   position: absolute;
   top: -5px;
   right: -5px;
-  background: #ef233c;
-  color: white;
+  background: red;
+  color: var(--white);
   border-radius: 50%;
   width: 15px;
   height: 15px;

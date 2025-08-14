@@ -110,7 +110,7 @@ Home
 
         <div class="left">
           <i class="fas fa-prescription-bottle"></i>
-          {{ successfull_transactions|count }} prescriptions paid
+          {{ successfull_transactions|count }} prescription{% if successfull_transactions|count != 1 %}s{% endif %} paid
         </div>
       </div>
     </div>
