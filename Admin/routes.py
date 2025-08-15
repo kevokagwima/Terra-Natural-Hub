@@ -136,17 +136,20 @@ def load_clinic(branch_name):
     if not clinic:
       flash("Branch not found", "danger")
       return redirect(url_for('admin.clinic_branches'))  
+    if not clinic.is_active:
+      flash("Branch is closed, cannot navigate to it", "info")
+      return redirect(url_for('admin.clinic_branches'))  
     session["clinic_id"] = clinic.id
     return redirect(url_for('admin.dashboard'))
   except Exception as e:
     flash(f"{str(e)}", "danger")
     return redirect(url_for('admin.clinic_branches'))
 
-@admin.route("/remove/branch/<string:branch_name>")
+@admin.route("/close-branch/<string:branch_name>")
 @login_required
 @fresh_login_required
 @role_required(["Admin"])
-def remove_clinic(branch_name):
+def close_clinic(branch_name):
   cache.clear()
   try:
     clinic = Clinic.query.filter_by(alias=branch_name).first()
@@ -155,11 +158,32 @@ def remove_clinic(branch_name):
     else:
       clinic_count = Clinic.query.count()
       if clinic_count != 1:
-        db.session.delete(clinic)
+        clinic.is_active = False
         db.session.commit()
-        flash("Branch removed successfully", "success")
+        flash(f"Branch {clinic.name} closed successfully", "success")
       else:
         flash("You need to have at least one branch registered", "warning")
+    return redirect(url_for('admin.clinic_branches'))
+  except Exception as e:
+    flash(f"{str(e)}", "danger")
+    return redirect(url_for('admin.clinic_branches'))
+
+@admin.route("/reopen-branch/<string:branch_name>")
+@login_required
+@fresh_login_required
+@role_required(["Admin"])
+def reopen_clinic(branch_name):
+  cache.clear()
+  try:
+    clinic = Clinic.query.filter_by(alias=branch_name).first()
+    if not clinic:
+      flash("Branch not found", "danger")
+    elif clinic.is_active:
+      flash("Cannot reopen an already open clinic", "info")
+    else:
+      clinic.is_active = True
+      db.session.commit()
+      flash(f"Branch {clinic.name} has been reopend successfully", "success")
     return redirect(url_for('admin.clinic_branches'))
   except Exception as e:
     flash(f"{str(e)}", "danger")

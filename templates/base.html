@@ -31,7 +31,7 @@
         {% if current_user.is_authenticated %}
         {% if clinic and current_user.staff_role.name == "Admin" %}
         <a id="branch-link" href="{{ url_for('admin.clinic_branches') }}">
-          <span>{{ clinic.name }}</span>
+          <span title="{{ clinic.name }}">{{ clinic.name|truncate(20) }}</span>
           <i class="fas fa-chevron-right"></i>
         </a>
         {% elif current_user.staff_role.name != "Admin" %}

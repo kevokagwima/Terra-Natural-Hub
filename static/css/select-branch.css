@@ -27,7 +27,7 @@
 
 .branches-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
   gap: 1rem;
 }
 
@@ -42,6 +42,7 @@
 
 .branch-box {
   display: grid;
+  position: relative;
 }
 
 .branch-name {
@@ -51,6 +52,12 @@
 .branch-address {
   font-size: 0.875rem;
   color: var(--grey);
+}
+
+.status-badge {
+  position: absolute;
+  right: 0;
+  padding-block: 0.15rem;
 }
 
 .branch-stats-box {
@@ -80,18 +87,31 @@
 }
 
 #navigate-link button,
-#remove-link button {
+#remove-link button,
+#open-link button {
   background-color: var(--light-green);
   width: 100%;
   color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.fa-arrow-right {
+  rotate: -40deg;
 }
 
 #remove-link button {
   background-color: red;
 }
 
-#navigate-link button:hover {
+#open-link button {
   background-color: var(--yellow);
+}
+
+#navigate-link button:hover {
+  background-color: var(--light-green-2);
 }
 
 /* Modal Styles */

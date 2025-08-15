@@ -30,6 +30,11 @@ Select Branch
           <p class="branch-address">
             {{ clinic.region }}, {{ clinic.district }}
           </p>
+          {% if clinic.is_active %}
+          <span class="status-badge completed">Open</span>
+          {% else %}
+          <span class="status-badge cancelled">Closed</span>
+          {% endif %}
         </div>
         <div class="branch-stats-box">
           <div class="branch-stat">
@@ -71,18 +76,27 @@ Select Branch
           </div>
         </div>
         <div class="branch-action">
+          {% if clinic.is_active %}
           <a id="navigate-link" href="{{ url_for('admin.load_clinic', branch_name=clinic.alias) }}">
             <button>
               Navigate
-              <i class="fas fa-chevron-right"></i>
+              <i class="fas fa-arrow-right"></i>
             </button>
           </a>
-          <a id="remove-link" href="{{ url_for('admin.remove_clinic', branch_name=clinic.alias) }}">
+          <a id="remove-link" href="{{ url_for('admin.close_clinic', branch_name=clinic.alias) }}">
             <button>
-              Remove
-              <i class="fas fa-trash"></i>
+              Close
+              <i class="fas fa-lock"></i>
             </button>
           </a>
+          {% else %}
+          <a id="open-link" href="{{ url_for('admin.reopen_clinic', branch_name=clinic.alias) }}">
+            <button>
+              Reopen
+              <i class="fas fa-key"></i>
+            </button>
+          </a>
+          {% endif %}
         </div>
       </div>
       {% endfor %}
