@@ -79,9 +79,9 @@ def clinic_branches():
 @fresh_login_required
 @role_required(["Admin"])
 def add_branch():
-  cache.clear()
   form = AddClinicForm()
   if form.validate_on_submit():
+    cache.clear()
     try:
       new_clinic = Clinic(
         name = form.name.data,
@@ -163,6 +163,7 @@ def close_clinic(branch_name):
         flash(f"Branch {clinic.name} closed successfully", "success")
       else:
         flash("You need to have at least one branch registered", "warning")
+      session.pop("clinic_id", None)
     return redirect(url_for('admin.clinic_branches'))
   except Exception as e:
     flash(f"{str(e)}", "danger")
@@ -274,6 +275,11 @@ def add_medicine():
         new_medicine.name,
         new_inventory.quantity
       )
+      if new_inventory.quantity < 5:
+        NotificationService.create_low_inventory_notification(
+          new_medicine.name,
+          new_inventory.quantity
+        )
       flash('Medicine added successfully!', 'success')
       return redirect(url_for('admin.dashboard'))
         
@@ -298,7 +304,6 @@ def add_medicine():
 @branch_required()
 @role_required(["Admin", "Stock Controller"])
 def edit_medicine(inventory_id):
-  cache.clear()
   inventory = Inventory.query.filter_by(unique_id=inventory_id).first()
   if not inventory:
     flash("Medicine not found", category="danger")
@@ -307,6 +312,7 @@ def edit_medicine(inventory_id):
   form = AddMedicineForm(obj=inventory.inventory)
 
   if form.validate_on_submit():
+    cache.clear()
     try:
       inventory.inventory.name = form.name.data
       inventory.inventory.price = form.price.data
@@ -314,6 +320,11 @@ def edit_medicine(inventory_id):
         inventory.quantity = inventory.quantity + form.quantity.data
       db.session.commit()
       flash("Medicine updated successfully", "success")
+      if inventory.quantity < 5:
+        NotificationService.create_low_inventory_notification(
+          inventory.inventory.name,
+          inventory.quantity
+        )
       return redirect(url_for("admin.dashboard"))
     
     except Exception as e:
@@ -398,7 +409,6 @@ def add_disease():
 @branch_required()
 @role_required(["Admin"])
 def edit_disease(disease_id):
-  cache.clear()
   disease = Disease.query.filter_by(unique_id=disease_id).first()
   if not disease:
     flash("Disease not found", category="danger")
@@ -407,6 +417,7 @@ def edit_disease(disease_id):
   form = AddMedicineForm(obj=disease)
 
   if form.validate_on_submit():
+    cache.clear()
     try:
       form.populate_obj(disease)
       db.session.commit()
@@ -524,7 +535,6 @@ def get_districts(region):
 @branch_required()
 @role_required(["Admin", "Clerk"])
 def edit_patient(patient_id):
-  cache.clear()
   patient = Patients.query.filter_by(unique_id = patient_id).first()
   if not patient:
     flash("Patient not found", "danger")
@@ -538,6 +548,7 @@ def edit_patient(patient_id):
     form.district.choices = [(d, d) for d in region_districts.get(region, [])]
       
   if form.validate_on_submit():
+    cache.clear()
     try:
       form.populate_obj(patient)
       if not patient_address:
@@ -757,7 +768,6 @@ def add_lab_analysis(appointment_id):
       create_lab_analysis_details(new_lab_analysis.id, form)
     else:
       create_lab_analysis_details(existing_lab_analysis.id, form)
-    db.session.commit()
     flash("Lab Test Submitted Successfully", "success")
   except Exception as e:
     db.session.rollback()
@@ -772,6 +782,13 @@ def create_lab_analysis_details(lab_analysis_id, form):
     result = form.result.data,
   )
   db.session.add(new_lab_detail)
+  db.session.commit()
+  NotificationService.create_lab_test_notification(
+    new_lab_detail.id,
+    f"{new_lab_detail.lab_analysis.patient_labtest.first_name} {new_lab_detail.lab_analysis.patient_labtest.last_name}",
+    new_lab_detail.test,
+    new_lab_detail.result,
+  )
 
 @admin.route("/remove-lab-test/<int:lab_analysis_id>")
 @login_required
@@ -785,6 +802,9 @@ def remove_lab_analysis(lab_analysis_id):
     flash("Lab test not found", "danger")
     return redirect(request.referrer)
   try:
+    lab_test = LabAnalysis.query.get(lab_analysis.lab_analysis_id)
+    if len(lab_test.lab_analysis_details) <= 1:
+      db.session.delete(lab_test)
     db.session.delete(lab_analysis)
     db.session.commit()
     flash("Lab test removed successfully", "success")
@@ -813,6 +833,10 @@ def approve_lab_analysis(lab_analysis_id):
     lab_analysis.is_approved = True
     lab_analysis.date_approved = get_local_time()
     db.session.commit()
+    NotificationService.create_lab_test_approval_notification(
+      lab_analysis.id,
+      f"{lab_analysis.patient_labtest.first_name} {lab_analysis.patient_labtest.last_name}"
+    )
     flash("Lab Test approved Successfully", "success")
   except Exception as e:
     flash(f"Error: {str(e)}", "danger")
@@ -1090,6 +1114,11 @@ def record_transaction(prescription_id):
     new_payment.amount,
     f"{new_payment.patient_payment.first_name} {new_payment.patient_payment.last_name}"
   )
+  if inventory.quantity < 5:
+    NotificationService.create_low_inventory_notification(
+      inventory.inventory.name,
+      inventory.quantity
+    )
 
 @admin.route("/export/transaction/<int:payment_id>")
 @login_required

@@ -468,7 +468,7 @@ Home
         </tr>
       </thead>
       <tbody>
-        {% for staff in staffs|sort(attribute="first_name") %}
+        {% for staff in staffs|sort(attribute="id") %}
         <tr id="patient-list">
           <td>
             <b>ST - {{ staff.unique_id }}</b>

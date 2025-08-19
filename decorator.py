@@ -22,7 +22,7 @@ def branch_required():
       clinics = Clinic.query.count()
       if not "clinic_id" in session or clinics == 0:
         flash("You need to select a branch to perform the specified action", "warning")
-        return redirect(url_for('admin.select_branch'))
+        return redirect(url_for('admin.clinic_branches'))
       else:
         return f(*args, **kwargs)
     return decorated_function

@@ -11,6 +11,7 @@ class NotificationType(Enum):
   STAFF = 'staff'
   MEDICINE = 'medicine'
   DISEASE = 'disease'
+  # LABTEST = 'labtest'
 
 class Notification(BaseModel, db.Model):
   clinic_id = db.Column(db.Integer, db.ForeignKey('clinic.id'), nullable=False)

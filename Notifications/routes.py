@@ -11,7 +11,7 @@ notifications = Blueprint('notifications', __name__)
 @fresh_login_required
 @branch_required()
 def get_notifications():
-  notifications = Notification.query.filter_by(clinic_id=session["clinic_id"]).order_by(Notification.id.desc()).all()
+  notifications = Notification.query.filter_by(clinic_id=session["clinic_id"]).order_by(Notification.id.desc()).limit(limit=10).all()
   
   return jsonify([n.to_dict() for n in notifications])
 

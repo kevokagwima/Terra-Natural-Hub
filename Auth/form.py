@@ -28,3 +28,8 @@ class StaffRegistrationForm(FlaskForm):
 class StaffLoginForm(FlaskForm):
   email_address = EmailField(label="Email Address", validators=[DataRequired(message="Email address field required")])
   password = PasswordField(label="Password", validators=[DataRequired(message="Password field required")])
+
+class ResetPasswordForm(FlaskForm):
+  email_address = EmailField(label="Email Address", validators=[DataRequired(message="Email address field required")])
+  new_password = PasswordField(label="New Password", validators=[DataRequired(message="Password field required")])
+  confirm_password = PasswordField(label="Confirm Password", validators=[EqualTo("new_password", message="Passwords do not match"), DataRequired(message="Confirm Password field required")])

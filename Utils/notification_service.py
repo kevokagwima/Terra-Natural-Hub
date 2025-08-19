@@ -61,6 +61,28 @@ class NotificationService:
     )
 
   @staticmethod
+  def create_lab_test_notification(lab_test_id, patient_name, lab_test, lab_result):
+    title = "New Lab Test Available"
+    message = f"Test for {lab_test} created for patient {patient_name}. Lab Results: {lab_result}"
+    return NotificationService.create_notification(
+      NotificationType.PATIENT,
+      title,
+      message,
+      lab_test_id
+    )
+  
+  @staticmethod
+  def create_lab_test_approval_notification(lab_test_id, patient_name):
+    title = "Lab Test Approved"
+    message = f"Lab test conducted for patient {patient_name} has been approved"
+    return NotificationService.create_notification(
+      NotificationType.PATIENT,
+      title,
+      message,
+      lab_test_id
+    )
+
+  @staticmethod
   def create_prescription_notification(prescription_id, patient_name, medicine_name):
     title = "New Prescription Created"
     message = f"Prescription for {patient_name} is ready. Prescribed {medicine_name}"
@@ -96,29 +118,12 @@ class NotificationService:
   @staticmethod
   def create_low_inventory_notification(medicine_name, current_quantity):
     title = "Low Medicine Stock"
-    message = f"{medicine_name} is running low ({current_quantity} remaining)"
+    message = f"Medicine {medicine_name} is running low only ({current_quantity}) remaining in stock"
     return NotificationService.create_notification(
       NotificationType.INVENTORY,
       title,
       message
     )
-
-  @staticmethod
-  def mark_as_read(notification_id):
-    notification = Notification.query.get(notification_id)
-    if notification:
-      notification.is_read = True
-      db.session.commit()
-      return True
-    return False
-
-  @staticmethod
-  def mark_all_as_read(clinic_id):
-    Notification.query.filter_by(clinic_id=clinic_id, is_read=False).update(
-      {'is_read': True},
-      synchronize_session=False
-    )
-    db.session.commit()
 
   @staticmethod
   def create_new_appointment_notification(appointment_id, patient_name):
@@ -185,3 +190,20 @@ class NotificationService:
       message,
       disease_id
     )
+
+  @staticmethod
+  def mark_as_read(notification_id):
+    notification = Notification.query.get(notification_id)
+    if notification:
+      notification.is_read = True
+      db.session.commit()
+      return True
+    return False
+
+  @staticmethod
+  def mark_all_as_read(clinic_id):
+    Notification.query.filter_by(clinic_id=clinic_id, is_read=False).update(
+      {'is_read': True},
+      synchronize_session=False
+    )
+    db.session.commit()
